@@ -25,6 +25,8 @@ export interface Question {
   explanation: ReactNode
   /** Extra picture shown after answering, for example the same vessel by day */
   reveal?: ReactNode
+  /** 'pictures' shows the options as a 2 × 2 grid of pictures */
+  layout?: 'pictures'
 }
 
 export interface Flashcard {

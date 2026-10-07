@@ -1,6 +1,6 @@
 import { newSeed } from '../../art/scenery'
 import BuoySvg from '../../buoyage/BuoySvg'
-import { getMark, MARK_IDS, type MarkId } from '../../buoyage/marks'
+import { getMark, MARK_IDS, type Mark, type MarkId, type Region } from '../../buoyage/marks'
 import { randomScene } from '../../buoyage/scene'
 import { IALA_THEORY } from '../../content/ialaTheory'
 import type { Generator, Question } from '../types'
@@ -30,6 +30,8 @@ export const buoyageGenerator: Generator = {
     }
     const region = ctx.region.buoyage
     const mark = getMark(key.slice(MARK_PREFIX.length) as MarkId, region)
+    // About one question in three is the other way round: pick the right picture
+    if (Math.random() < 0.35) return pickMark(key, mark, region)
     const others = sample(
       MARK_IDS.filter((id) => id !== mark.id).map((id) => getMark(id, region)),
       3,
@@ -89,6 +91,37 @@ export const buoyageGenerator: Generator = {
       ),
     }
   },
+}
+
+function pickMark(key: string, mark: Mark, region: Region): Question {
+  const others = sample(
+    MARK_IDS.filter((id) => id !== mark.id).map((id) => getMark(id, region)),
+    3,
+  )
+  return {
+    key,
+    category: 'buoyage',
+    prompt: `Region ${region}. Which picture shows ${markPhrase(mark.name)}?`,
+    layout: 'pictures',
+    options: shuffle([mark, ...others]).map((m) => ({
+      id: m.id,
+      label: m.name,
+      node: (
+        <div className="buoy-stage buoy-pick">
+          <BuoySvg mark={m} scene={randomScene(m, newSeed())} size={120} />
+        </div>
+      ),
+    })),
+    correctId: mark.id,
+    explanation: <>{mark.meaning}</>,
+  }
+}
+
+/** "West cardinal mark" -> "a west cardinal mark", "Preferred channel to port" -> "a “preferred channel to port” mark" */
+function markPhrase(name: string): string {
+  const n = name.charAt(0).toLowerCase() + name.slice(1)
+  const phrase = n.startsWith('preferred') ? `“${n}” mark` : n
+  return `${/^[aeiou]/i.test(phrase) ? 'an' : 'a'} ${phrase}`
 }
 
 function TheoryBack({ t }: { t: { options: string[]; why: string; source: string } }) {

@@ -4,10 +4,15 @@ import { getMark, MARK_IDS } from '../buoyage/marks'
 import { ACTION_TEXT, classify, makeEncounter, TEMPLATES } from '../colregs/encounter'
 import { COLREGS_THEORY } from '../content/colregsTheory'
 import { IALA_THEORY } from '../content/ialaTheory'
+import { LIGHTS_THEORY } from '../content/lightsTheory'
+import { SOUND_THEORY } from '../content/soundTheory'
+import { FLAGS_THEORY } from '../content/flagsTheory'
+import { DISTRESS_THEORY } from '../content/distressTheory'
+import { MORSE_THEORY } from '../content/morseTheory'
 import { fogAction, fogDistractors, FOG_SECTORS, makeFogScenario } from '../colregs/fog'
 import { FLAGS } from '../flags/flags'
-import { isVisible, nightSignature, project } from '../lights/geometry'
-import { makeLightQuestion } from '../lights/quiz'
+import { daySignature, isVisible, nightSignature, project } from '../lights/geometry'
+import { makeLightPickQuestion, makeLightQuestion, showsByDay } from '../lights/quiz'
 import { VESSELS, type ShipLight } from '../lights/vessels'
 import { fitsLevel, MORSE } from '../morse'
 import { SOUND_SIGNALS } from '../sound/signals'
@@ -175,12 +180,39 @@ describe('Rule 19 – restricted visibility', () => {
 
 describe('Theory questions', () => {
   it('have unique ids and four different options', () => {
-    for (const list of [COLREGS_THEORY, IALA_THEORY]) {
+    for (const list of [COLREGS_THEORY, IALA_THEORY, LIGHTS_THEORY, SOUND_THEORY, FLAGS_THEORY, DISTRESS_THEORY, MORSE_THEORY]) {
       const ids = new Set(list.map((q) => q.id))
       expect(ids.size).toBe(list.length)
       for (const q of list) {
-        expect(q.options.length).toBeGreaterThanOrEqual(2)
+        expect(q.options.length).toBe(4)
         expect(new Set(q.options).size).toBe(q.options.length)
+      }
+    }
+  })
+})
+
+describe('Picture-choice light questions', () => {
+  it('always has exactly one picture that can be the asked-for vessel', () => {
+    const sigs = (v: (typeof VESSELS)[number], night: boolean) => {
+      const out = new Set<string>()
+      for (const x of v.variants) {
+        if (night) for (const a of [0, 45, 90, 135, 180, -135, -90, -45]) out.add(nightSignature(x, a))
+        else if (showsByDay(x)) out.add(daySignature(x))
+      }
+      return out
+    }
+    for (const v of VESSELS) {
+      for (let i = 0; i < 30; i++) {
+        const q = makeLightPickQuestion(v.id)
+        expect(q.pictures.length).toBe(4)
+        expect(q.pictures[0].vessel.id).toBe(v.id)
+        const sigOf = (p: (typeof q.pictures)[number]) =>
+          q.night ? nightSignature(p.variant, p.aspect.deg) : daySignature(p.variant)
+        const targetSigs = sigs(v, q.night)
+        for (const p of q.pictures.slice(1)) expect(targetSigs.has(sigOf(p))).toBe(false)
+        // A motor-sailer shows power-driven lights at night, so she only counts by day
+        for (const o of VESSELS.filter((o) => o.id !== v.id && !(q.night && o.dayOnly))) expect(sigs(o, q.night).has(sigOf(q.pictures[0]))).toBe(false)
+        expect(new Set(q.pictures.map((p) => p.vessel.id)).size).toBe(4)
       }
     }
   })

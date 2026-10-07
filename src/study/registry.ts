@@ -6,16 +6,22 @@ import { flagsGenerator } from './generators/flags'
 import { lightsGenerator } from './generators/lights'
 import { morseGenerator } from './generators/morse'
 import { soundGenerator } from './generators/sound'
+import { withTheory } from './generators/theory'
 import type { Generator } from './types'
+import { DISTRESS_THEORY } from '../content/distressTheory'
+import { FLAGS_THEORY } from '../content/flagsTheory'
+import { LIGHTS_THEORY } from '../content/lightsTheory'
+import { MORSE_THEORY } from '../content/morseTheory'
+import { SOUND_THEORY } from '../content/soundTheory'
 
 export const GENERATORS: Partial<Record<CategoryId, Generator>> = {
-  morse: morseGenerator,
+  morse: withTheory(morseGenerator, MORSE_THEORY, 'Morse'),
   buoyage: buoyageGenerator,
-  lights: lightsGenerator,
+  lights: withTheory(lightsGenerator, LIGHTS_THEORY, 'Lights & shapes'),
   colregs: colregsGenerator,
-  sound: soundGenerator,
-  flags: flagsGenerator,
-  distress: distressGenerator,
+  sound: withTheory(soundGenerator, SOUND_THEORY, 'Sound signals'),
+  flags: withTheory(flagsGenerator, FLAGS_THEORY, 'Signal flags'),
+  distress: withTheory(distressGenerator, DISTRESS_THEORY, 'Distress'),
 }
 
 /** The categories mixed in the final exam */

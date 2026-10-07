@@ -17,9 +17,11 @@ interface Props {
   silhouette?: boolean
   scene?: ShipScene
   size?: number
+  /** Crop in towards the vessel, for small pictures (1 = whole scene) */
+  zoom?: number
 }
 
-export default function VesselSvg({ variant, night = false, silhouette = true, scene, size = 300 }: Props) {
+export default function VesselSvg({ variant, night = false, silhouette = true, scene, size = 300, zoom = 1 }: Props) {
   const uid = useId().replace(/:/g, '')
   const sc = scene ?? plainShipScene(0)
   const spec = HULLS[variant.hull]
@@ -44,9 +46,29 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
   const core = Math.max(1.8, 3.1 * sc.scale)
   const glow = 5 + 7 * sc.scale
 
+  // Cropped view box, kept inside the scene. At night it is centred on the
+  // visible lights and never crops any of them; by day on the vessel.
+  let z = zoom
+  let cx = sc.x
+  let cy = waterY - (H / zoom) * 0.12
+  if (zoom > 1 && night && lights.length > 0) {
+    const pts = lights.map((l) => toScreen(l))
+    const xs = pts.map((p) => p[0])
+    const ys = pts.map((p) => p[1])
+    const bw = Math.max(...xs) - Math.min(...xs)
+    const bh = Math.max(...ys) - Math.min(...ys)
+    z = Math.max(1, Math.min(zoom, (W * 0.7) / (bw + 1), (H * 0.65) / (bh + 1)))
+    cx = (Math.max(...xs) + Math.min(...xs)) / 2
+    cy = (Math.max(...ys) + Math.min(...ys)) / 2
+  }
+  const vbW = W / z
+  const vbH = H / z
+  const vbX = Math.min(Math.max(cx - vbW / 2, 0), W - vbW)
+  const vbY = Math.min(Math.max(cy - vbH / 2, 0), H - vbH)
+
   return (
     <svg
-      viewBox={`0 0 ${W} ${H}`}
+      viewBox={`${vbX.toFixed(1)} ${vbY.toFixed(1)} ${vbW.toFixed(1)} ${vbH.toFixed(1)}`}
       width={size}
       height={(size * H) / W}
       role="img"

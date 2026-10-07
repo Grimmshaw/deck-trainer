@@ -28,3 +28,9 @@ export function randomShipScene(aspect: number, seed: number): ShipScene {
     x: 150 + (r() * 2 - 1) * spread,
   }
 }
+
+/** A close-up version for small pictures: the vessel near and in the middle */
+export function closeShipScene(aspect: number, seed: number): ShipScene {
+  const r = rng(seed)
+  return { ...randomBackdrop(r, 300, [92, 122]), aspect, scale: 0.9 + r() * 0.1, x: 150 }
+}

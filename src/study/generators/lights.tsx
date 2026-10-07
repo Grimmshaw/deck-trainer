@@ -1,10 +1,10 @@
 import { newSeed } from '../../art/scenery'
-import { makeLightQuestion } from '../../lights/quiz'
+import { makeLightPickQuestion, makeLightQuestion } from '../../lights/quiz'
 import { randomShipScene } from '../../lights/scene'
 import VesselSvg from '../../lights/VesselSvg'
 import { ASPECTS, VESSELS } from '../../lights/vessels'
 import type { Generator, Question } from '../types'
-import { pick } from '../util'
+import { pick, shuffle } from '../util'
 
 // "What is this vessel?" from her lights at night or her day shapes.
 // Built on the navigation lights engine, which avoids ambiguous pictures.
@@ -17,6 +17,8 @@ export const lightsGenerator: Generator = {
   label: (key) => VESSELS.find((v) => PREFIX + v.id === key)?.name ?? key,
 
   make(key): Question | null {
+    // About one question in three is the other way round: pick the right picture
+    if (Math.random() < 0.35) return pickQuestion(key)
     const q = makeLightQuestion(undefined, key.slice(PREFIX.length))
     const variantNote = q.variant.label !== 'underway' ? ` She is ${q.variant.label}.` : ''
     return {
@@ -63,4 +65,33 @@ export const lightsGenerator: Generator = {
       ),
     }
   },
+}
+
+function pickQuestion(key: string): Question {
+  const q = makeLightPickQuestion(key.slice(PREFIX.length))
+  const right = q.pictures[0]
+  return {
+    key,
+    category: 'lights',
+    prompt: q.night
+      ? `At night: which picture shows a ${lower(q.target.name)}?`
+      : `By day: which picture shows a ${lower(q.target.name)}?`,
+    layout: 'pictures',
+    options: shuffle(q.pictures).map((p) => ({
+      id: p.vessel.id,
+      label: `${p.vessel.name}${p.variant.label !== 'underway' ? ` (${p.variant.label})` : ''}`,
+      node: <VesselSvg variant={p.variant} night={q.night} silhouette={false} scene={p.scene} size={170} zoom={q.night ? 1.6 : 1.3} />,
+    })),
+    correctId: q.target.id,
+    explanation: (
+      <>
+        {q.target.description} In the right picture you are {right.aspect.name}. <strong>{q.target.rule}</strong>
+      </>
+    ),
+  }
+}
+
+/** "Vessel at anchor" -> "vessel at anchor", but keep "Power-driven" readable */
+function lower(name: string): string {
+  return name.charAt(0).toLowerCase() + name.slice(1)
 }

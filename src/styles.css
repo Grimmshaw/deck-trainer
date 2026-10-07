@@ -1240,3 +1240,33 @@ p {
 .footer a {
   color: inherit;
 }
+
+/* Picture answers: 2 × 2 grid */
+.options-pictures {
+  grid-template-columns: 1fr 1fr;
+}
+.options-pictures .option {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+.options-pictures .option svg {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.options-pictures .option.right {
+  outline: 3px solid var(--right);
+}
+.options-pictures .option.wrong {
+  outline: 3px solid var(--wrong);
+}
+.pic-caption {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+}

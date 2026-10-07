@@ -150,12 +150,13 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
         {question.media && <div className="question-media">{question.media}</div>}
         {answered && question.reveal && <div className="question-media">{question.reveal}</div>}
 
-        <div className="options">
+        <div className={`options ${question.layout === 'pictures' ? 'options-pictures' : ''}`}>
           {question.options.map((o) => {
             const state = !answered ? '' : o.id === question.correctId ? 'right' : o.id === chosen ? 'wrong' : 'dim'
             return (
               <button key={o.id} className={`option ${state} ${o.node ? 'option-rich' : ''}`} onClick={() => choose(o.id)} disabled={answered}>
                 {o.node ?? o.label}
+                {answered && question.layout === 'pictures' && <span className="pic-caption">{o.label}</span>}
               </button>
             )
           })}
@@ -278,12 +279,12 @@ function Results({
                 )}
                 {a.chosen && (
                   <p className="review-wrong">
-                    Your answer: {a.q.options.find((o) => o.id === a.chosen)?.node ?? a.q.options.find((o) => o.id === a.chosen)?.label}
+                    Your answer: {answerText(a.q, a.chosen)}
                   </p>
                 )}
                 {!a.chosen && <p className="review-wrong">Not answered</p>}
                 <p className="review-right">
-                  Correct: {a.q.options.find((o) => o.id === a.q.correctId)?.node ?? a.q.options.find((o) => o.id === a.q.correctId)?.label}
+                  Correct: {answerText(a.q, a.q.correctId)}
                 </p>
                 <p className="muted small">{a.q.explanation}</p>
               </div>
@@ -293,4 +294,11 @@ function Results({
       </div>
     </Shell>
   )
+}
+
+/** Picture options are shown by name in the review, other rich options as they are */
+function answerText(q: Question, id: string): ReactNode {
+  const o = q.options.find((x) => x.id === id)
+  if (!o) return null
+  return q.layout === 'pictures' ? o.label : (o.node ?? o.label)
 }
