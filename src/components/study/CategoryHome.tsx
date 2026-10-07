@@ -13,13 +13,14 @@ interface Props {
   onBack: () => void
   onStart: (mode: SessionMode, count: number) => void
   onLearn: () => void
+  onMatch: () => void
   /** Optional reference page, for example the gallery of all marks */
   reference?: { label: string; open: () => void }
 }
 
 const COUNTS = [10, 30, 50]
 
-export default function CategoryHome({ category, generator, ctx, onBack, onStart, onLearn, reference }: Props) {
+export default function CategoryHome({ category, generator, ctx, onBack, onStart, onLearn, onMatch, reference }: Props) {
   useProgress()
   const [count, setCount] = useState(10)
   const items = generator.items(ctx)
@@ -63,6 +64,13 @@ export default function CategoryHome({ category, generator, ctx, onBack, onStart
           <button className="mode-row" onClick={onLearn}>
             <strong>Learn</strong>
             <span>Flashcards – turn the card and say if you knew it</span>
+          </button>
+        )}
+
+        {generator.pairs && (
+          <button className="mode-row" onClick={onMatch}>
+            <strong>Match pairs</strong>
+            <span>Pair pictures with their meanings – five quick rounds</span>
           </button>
         )}
 

@@ -35,6 +35,16 @@ export interface Flashcard {
   back: ReactNode
 }
 
+/** One pair for the "Match pairs" game: a picture or code on the left, its meaning on the right */
+export interface MatchPair {
+  /** Progress key of the item */
+  key: string
+  /** Pairs with the same group look alike or mean the same, so never two in one round */
+  group: string
+  left: ReactNode
+  right: string
+}
+
 export interface Generator {
   category: CategoryId
   /** Every knowledge item in this category */
@@ -45,4 +55,6 @@ export interface Generator {
   card?(key: string, ctx: Ctx): Flashcard
   /** Short human name for an item, shown in the results */
   label(key: string, ctx: Ctx): string
+  /** Pairs for the "Match pairs" game, if the category has one */
+  pairs?(ctx: Ctx): MatchPair[]
 }

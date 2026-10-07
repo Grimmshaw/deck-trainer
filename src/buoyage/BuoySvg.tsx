@@ -59,7 +59,7 @@ const ROCK = 'M24 270 L36 250 L54 236 L74 228 L96 224 L118 226 L138 233 L158 245
 const ROCK_FACE = 'M54 236 L74 228 L96 224 L104 252 L62 258 Z'
 
 /** Current state of a flashing light */
-function useLight(light: Light | undefined, running: boolean): LightColor | null {
+export function useLight(light: Light | undefined, running: boolean): LightColor | null {
   const [lit, setLit] = useState<LightColor | null>(null)
 
   useEffect(() => {

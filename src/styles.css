@@ -584,7 +584,7 @@ p {
 
 .toggle-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 10px;
 }
 .segmented.small-seg {
@@ -1314,4 +1314,64 @@ p {
   padding: 18px 12px;
   border-radius: 12px;
   background: var(--surface);
+}
+
+/* Flashing light with stopwatch */
+.light-blinker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.light-blinker svg {
+  border-radius: 12px;
+}
+.stopwatch {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Match pairs */
+.match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0 16px;
+}
+.match-col {
+  display: grid;
+  gap: 8px;
+  grid-auto-rows: minmax(84px, auto);
+}
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  text-align: center;
+  transition: border-color 0.15s, opacity 0.2s;
+}
+.match-item svg {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.match-item.selected {
+  border-color: var(--signal);
+}
+.match-item.matched {
+  border-color: var(--right);
+  opacity: 0.55;
+}
+.match-item.wrong {
+  border-color: var(--wrong);
+  background: rgba(255, 107, 107, 0.15);
 }

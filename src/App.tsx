@@ -16,6 +16,7 @@ import ComingSoon from './components/ComingSoon'
 import CategoryHome from './components/study/CategoryHome'
 import Session, { type SessionMode } from './components/study/Session'
 import Learn from './components/study/Learn'
+import Match from './components/study/Match'
 
 export interface Settings {
   mode: Mode
@@ -37,6 +38,7 @@ type Screen =
   | { name: 'category'; category: CategoryId }
   | { name: 'session'; category: CategoryId; mode: SessionMode; count: number; back: Screen; run: number }
   | { name: 'learn'; category: CategoryId; back: Screen }
+  | { name: 'match'; category: CategoryId; back: Screen }
   | { name: 'soon'; category: CategoryId }
 
 const DEFAULT_SETTINGS: Settings = { mode: 'decode', level: 1, length: 3 }
@@ -110,6 +112,7 @@ export default function App() {
           onChart={() => go({ name: 'chart' })}
           onLearn={() => go({ name: 'learn', category: 'morse', back: { name: 'morse' } })}
           onQuiz={() => startSession('morse', 'practice', 10, { name: 'morse' })}
+          onMatch={() => go({ name: 'match', category: 'morse', back: { name: 'morse' } })}
           onBack={hub}
         />
       )}
@@ -126,6 +129,7 @@ export default function App() {
           onBack={hub}
           onStart={(mode, count) => startSession(screen.category, mode, count, screen)}
           onLearn={() => go({ name: 'learn', category: screen.category, back: screen })}
+          onMatch={() => go({ name: 'match', category: screen.category, back: screen })}
           reference={
             screen.category === 'buoyage' || screen.category === 'lights'
               ? {
@@ -159,6 +163,16 @@ export default function App() {
 
       {screen.name === 'learn' && (
         <Learn
+          title={findCategory(screen.category).title}
+          generator={GENERATORS[screen.category]!}
+          ctx={ctx}
+          onExit={() => go(screen.back)}
+        />
+      )}
+
+      {screen.name === 'match' && (
+        <Match
+          key={screen.category}
           title={findCategory(screen.category).title}
           generator={GENERATORS[screen.category]!}
           ctx={ctx}

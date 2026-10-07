@@ -3,6 +3,8 @@ import BuoySvg from '../../buoyage/BuoySvg'
 import { getMark, MARK_IDS, type Mark, type MarkId, type Region } from '../../buoyage/marks'
 import { randomScene } from '../../buoyage/scene'
 import { IALA_THEORY } from '../../content/ialaTheory'
+import { charLight, CHARS, coloursFor, withColour } from '../../buoyage/characters'
+import LightBlinker from '../../buoyage/LightBlinker'
 import type { Generator, Question } from '../types'
 import { pick, sample, shuffle } from '../util'
 import { theoryQuestion } from './theory'
@@ -12,22 +14,34 @@ import { theoryQuestion } from './theory'
 
 const MARK_PREFIX = 'iala:mark:'
 const THEORY_PREFIX = 'iala:q:'
+const CHAR_PREFIX = 'iala:char:'
 
 export const buoyageGenerator: Generator = {
   category: 'buoyage',
-  items: () => [...MARK_IDS.map((id) => MARK_PREFIX + id), ...IALA_THEORY.map((q) => THEORY_PREFIX + q.id)],
+  items: () => [
+    ...MARK_IDS.map((id) => MARK_PREFIX + id),
+    ...CHARS.map((c) => CHAR_PREFIX + c.spec),
+    ...IALA_THEORY.map((q) => THEORY_PREFIX + q.id),
+  ],
 
   label(key, ctx) {
     if (key.startsWith(MARK_PREFIX)) return getMark(key.slice(MARK_PREFIX.length) as MarkId, ctx.region.buoyage).name
+    if (key.startsWith(CHAR_PREFIX)) return `Light character ${key.slice(CHAR_PREFIX.length)}`
     const t = IALA_THEORY.find((q) => THEORY_PREFIX + q.id === key)
     return t ? t.q : key
   },
 
+  pairs: (ctx) =>
+    MARK_IDS.map((id) => {
+      const m = getMark(id, ctx.region.buoyage)
+      return { key: MARK_PREFIX + id, group: id, left: <BuoySvg mark={m} size={70} />, right: m.name }
+    }),
   make(key, ctx): Question | null {
     if (key.startsWith(THEORY_PREFIX)) {
       const t = IALA_THEORY.find((q) => THEORY_PREFIX + q.id === key)
       return t ? theoryQuestion(key, 'buoyage', t) : null
     }
+    if (key.startsWith(CHAR_PREFIX)) return charQuestion(key)
     const region = ctx.region.buoyage
     const mark = getMark(key.slice(MARK_PREFIX.length) as MarkId, region)
     // About one question in three is the other way round: pick the right picture
@@ -70,6 +84,18 @@ export const buoyageGenerator: Generator = {
       const t = IALA_THEORY.find((q) => THEORY_PREFIX + q.id === key)!
       return { title: 'IALA', front: <p className="card-text">{t.q}</p>, back: <TheoryBack t={t} /> }
     }
+    if (key.startsWith(CHAR_PREFIX)) {
+      const spec = key.slice(CHAR_PREFIX.length)
+      return {
+        title: 'Light character',
+        front: (
+          <div className="chart-stage">
+            <LightBlinker light={charLight(spec, 'W')} />
+          </div>
+        ),
+        back: <strong>{spec}</strong>,
+      }
+    }
     const mark = getMark(key.slice(MARK_PREFIX.length) as MarkId, ctx.region.buoyage)
     const scene = randomScene(mark, newSeed())
     return {
@@ -91,6 +117,36 @@ export const buoyageGenerator: Generator = {
       ),
     }
   },
+}
+
+function charQuestion(key: string): Question {
+  const spec = key.slice(CHAR_PREFIX.length)
+  const c = CHARS.find((x) => x.spec === spec)!
+  const colour = pick(coloursFor(c))
+  const fits = CHARS.filter((x) => x.spec !== spec && coloursFor(x).includes(colour))
+  const near = shuffle(fits.filter((x) => x.family === c.family)).slice(0, 2)
+  const far = shuffle(fits.filter((x) => !near.includes(x)))
+  const wrong = [...near, ...far].slice(0, 3)
+  const label = withColour(spec, colour)
+  return {
+    key,
+    category: 'buoyage',
+    prompt: 'Watch the light and time it with the stopwatch. Which character is it?',
+    media: <LightBlinker light={charLight(spec, colour)} />,
+    options: shuffle([c, ...wrong]).map((x) => ({ id: x.spec, label: withColour(x.spec, colour) })),
+    correctId: spec,
+    explanation: (
+      <>
+        <strong>{label}</strong>. {CHAR_HELP[c.family]}
+      </>
+    ),
+  }
+}
+
+const CHAR_HELP: Record<string, string> = {
+  fl: 'Fl = flashing: the light is on for less time than it is off. The figure in brackets is the number of flashes in each group, and the last figure is the period – the time for one whole cycle.',
+  long: 'LFl = a long flash of at least 2 s. Iso = equal light and dark. Oc = occulting: light longer than dark. Mo(A) = Morse letter A.',
+  q: 'Q = quick (50–60 flashes a minute), VQ = very quick (100–120 a minute). The figure in brackets is the number of flashes in a group – 3 east, 6 + long flash south, 9 west, continuous north.',
 }
 
 function pickMark(key: string, mark: Mark, region: Region): Question {

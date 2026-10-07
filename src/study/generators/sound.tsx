@@ -34,6 +34,13 @@ export const soundGenerator: Generator = {
   items: () => SOUND_SIGNALS.map((s) => PREFIX + s.id),
   label: (key) => byKey(key).meaning,
 
+  pairs: () =>
+    SOUND_SIGNALS.map((s) => ({
+      key: PREFIX + s.id,
+      group: s.pattern.join(''),
+      left: <PatternBars pattern={s.pattern} size="sm" />,
+      right: `${s.context === 'sight' ? 'In sight' : 'Fog'}: ${s.meaning}`,
+    })),
   make(key): Question {
     const s = byKey(key)
     const wrong = others(s)

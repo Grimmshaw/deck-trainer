@@ -10,6 +10,7 @@ interface Props {
   onChart: () => void
   onLearn: () => void
   onQuiz: () => void
+  onMatch: () => void
   onBack: () => void
 }
 
@@ -18,7 +19,7 @@ const MODES: { id: Mode; title: string; text: string }[] = [
   { id: 'encode', title: 'Encode', text: 'See the word – tap it in Morse' },
 ]
 
-export default function Home({ settings, stats, onChange, onStart, onChart, onLearn, onQuiz, onBack }: Props) {
+export default function Home({ settings, stats, onChange, onStart, onChart, onLearn, onQuiz, onMatch, onBack }: Props) {
   const { mode, level, length } = settings
   const available = wordsFor(level, length).length
   const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch })
@@ -109,6 +110,9 @@ export default function Home({ settings, stats, onChange, onStart, onChart, onLe
         </button>
         <button className="secondary" onClick={onQuiz}>
           Quick quiz
+        </button>
+        <button className="secondary" onClick={onMatch}>
+          Match pairs
         </button>
       </div>
       <button className="secondary" onClick={onChart}>

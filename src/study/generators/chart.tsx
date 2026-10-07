@@ -26,6 +26,8 @@ export const chartGenerator: Generator = {
   items: () => CHART_SYMBOLS.map((s) => PREFIX + s.id),
   label: (key) => byKey(key).name,
 
+  pairs: () =>
+    CHART_SYMBOLS.map((s) => ({ key: PREFIX + s.id, group: s.id, left: <ChartSymbolSvg symbol={s} size={76} />, right: s.name })),
   make(key): Question {
     const s = byKey(key)
     const wrong = others(s)

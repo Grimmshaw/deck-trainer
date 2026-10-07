@@ -30,6 +30,8 @@ export const flagsGenerator: Generator = {
     return `${f.letter} (${f.word})`
   },
 
+  pairs: () =>
+    withMeaning.map((f) => ({ key: PREFIX + f.letter, group: f.letter, left: <FlagSvg flag={f} size={64} />, right: f.meaning! })),
   make(key): Question {
     const f = byKey(key)
     const kind = f.meaning ? pick(['meaning', 'meaning', 'letter', 'pick']) : 'letter'

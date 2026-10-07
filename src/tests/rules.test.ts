@@ -14,7 +14,8 @@ import { CHART_SYMBOLS } from '../chart/symbols'
 import { fogAction, fogDistractors, FOG_SECTORS, makeFogScenario } from '../colregs/fog'
 import { FLAGS } from '../flags/flags'
 import { daySignature, isVisible, nightSignature, project } from '../lights/geometry'
-import { makeLightPickQuestion, makeLightQuestion, showsByDay } from '../lights/quiz'
+import { fixCandidates, HEADINGS, makeFixQuestion, makeHeadingQuestion, makeLightPickQuestion, makeLightQuestion, showsByDay } from '../lights/quiz'
+import { CHARS, charLight, coloursFor } from '../buoyage/characters'
 import { VESSELS, type ShipLight } from '../lights/vessels'
 import { fitsLevel, MORSE } from '../morse'
 import { SOUND_SIGNALS } from '../sound/signals'
@@ -227,5 +228,37 @@ describe('Chart symbols', () => {
     for (const g of new Set(CHART_SYMBOLS.map((s) => s.group))) {
       expect(CHART_SYMBOLS.filter((s) => s.group === g).length).toBeGreaterThanOrEqual(2)
     }
+  })
+})
+
+describe('New question types', () => {
+  it('heading questions match the lights you see', () => {
+    for (const h of HEADINGS) {
+      for (let i = 0; i < 40; i++) {
+        const q = makeHeadingQuestion(h)
+        const seen = q.variant.lights.filter((l) => isVisible(l, q.aspect.deg)).map((l) => l.kind)
+        const green = seen.includes('sideStbd')
+        const red = seen.includes('sidePort')
+        if (h === 'towards') expect(green && red).toBe(true)
+        if (h === 'leftToRight') expect(green && !red && !seen.includes('stern')).toBe(true)
+        if (h === 'rightToLeft') expect(red && !green && !seen.includes('stern')).toBe(true)
+        if (h === 'away') expect(!green && !red && seen.includes('stern')).toBe(true)
+      }
+    }
+  })
+  it('"what is wrong" always has exactly one right answer', () => {
+    for (const night of [true, false]) {
+      for (const v of fixCandidates(night)) {
+        for (let i = 0; i < 30; i++) {
+          const q = makeFixQuestion(v.id)
+          const key = (l: string[]) => l.join(',')
+          expect(q.decoys.some((d) => key(d) === key(q.correct) || key(d) === key(q.shown))).toBe(false)
+          expect(q.correct.length).toBeGreaterThan(0)
+        }
+      }
+    }
+  })
+  it('every light character can be drawn in every colour it is offered in', () => {
+    for (const c of CHARS) for (const col of coloursFor(c)) expect(charLight(c.spec, col).periodMs).toBeGreaterThan(0)
   })
 })

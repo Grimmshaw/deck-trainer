@@ -24,6 +24,8 @@ export const morseGenerator: Generator = {
   category: 'morse',
   items: () => CHARS.map((c) => `morse:${c}`),
   label: (key) => key.slice(6),
+  pairs: () =>
+    CHARS.map((c) => ({ key: `morse:${c}`, group: c, left: <MorseSymbols code={MORSE[c]} size="sm" />, right: c })),
   make(key): Question {
     const c = key.slice(6)
     const wrong = sample(lookalikes(c).slice(0, 6), 3)
