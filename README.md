@@ -64,7 +64,7 @@ Netlify bygger och publicerar automatiskt efter varje push.
 
 ## Integritetspolicy
 
-`public/privacy.html` är ett utkast. Fyll i det som står inom [hakparenteser] innan appen publiceras.
+`public/privacy.html` är integritetspolicyn för Lanterna Konsult AB.
 Sidan ligger på `/privacy.html`, och den adressen anges i Google Play Console.
 
 ## Var finns vad?
