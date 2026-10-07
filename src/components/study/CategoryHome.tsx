@@ -3,6 +3,7 @@ import type { Category } from '../../study/categories'
 import { mastery, useProgress, weakKeys } from '../../study/progress'
 import type { Ctx, Generator } from '../../study/types'
 import CategoryIcon from '../CategoryIcon'
+import SoundModeToggle from '../../sound/SoundModeToggle'
 import type { SessionMode } from './Session'
 
 interface Props {
@@ -50,6 +51,12 @@ export default function CategoryHome({ category, generator, ctx, onBack, onStart
           </div>
         </div>
       </section>
+
+      {category.id === 'sound' && (
+        <div className="sound-mode-row">
+          <SoundModeToggle />
+        </div>
+      )}
 
       <div className="mode-list">
         {generator.card && (

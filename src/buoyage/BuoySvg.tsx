@@ -94,12 +94,17 @@ interface Props {
   size?: number
 }
 
+/** Colours of the dark shape of a mark at night */
+const NIGHT_SHAPE = '#010307'
+const NIGHT_EDGE = '#1b2b42'
+
 export default function BuoySvg({ mark, light, night = false, silhouette = true, scene, size = 160 }: Props) {
   const uid = useId().replace(/:/g, '')
   const sc = scene ?? plainScene(mark)
   const geo = SHAPES[sc.shape]
   const lit = useLight(light ?? mark.lights[0], night)
-  const hull = !night ? 1 : silhouette ? 0.12 : 0
+  const hull = night ? 0 : 1
+  const nightBody = sc.shape === 'beacon' ? geo : SHAPES.pillar
   const colors = SKY[night ? 'night' : sc.sky]
 
   const lanternY = geo.top - 12
@@ -131,6 +136,9 @@ export default function BuoySvg({ mark, light, night = false, silhouette = true,
           <stop offset="0%" stopColor={colors.seaFar} />
           <stop offset="100%" stopColor={colors.sea} />
         </linearGradient>
+        <filter id={`blur-${uid}`} x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation={2.2 + 1.6 * sc.scale} />
+        </filter>
         <radialGradient id={`glow-${uid}`}>
           <stop offset="0%" stopColor={lit ? LIGHT_CSS[lit] : 'transparent'} stopOpacity="0.95" />
           <stop offset="35%" stopColor={lit ? LIGHT_CSS[lit] : 'transparent'} stopOpacity="0.45" />
@@ -146,6 +154,22 @@ export default function BuoySvg({ mark, light, night = false, silhouette = true,
       <rect y={sc.horizon} width={W} height={H - sc.horizon} fill={`url(#sea-${uid})`} />
 
       <g transform={place}>
+        {night && (
+          // At night the mark is only a dark, blurred shape: you can sense it is there,
+          // but not its colours, topmark or exact shape (a generic buoy outline is used,
+          // so a can or a cone does not give the answer away).
+          <g filter={`url(#blur-${uid})`} opacity={silhouette ? 1 : 0.85}>
+            <rect
+              x={CX - 3}
+              y={Math.min(lanternY, nightBody.top)}
+              width={6}
+              height={Math.abs(nightBody.top - lanternY) + 4}
+              fill={NIGHT_SHAPE}
+            />
+            <path d={nightBody.d} fill={NIGHT_SHAPE} stroke={NIGHT_EDGE} strokeWidth="1.5" />
+            {sc.shape === 'beacon' && <path d={ROCK} fill={NIGHT_SHAPE} stroke={NIGHT_EDGE} strokeWidth="1.5" />}
+          </g>
+        )}
         <g opacity={hull}>
           {/* Mast */}
           <rect x={CX - 2} y={topmarkBase - 2} width={4} height={geo.top - topmarkBase + 4} fill="#333" />

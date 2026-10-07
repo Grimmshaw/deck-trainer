@@ -3,6 +3,7 @@ import { findCategory, type CategoryId } from '../../study/categories'
 import { pickKey, record, weakKeys } from '../../study/progress'
 import type { Ctx, Generator, Question } from '../../study/types'
 import { pick } from '../../study/util'
+import SoundModeToggle from '../../sound/SoundModeToggle'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
@@ -124,8 +125,10 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const answered = chosen !== null
   const correct = chosen === question.correctId
 
+  const hasSound = generators.some((g) => g.category === 'sound')
+
   return (
-    <Shell title={title} onExit={onExit}>
+    <Shell title={title} onExit={onExit} right={hasSound ? <SoundModeToggle compact /> : undefined}>
       <div className="scorebar">
         <span>
           Question <strong>{answers.length + 1}</strong>/{count}
@@ -183,7 +186,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   )
 }
 
-function Shell({ title, onExit, children }: { title: string; onExit: () => void; children: ReactNode }) {
+function Shell({ title, onExit, children, right }: { title: string; onExit: () => void; children: ReactNode; right?: ReactNode }) {
   return (
     <div className="screen">
       <header className="topbar">
@@ -191,7 +194,7 @@ function Shell({ title, onExit, children }: { title: string; onExit: () => void;
           ✕
         </button>
         <h1 className="topbar-title">{title}</h1>
-        <span className="topbar-spacer" />
+        {right ?? <span className="topbar-spacer" />}
       </header>
       {children}
     </div>

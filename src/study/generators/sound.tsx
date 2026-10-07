@@ -1,6 +1,7 @@
 import PatternBars from '../../sound/PatternBars'
 import { SOUND_SIGNALS, type SoundSignal } from '../../sound/signals'
 import SoundButton from '../../sound/SoundButton'
+import { isSilent } from '../../sound/soundMode'
 import type { Generator, Question } from '../types'
 import { sample, shuffle } from '../util'
 
@@ -37,11 +38,26 @@ export const soundGenerator: Generator = {
     const s = byKey(key)
     const wrong = others(s)
     if (Math.random() < 0.65) {
+      const silent = isSilent()
       return {
         key,
         category: 'sound',
-        prompt: `${contextText(s)} You hear this signal. What does it mean?`,
-        media: <SoundButton signal={s} autoPlay />,
+        prompt: silent
+          ? `${contextText(s)} You hear the signal shown below. What does it mean?`
+          : `${contextText(s)} You hear this signal. What does it mean?`,
+        media: silent ? (
+          <div className="sound-visual">
+            <PatternBars pattern={s.pattern} />
+            <span className="muted small">Short bar ≈ 1 s · long bar = prolonged blast, 4–6 s</span>
+          </div>
+        ) : (
+          <SoundButton signal={s} autoPlay />
+        ),
+        reveal: silent ? undefined : (
+          <div className="sound-visual">
+            <PatternBars pattern={s.pattern} />
+          </div>
+        ),
         options: shuffle([s, ...wrong]).map((o) => ({ id: o.id, label: o.meaning })),
         correctId: s.id,
         explanation: explain(s),
