@@ -9,6 +9,8 @@ import { SOUND_THEORY } from '../content/soundTheory'
 import { FLAGS_THEORY } from '../content/flagsTheory'
 import { DISTRESS_THEORY } from '../content/distressTheory'
 import { MORSE_THEORY } from '../content/morseTheory'
+import { CHART_THEORY } from '../content/chartTheory'
+import { CHART_SYMBOLS } from '../chart/symbols'
 import { fogAction, fogDistractors, FOG_SECTORS, makeFogScenario } from '../colregs/fog'
 import { FLAGS } from '../flags/flags'
 import { daySignature, isVisible, nightSignature, project } from '../lights/geometry'
@@ -180,7 +182,7 @@ describe('Rule 19 – restricted visibility', () => {
 
 describe('Theory questions', () => {
   it('have unique ids and four different options', () => {
-    for (const list of [COLREGS_THEORY, IALA_THEORY, LIGHTS_THEORY, SOUND_THEORY, FLAGS_THEORY, DISTRESS_THEORY, MORSE_THEORY]) {
+    for (const list of [COLREGS_THEORY, IALA_THEORY, LIGHTS_THEORY, SOUND_THEORY, FLAGS_THEORY, DISTRESS_THEORY, MORSE_THEORY, CHART_THEORY]) {
       const ids = new Set(list.map((q) => q.id))
       expect(ids.size).toBe(list.length)
       for (const q of list) {
@@ -214,6 +216,16 @@ describe('Picture-choice light questions', () => {
         for (const o of VESSELS.filter((o) => o.id !== v.id && !(q.night && o.dayOnly))) expect(sigs(o, q.night).has(sigOf(q.pictures[0]))).toBe(false)
         expect(new Set(q.pictures.map((p) => p.vessel.id)).size).toBe(4)
       }
+    }
+  })
+})
+
+describe('Chart symbols', () => {
+  it('have unique ids and names, and every group has at least two symbols', () => {
+    expect(new Set(CHART_SYMBOLS.map((s) => s.id)).size).toBe(CHART_SYMBOLS.length)
+    expect(new Set(CHART_SYMBOLS.map((s) => s.name)).size).toBe(CHART_SYMBOLS.length)
+    for (const g of new Set(CHART_SYMBOLS.map((s) => s.group))) {
+      expect(CHART_SYMBOLS.filter((s) => s.group === g).length).toBeGreaterThanOrEqual(2)
     }
   })
 })

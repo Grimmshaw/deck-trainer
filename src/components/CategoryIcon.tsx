@@ -9,6 +9,7 @@ export type IconKind =
   | 'vhf'
   | 'exam'
   | 'globe'
+  | 'chart'
 
 const Y = '#ffc83d'
 const R = '#ff4d4d'
@@ -98,6 +99,15 @@ function icon(kind: IconKind) {
           <rect x="7" y="4" width="18" height="24" rx="2" fill={W} />
           <path d="M11 11 l2 2 l4 -4 M11 19 l2 2 l4 -4" stroke="#1f9d55" strokeWidth="2" />
           <path d="M19 12 H22 M19 20 H22" stroke="#7a8799" strokeWidth="2" />
+        </>
+      )
+    case 'chart':
+      return (
+        <>
+          <rect x="4" y="6" width="24" height="20" rx="2" stroke={W} strokeWidth="1.8" />
+          <circle cx="12" cy="16" r="5" stroke={W} strokeWidth="1.4" strokeDasharray="1 2" />
+          <path d="M9 16 H15 M12 13 V19" stroke={W} strokeWidth="1.6" />
+          <path d="M21 20 C19 16 21 11 25 10 C25 14 23 18 21 20 Z" fill="#d23aa0" />
         </>
       )
     case 'globe':

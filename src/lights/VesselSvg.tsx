@@ -9,6 +9,9 @@ const W = 300
 const H = 200
 /** Heights are stretched a little so lights in a vertical line are easy to tell apart */
 const VEX = 1.7
+/** Colours of the dark vessel shape at night */
+const NIGHT_HULL = '#010307'
+const NIGHT_EDGE = '#1b2b42'
 
 interface Props {
   variant: Variant
@@ -37,7 +40,6 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
   const poly = (pts: [number, number][]) => pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
   const depthOf = (p: Pt3) => project(p, sc.aspect).depth
 
-  const hullOpacity = !night ? 1 : silhouette ? 0.14 : 0
   const boxes = [...model.boxes].sort(
     (a, b) =>
       depthOf({ x: (a.x[0] + a.x[1]) / 2, y: 0, z: 0 }) - depthOf({ x: (b.x[0] + b.x[1]) / 2, y: 0, z: 0 }),
@@ -80,6 +82,9 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
           <stop offset="0%" stopColor={colors.top} />
           <stop offset="100%" stopColor={colors.bottom} />
         </linearGradient>
+        <filter id={`blur-${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation={1.3 + 0.9 * sc.scale} />
+        </filter>
         <linearGradient id={`sea-${uid}`} gradientUnits="userSpaceOnUse" x1="0" y1={sc.horizon} x2="0" y2={H}>
           <stop offset="0%" stopColor={colors.seaFar} />
           <stop offset="100%" stopColor={colors.sea} />
@@ -92,7 +97,21 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
       ))}
       <rect y={sc.horizon} width={W} height={H - sc.horizon} fill={`url(#sea-${uid})`} />
 
-      <g opacity={hullOpacity}>
+      {night && (
+        // At night the vessel is a dark, blurred shape against the sky and the sea:
+        // you can sense that something is there, but not see what it is.
+        // Sails and masts are only shown in the gallery (silhouette), not in quizzes.
+        <g filter={`url(#blur-${uid})`} opacity={silhouette ? 1 : 0.8}>
+          <polygon points={poly(convexHull(model.outline.map(toScreen)))} fill={NIGHT_HULL} stroke={NIGHT_EDGE} strokeWidth={0.8} />
+          {boxes.map((b, i) => (
+            <polygon key={i} points={poly(convexHull(boxCorners(b).map(toScreen)))} fill={NIGHT_HULL} stroke={NIGHT_EDGE} strokeWidth={0.8} />
+          ))}
+          {silhouette &&
+            model.sails.map((sl, i) => <polygon key={i} points={poly(sl.map(toScreen))} fill="#141d2a" />)}
+        </g>
+      )}
+
+      <g opacity={night ? 0 : 1}>
         <polygon points={poly(convexHull(model.outline.map(toScreen)))} fill={model.hullFill} stroke="#111" strokeOpacity={0.3} />
         {boxes.map((b, i) => (
           <polygon key={i} points={poly(convexHull(boxCorners(b).map(toScreen)))} fill={b.fill} stroke="#111" strokeOpacity={0.25} />

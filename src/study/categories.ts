@@ -1,6 +1,6 @@
 import type { IconKind } from '../components/CategoryIcon'
 
-export type CategoryId = 'morse' | 'buoyage' | 'lights' | 'colregs' | 'sound' | 'flags' | 'distress' | 'vhf' | 'exam'
+export type CategoryId = 'morse' | 'buoyage' | 'lights' | 'colregs' | 'sound' | 'flags' | 'distress' | 'chart' | 'vhf' | 'exam'
 
 export interface Category {
   id: CategoryId
@@ -18,6 +18,7 @@ export const CATEGORIES: Category[] = [
   { id: 'sound', title: 'Sound signals', text: 'Manoeuvring, warning and fog signals', tag: 'Preview', icon: 'sound' },
   { id: 'flags', title: 'Flags & signals', text: 'Single-letter signals of the International Code', tag: 'Preview', icon: 'flag' },
   { id: 'distress', title: 'Distress signals', text: 'COLREG Annex IV', tag: 'Preview', icon: 'distress' },
+  { id: 'chart', title: 'Chart symbols', text: 'Wrecks, rocks, lights and abbreviations (INT 1)', tag: 'Preview', icon: 'chart' },
   { id: 'vhf', title: 'VHF & SMCP', text: 'Standard Marine Communication Phrases', tag: 'Soon', icon: 'vhf' },
 ]
 
