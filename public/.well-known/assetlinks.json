@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "se.lanternakonsult.lanterna",
+      "sha256_cert_fingerprints": [
+        "94:CD:DF:1D:D0:86:6A:13:F3:5D:9F:D8:A8:2B:1D:33:BC:C9:F2:B9:09:2B:8D:54:44:83:B8:E6:33:6E:E5:44",
+        "EC:36:18:61:7E:7B:B8:73:AA:B0:DB:3B:64:2B:1F:63:70:C4:70:78:2D:7A:20:4F:A3:B9:BB:4E:C3:C0:47:BA"
+      ]
+    }
+  }
+]
