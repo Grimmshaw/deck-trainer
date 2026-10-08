@@ -18,7 +18,7 @@ export default function ComingSoon({ title, text, icon, onBack }: Props) {
         <span className="topbar-spacer" />
       </header>
       <div className="coming-soon">
-        <CategoryIcon kind={icon} size={72} />
+        <span className="category-icon big-tile"><CategoryIcon kind={icon} size={64} /></span>
         <p>{text}</p>
         <p className="muted">This part is coming in a later version.</p>
         <button className="secondary" onClick={onBack}>

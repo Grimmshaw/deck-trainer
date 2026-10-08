@@ -6,6 +6,9 @@ import type { Ctx } from '../study/types'
 import { useState } from 'react'
 import { LanternMark } from '../brand/Logo'
 import ReportDialog from '../report/ReportDialog'
+import CategoryArt from '../art/CategoryArt'
+import HubScene from '../art/HubScene'
+import ThemePicker from '../theme/ThemePicker'
 import CategoryIcon from './CategoryIcon'
 
 interface Props {
@@ -40,6 +43,8 @@ export default function Hub({ region, onOpen, onRegion }: Props) {
         </button>
       </header>
 
+      <HubScene />
+
       <div className="category-list">
         {active.map((c) => {
           const g = GENERATORS[c.id]
@@ -55,13 +60,15 @@ export default function Hub({ region, onOpen, onRegion }: Props) {
           <div className="soon-grid">
             {soon.map((c) => (
               <button key={c.id} className="soon-tile" onClick={() => onOpen(c.id)}>
-                <CategoryIcon kind={c.icon} size={26} />
+                <span className="category-icon small-tile"><CategoryIcon kind={c.icon} size={26} /></span>
                 <span>{c.title}</span>
               </button>
             ))}
           </div>
         </section>
       )}
+
+      <ThemePicker />
 
       <footer className="footer muted small">
         Lanterna ·{' '}
@@ -91,9 +98,7 @@ function CategoryButton({
 }) {
   return (
     <button className={`category ${c.tag === 'Soon' ? 'soon' : ''} ${big ? 'exam' : ''}`} onClick={() => onOpen(c.id)}>
-      <span className="category-icon">
-        <CategoryIcon kind={c.icon} size={30} />
-      </span>
+      <CategoryArt id={c.id} icon={c.icon} />
       <span className="category-body">
         <span className="category-title">
           {c.title}

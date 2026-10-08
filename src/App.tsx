@@ -73,8 +73,8 @@ export default function App() {
   // Splash: the logo shows for a moment when the app starts, then fades out
   const [splash, setSplash] = useState<'show' | 'leaving' | 'gone'>('show')
   useEffect(() => {
-    const a = window.setTimeout(() => setSplash('leaving'), 750)
-    const b = window.setTimeout(() => setSplash('gone'), 1200)
+    const a = window.setTimeout(() => setSplash('leaving'), 1500)
+    const b = window.setTimeout(() => setSplash('gone'), 2400)
     return () => {
       window.clearTimeout(a)
       window.clearTimeout(b)

@@ -104,6 +104,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const choose = (id: string) => {
     if (chosen !== null) return
     record(question.key, id === question.correctId)
+    buzz(id === question.correctId)
     if (exam) {
       advance({ q: question, chosen: id })
     } else {
@@ -324,4 +325,13 @@ function answerText(q: Question, id: string): ReactNode {
   const o = q.options.find((x) => x.id === id)
   if (!o) return null
   return q.layout === 'pictures' ? o.label : (o.node ?? o.label)
+}
+
+/** A short vibration on Android: one tap for right, a double buzz for wrong */
+function buzz(right: boolean) {
+  try {
+    navigator.vibrate?.(right ? 12 : [30, 50, 30])
+  } catch {
+    /* not supported */
+  }
 }

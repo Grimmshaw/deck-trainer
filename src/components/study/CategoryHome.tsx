@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Category } from '../../study/categories'
 import { mastery, useProgress, weakKeys } from '../../study/progress'
 import type { Ctx, Generator } from '../../study/types'
-import CategoryIcon from '../CategoryIcon'
+import CategoryArt from '../../art/CategoryArt'
 import SoundModeToggle from '../../sound/SoundModeToggle'
 import type { SessionMode } from './Session'
 
@@ -28,7 +28,7 @@ export default function CategoryHome({ category, generator, ctx, onBack, onStart
   const weak = weakKeys(items).length
 
   return (
-    <div className="screen">
+    <div className={`screen cat-${category.id}`}>
       <header className="topbar">
         <button className="icon-btn" onClick={onBack} aria-label="Back to start">
           ←
@@ -41,7 +41,7 @@ export default function CategoryHome({ category, generator, ctx, onBack, onStart
       </header>
 
       <section className="mastery-card">
-        <CategoryIcon kind={category.icon} size={40} />
+        <CategoryArt id={category.id} icon={category.icon} />
         <div>
           <div className="mastery-head">
             <strong>{Math.round(m * 100)}% learned</strong>

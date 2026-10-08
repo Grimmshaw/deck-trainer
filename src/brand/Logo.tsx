@@ -56,9 +56,7 @@ export function LanternMark({ size = 64, glow = true }: { size?: number; glow?: 
 export function Splash({ leaving }: { leaving: boolean }) {
   return (
     <div className={`splash ${leaving ? 'leaving' : ''}`} aria-hidden="true">
-      <LanternMark size={132} />
-      <div className="splash-name">Lanterna</div>
-      <div className="splash-tag">Deck officer trainer</div>
+      <LanternMark size={150} />
     </div>
   )
 }

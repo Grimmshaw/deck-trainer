@@ -113,8 +113,8 @@ function icon(kind: IconKind) {
     case 'globe':
       return (
         <>
-          <circle cx="16" cy="16" r="12" stroke={W} strokeWidth="2" />
-          <path d="M4 16 H28 M16 4 q-8 12 0 24 M16 4 q8 12 0 24" stroke={W} strokeWidth="1.6" />
+          <circle cx="16" cy="16" r="12" stroke="currentColor" strokeWidth="2" />
+          <path d="M4 16 H28 M16 4 q-8 12 0 24 M16 4 q8 12 0 24" stroke="currentColor" strokeWidth="1.6" />
         </>
       )
   }
