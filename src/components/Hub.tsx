@@ -6,6 +6,7 @@ import type { Ctx } from '../study/types'
 import { useState } from 'react'
 import { LanternMark } from '../brand/Logo'
 import ReportDialog from '../report/ReportDialog'
+import { canOpen, useUnlocked } from '../store/entitlement'
 import CategoryArt from '../art/CategoryArt'
 import HubScene from '../art/HubScene'
 import ThemePicker from '../theme/ThemePicker'
@@ -19,6 +20,7 @@ interface Props {
 
 export default function Hub({ region, onOpen, onRegion }: Props) {
   useProgress()
+  useUnlocked()
   const ctx: Ctx = { region }
   const active = CATEGORIES.filter((c) => c.tag !== 'Soon')
   const soon = CATEGORIES.filter((c) => c.tag === 'Soon')
@@ -104,6 +106,14 @@ function CategoryButton({
           {c.title}
           {c.tag === 'Free' && <span className="tag tag-free">Free</span>}
           {c.tag === 'Soon' && <span className="tag tag-soon">Coming soon</span>}
+          {c.tag !== 'Soon' && !canOpen(c.id) && (
+            <span className="tag tag-lock" aria-label="Locked">
+              <svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true">
+                <path d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7Zm2 0h4V5a2 2 0 0 0-4 0Z" fill="currentColor" />
+              </svg>
+              Full version
+            </span>
+          )}
         </span>
         <span className="category-text">{c.text}</span>
         {progress !== undefined && (

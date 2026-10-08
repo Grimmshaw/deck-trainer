@@ -1675,3 +1675,38 @@ h2,
   height: 104px;
   border-radius: 24px;
 }
+
+/* ---------- Unlock ---------- */
+.unlock-hero {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  margin: 8px 0 4px;
+}
+.unlock-hero h1 {
+  font-size: 1.6rem;
+}
+.unlock-list {
+  margin: 8px 0 16px;
+  padding: 14px 16px 14px 34px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  display: grid;
+  gap: 8px;
+}
+.unlock-list li::marker {
+  color: var(--signal);
+}
+a.as-button {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+.tag-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: color-mix(in srgb, var(--brass) 25%, transparent);
+  color: var(--text);
+}

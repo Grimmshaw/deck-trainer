@@ -18,6 +18,8 @@ import Session, { type SessionMode } from './components/study/Session'
 import Learn from './components/study/Learn'
 import Match from './components/study/Match'
 import { Splash } from './brand/Logo'
+import Unlock from './components/Unlock'
+import { canOpen, restorePurchases } from './store/entitlement'
 
 export interface Settings {
   mode: Mode
@@ -41,6 +43,7 @@ type Screen =
   | { name: 'learn'; category: CategoryId; back: Screen }
   | { name: 'match'; category: CategoryId; back: Screen }
   | { name: 'soon'; category: CategoryId }
+  | { name: 'unlock'; category: CategoryId }
 
 const DEFAULT_SETTINGS: Settings = { mode: 'decode', level: 1, length: 3 }
 const DEFAULT_STATS: Stats = { bestStreak: 0 }
@@ -69,6 +72,11 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [screen])
+
+  // In the Google Play app: unlock if this user has bought "Unlock all" before
+  useEffect(() => {
+    restorePurchases()
+  }, [])
 
   // Splash: the logo shows for a moment when the app starts, then fades out
   const [splash, setSplash] = useState<'show' | 'leaving' | 'gone'>('show')
@@ -121,11 +129,12 @@ export default function App() {
   const updateBestStreak = (streak: number) =>
     setStats((s) => (streak > s.bestStreak ? { ...s, bestStreak: streak } : s))
 
-  const openCategory = (id: CategoryId) => {
-    if (id === 'morse') go({ name: 'morse' })
-    else if (id === 'exam') startSession('exam', 'exam', 40, { name: 'hub' })
-    else if (GENERATORS[id]) go({ name: 'category', category: id })
-    else go({ name: 'soon', category: id })
+  const openCategory = (id: CategoryId, replace = false) => {
+    if (!canOpen(id)) go({ name: 'unlock', category: id }, replace)
+    else if (id === 'morse') go({ name: 'morse' }, replace)
+    else if (id === 'exam') go({ name: 'session', category: 'exam', mode: 'exam', count: 40, back: { name: 'hub' }, run: Date.now() }, replace)
+    else if (GENERATORS[id]) go({ name: 'category', category: id }, replace)
+    else go({ name: 'soon', category: id }, replace)
   }
 
   // A new session started from a finished one replaces it in the history
@@ -225,6 +234,13 @@ export default function App() {
           generator={GENERATORS[screen.category]!}
           ctx={ctx}
           onExit={() => go(screen.back)}
+        />
+      )}
+
+      {screen.name === 'unlock' && (
+        <Unlock
+          onBack={hub}
+          onDone={() => openCategory(screen.category, true)}
         />
       )}
 
