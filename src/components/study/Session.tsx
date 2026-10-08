@@ -4,6 +4,7 @@ import { pickKey, record, weakKeys } from '../../study/progress'
 import type { Ctx, Generator, Question } from '../../study/types'
 import { pick } from '../../study/util'
 import SoundModeToggle from '../../sound/SoundModeToggle'
+import ReportDialog from '../../report/ReportDialog'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
@@ -57,6 +58,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const [answers, setAnswers] = useState<Answered[]>([])
   const [finished, setFinished] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
+  const [reporting, setReporting] = useState(false)
   const exam = mode === 'exam'
   const [secondsLeft, setSecondsLeft] = useState(count * EXAM_SECONDS_PER_QUESTION)
 
@@ -181,7 +183,25 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
             Finish exam now
           </button>
         )}
+        {!exam && (
+          <button className="report-link" onClick={() => setReporting(true)}>
+            Report a problem with this question
+          </button>
+        )}
       </div>
+      {reporting && (
+        <ReportDialog
+          base={{
+            kind: 'question',
+            category: question.category,
+            key: question.key,
+            question: question.prompt,
+            answer: question.options.find((o) => o.id === question.correctId)?.label,
+            chosen: chosen ? question.options.find((o) => o.id === chosen)?.label : undefined,
+          }}
+          onClose={() => setReporting(false)}
+        />
+      )}
     </Shell>
   )
 }

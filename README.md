@@ -1,4 +1,4 @@
-# Deck Trainer (arbetsnamn)
+# Lanterna
 
 Pluggapp för befälselever: morse, prickning (IALA), lanternor och dagersignaler, COLREGs, ljudsignaler, flaggor och nödsignaler (React + Vite + TypeScript, PWA).
 
@@ -61,6 +61,13 @@ git push
 ```
 
 Netlify bygger och publicerar automatiskt efter varje push.
+
+## Felrapporter från betan
+
+Under varje fråga finns länken "Report a problem with this question", och i sidfoten på startsidan finns "Report a problem".
+Rapporterna skickas till Netlify Forms. Första gången: gå till Netlify → ditt projekt → **Forms** → **Enable form detection**
+och gör en ny deploy. Rapporterna syns sedan under Forms, och under Forms → Form notifications kan du få dem som mejl.
+Om rapporten inte kan skickas, till exempel utan nät, öppnas mejlappen i stället.
 
 ## Integritetspolicy
 

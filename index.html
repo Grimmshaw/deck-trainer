@@ -4,12 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0b1d33" />
-    <meta name="description" content="Study app for deck officer cadets: Morse, IALA buoyage, lights and shapes, COLREGs, sound signals, flags and distress signals." />
+    <meta name="description" content="Lanterna – study app for deck officer cadets: Morse, IALA buoyage, lights and shapes, COLREGs, sound signals, flags, distress signals and chart symbols." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <title>Deck Trainer</title>
+    <title>Lanterna</title>
   </head>
-  <body>
+  <body style="background: #0b1d33">
+    <!-- Netlify finds this hidden form when the site is built, so problem reports
+         from the app (src/report/report.ts) end up under Forms in Netlify. -->
+    <form name="report" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="bot-field" />
+      <input name="kind" />
+      <input name="reason" />
+      <textarea name="message"></textarea>
+      <input name="category" />
+      <input name="key" />
+      <textarea name="question"></textarea>
+      <input name="answer" />
+      <input name="chosen" />
+      <input name="version" />
+    </form>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

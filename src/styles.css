@@ -1375,3 +1375,135 @@ p {
   border-color: var(--wrong);
   background: rgba(255, 107, 107, 0.15);
 }
+
+/* Report sheet */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(2, 8, 18, 0.6);
+}
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  background: var(--bg-2);
+  display: grid;
+  gap: 12px;
+  animation: sheet-up 0.22s ease-out;
+}
+.sheet h2 {
+  font-size: 1.15rem;
+}
+.sheet textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+.reason-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+.report-link {
+  justify-self: center;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  padding: 6px;
+}
+
+/* Splash */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: radial-gradient(circle at 50% 42%, #14335a 0%, var(--bg) 60%);
+  transition: opacity 0.4s ease;
+}
+.splash.leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+.splash .lantern-mark {
+  animation: lantern-in 0.6s ease-out both;
+}
+.splash-name {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  animation: rise-in 0.6s 0.12s ease-out both;
+}
+.splash-tag {
+  color: var(--muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: rise-in 0.6s 0.22s ease-out both;
+}
+@keyframes lantern-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+    filter: brightness(0.4);
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash .lantern-mark,
+  .splash-name,
+  .splash-tag,
+  .sheet {
+    animation: none;
+  }
+}
+
+/* Hub brand */
+.hub-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hub-brand h1 {
+  letter-spacing: 0.04em;
+}
+.footer-link {
+  background: none;
+  border: none;
+  color: inherit;
+  text-decoration: underline;
+  font: inherit;
+  padding: 0;
+}

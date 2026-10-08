@@ -3,6 +3,9 @@ import { CATEGORIES, FINAL_EXAM, type Category, type CategoryId } from '../study
 import { mastery, useProgress } from '../study/progress'
 import { GENERATORS } from '../study/registry'
 import type { Ctx } from '../study/types'
+import { useState } from 'react'
+import { LanternMark } from '../brand/Logo'
+import ReportDialog from '../report/ReportDialog'
 import CategoryIcon from './CategoryIcon'
 
 interface Props {
@@ -16,13 +19,17 @@ export default function Hub({ region, onOpen, onRegion }: Props) {
   const ctx: Ctx = { region }
   const active = CATEGORIES.filter((c) => c.tag !== 'Soon')
   const soon = CATEGORIES.filter((c) => c.tag === 'Soon')
+  const [reporting, setReporting] = useState(false)
 
   return (
     <div className="screen hub">
       <header className="hub-header">
-        <div>
-          <h1>Deck Trainer</h1>
-          <p className="muted small">Study for your deck officer exams</p>
+        <div className="hub-brand">
+          <LanternMark size={46} />
+          <div>
+            <h1>Lanterna</h1>
+            <p className="muted small">Study for your deck officer exams</p>
+          </div>
         </div>
         <button className="region-chip" onClick={onRegion} aria-label={`Region: ${region.name}. Change region`}>
           <CategoryIcon kind="globe" size={18} />
@@ -58,10 +65,15 @@ export default function Hub({ region, onOpen, onRegion }: Props) {
 
       <footer className="footer muted small">
         Lanterna ·{' '}
+        <button className="footer-link" onClick={() => setReporting(true)}>
+          Report a problem
+        </button>{' '}
+        ·{' '}
         <a href="/privacy.html" target="_blank" rel="noopener">
           Privacy policy
         </a>
       </footer>
+      {reporting && <ReportDialog base={{ kind: 'bug' }} onClose={() => setReporting(false)} />}
     </div>
   )
 }

@@ -17,6 +17,7 @@ import CategoryHome from './components/study/CategoryHome'
 import Session, { type SessionMode } from './components/study/Session'
 import Learn from './components/study/Learn'
 import Match from './components/study/Match'
+import { Splash } from './brand/Logo'
 
 export interface Settings {
   mode: Mode
@@ -69,6 +70,17 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [screen])
 
+  // Splash: the logo shows for a moment when the app starts, then fades out
+  const [splash, setSplash] = useState<'show' | 'leaving' | 'gone'>('show')
+  useEffect(() => {
+    const a = window.setTimeout(() => setSplash('leaving'), 750)
+    const b = window.setTimeout(() => setSplash('gone'), 1200)
+    return () => {
+      window.clearTimeout(a)
+      window.clearTimeout(b)
+    }
+  }, [])
+
   const go = (s: Screen) => setScreen(s)
   const hub = () => go({ name: 'hub' })
 
@@ -90,6 +102,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {splash !== 'gone' && <Splash leaving={splash === 'leaving'} />}
       {screen.name === 'hub' && <Hub region={region} onOpen={openCategory} onRegion={() => go({ name: 'region' })} />}
 
       {screen.name === 'region' && (

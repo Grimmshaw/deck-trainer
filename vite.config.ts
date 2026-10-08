@@ -9,11 +9,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       // The privacy policy is a plain page of its own, not part of the app
       workbox: { navigateFallbackDenylist: [/^\/privacy/] },
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'privacy.html'],
+      includeAssets: ['favicon.svg', 'logo.svg', 'apple-touch-icon.png', 'privacy.html'],
       manifest: {
-        name: 'Deck Trainer',
-        short_name: 'Deck Trainer',
-        description: 'Study app for deck officer cadets: Morse, IALA buoyage, lights and shapes, COLREGs, sound signals, flags and distress signals.',
+        name: 'Lanterna – deck officer trainer',
+        short_name: 'Lanterna – deck officer trainer',
+        description: 'Study app for deck officer cadets: Morse, IALA buoyage, lights and shapes, COLREGs, sound signals, flags, distress signals and chart symbols.',
         lang: 'en',
         theme_color: '#0b1d33',
         background_color: '#0b1d33',
