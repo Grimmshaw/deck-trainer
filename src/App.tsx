@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Level, Mode } from './morse'
 import { findRegion } from './regions'
 import { load, save } from './storage'
@@ -81,7 +81,41 @@ export default function App() {
     }
   }, [])
 
-  const go = (s: Screen) => setScreen(s)
+  // Browser history: every new screen is a history entry, so the phone's back
+  // button (and the browser's) steps back inside the app instead of leaving it.
+  // Going "back" in the app (✕ or ←) to the screen we came from also uses
+  // history.back(), so the two never get out of step.
+  const stack = useRef<Screen[]>([{ name: 'hub' }])
+  const pos = useRef(0)
+  useEffect(() => {
+    window.history.replaceState({ lanterna: 0 }, '')
+    const onPop = (e: PopStateEvent) => {
+      const i = typeof e.state?.lanterna === 'number' ? e.state.lanterna : 0
+      pos.current = Math.min(i, stack.current.length - 1)
+      setScreen(stack.current[pos.current])
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  const same = (a: Screen, b: Screen) => JSON.stringify(a) === JSON.stringify(b)
+
+  const go = (s: Screen, replace = false) => {
+    const prev = stack.current[pos.current - 1]
+    if (!replace && prev && same(prev, s)) {
+      window.history.back()
+      return
+    }
+    if (replace) {
+      stack.current[pos.current] = s
+      window.history.replaceState({ lanterna: pos.current }, '')
+    } else {
+      pos.current += 1
+      stack.current = [...stack.current.slice(0, pos.current), s]
+      window.history.pushState({ lanterna: pos.current }, '')
+    }
+    setScreen(s)
+  }
   const hub = () => go({ name: 'hub' })
 
   const updateBestStreak = (streak: number) =>
@@ -94,8 +128,9 @@ export default function App() {
     else go({ name: 'soon', category: id })
   }
 
+  // A new session started from a finished one replaces it in the history
   const startSession = (category: CategoryId, mode: SessionMode, count: number, back: Screen) =>
-    go({ name: 'session', category, mode, count, back, run: Date.now() })
+    go({ name: 'session', category, mode, count, back, run: Date.now() }, screen.name === 'session')
 
   const generatorsFor = (id: CategoryId): Generator[] =>
     id === 'exam' ? EXAM_CATEGORIES.map((c) => GENERATORS[c]!) : [GENERATORS[id]!]
