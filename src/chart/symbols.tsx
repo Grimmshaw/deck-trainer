@@ -22,6 +22,7 @@ const MAG = '#b5157f'
 const PAPER = '#fbfaf3'
 const SHALLOW = '#c9e4f4'
 const DRYING = '#c8dcb4'
+const LAND = '#ead9a6'
 
 /** Dotted danger line around a danger */
 const dangerLine = (r = 26) => <circle cx="50" cy="50" r={r} fill={SHALLOW} stroke={INK} strokeWidth="1.6" strokeDasharray="1.5 3.2" strokeLinecap="round" />
@@ -76,7 +77,7 @@ export const CHART_SYMBOLS: ChartSymbol[] = [
     id: 'wreckDanger',
     name: 'Dangerous wreck, depth unknown',
     meaning: 'A wreck of unknown depth that is considered dangerous to surface navigation. The dotted line is the danger line.',
-    int1: 'K29',
+    int1: 'K28',
     group: 'danger',
     draw: () => (
       <>
@@ -89,7 +90,7 @@ export const CHART_SYMBOLS: ChartSymbol[] = [
     id: 'wreck',
     name: 'Wreck, not dangerous to surface navigation',
     meaning: 'A wreck of unknown depth that is not considered dangerous to surface navigation – no danger line around it.',
-    int1: 'K30',
+    int1: 'K29',
     group: 'danger',
     draw: wreckMark,
   },
@@ -112,7 +113,7 @@ export const CHART_SYMBOLS: ChartSymbol[] = [
     id: 'rockAwash',
     name: 'Rock awash at chart datum',
     meaning: 'A rock whose top is at about the level of chart datum.',
-    int1: 'K13',
+    int1: 'K12',
     group: 'danger',
     draw: () => (
       <g fill={INK} stroke={INK} strokeLinecap="round">
@@ -150,7 +151,7 @@ export const CHART_SYMBOLS: ChartSymbol[] = [
     id: 'rockUnder',
     name: 'Dangerous underwater rock, depth unknown',
     meaning: 'An underwater rock of unknown depth, dangerous to surface navigation.',
-    int1: 'K14',
+    int1: 'K13',
     group: 'danger',
     draw: () => (
       <>
@@ -386,6 +387,294 @@ export const CHART_SYMBOLS: ChartSymbol[] = [
           2₃
         </text>
         <line x1="40" y1="62" x2="54" y2="62" stroke={INK} strokeWidth="2" />
+      </g>
+    ),
+  },
+
+  // ---- Added 9 Oct 2026 (NEW 9 OCT) – waiting for Robin's review. Check every drawing against INT 1. ----
+  {
+    id: 'islet',
+    name: 'Rock which does not cover (islet)',
+    meaning: 'A rock or islet that is always above water. Its height above the height datum may be given beside it.',
+    int1: 'K10',
+    group: 'danger',
+    draw: () => (
+      <path
+        d="M36 54 C34 44 44 38 52 40 C60 37 68 44 66 52 C68 60 58 64 50 62 C42 65 37 60 36 54 Z"
+        fill={LAND}
+        stroke={INK}
+        strokeWidth="1.6"
+      />
+    ),
+  },
+  {
+    id: 'breakers',
+    name: 'Breakers',
+    meaning: 'Breakers: waves breaking over a shoal or reef. Keep well clear.',
+    int1: 'K17',
+    group: 'danger',
+    draw: () => (
+      <text x="50" y="58" fontSize="22" fill={INK} textAnchor="middle" fontStyle="italic">
+        Br
+      </text>
+    ),
+  },
+  {
+    id: 'wreckDepth',
+    name: 'Wreck, least depth known',
+    meaning: 'A wreck whose least depth is known by sounding, here 2.5 m. The danger line shows it is a danger to surface navigation.',
+    int1: 'K26',
+    group: 'danger',
+    draw: () => (
+      <>
+        {dangerLine(30)}
+        <text x="50" y="56" fontSize="15" fill={INK} textAnchor="middle" fontStyle="italic">
+          2₅ Wk
+        </text>
+      </>
+    ),
+  },
+  {
+    id: 'obstructionDepth',
+    name: 'Obstruction, least depth known',
+    meaning: 'An obstruction whose least depth is known by sounding, here 4.8 m.',
+    int1: 'K41',
+    group: 'danger',
+    draw: () => (
+      <>
+        {dangerLine(32)}
+        <text x="50" y="56" fontSize="13" fill={INK} textAnchor="middle" fontStyle="italic">
+          4₈ Obstn
+        </text>
+      </>
+    ),
+  },
+  {
+    id: 'anchorageArea',
+    name: 'Anchorage area',
+    meaning: 'The limit of an anchorage area: a magenta dashed line with small anchors along it.',
+    int1: 'N12.1',
+    group: 'area',
+    draw: () => (
+      <>
+        <path d="M8 70 L92 30" fill="none" stroke={MAG} strokeWidth="2.2" strokeDasharray="9 5" />
+        {anchor(30, 50, 0.5)}
+        {anchor(70, 31, 0.5)}
+      </>
+    ),
+  },
+  {
+    id: 'anchorBerth',
+    name: 'Designated anchor berth',
+    meaning: 'A designated anchor berth: an anchor in a magenta circle, with the berth number beside it.',
+    int1: 'N11.1',
+    group: 'area',
+    draw: () => (
+      <>
+        <circle cx="46" cy="50" r="24" fill="none" stroke={MAG} strokeWidth="2.4" />
+        {anchor(46, 52, 0.75)}
+        <text x="80" y="78" fontSize="13" fill={MAG} textAnchor="middle">
+          14
+        </text>
+      </>
+    ),
+  },
+  {
+    id: 'cableArea',
+    name: 'Submarine cable area',
+    meaning: 'The limit of a cable area: a magenta dashed line with small cable symbols. Do not anchor or trawl inside.',
+    int1: 'L30.2',
+    group: 'area',
+    draw: () => (
+      <>
+        <path d="M8 70 L92 30" fill="none" stroke={MAG} strokeWidth="2.2" strokeDasharray="9 5" />
+        {[
+          [30, 59.5],
+          [68, 41.4],
+        ].map(([x, y]) => (
+          <path key={x} d="M-12 0 q3 -7 6 0 t6 0 t6 0 t6 0" fill="none" stroke={MAG} strokeWidth="2.2" transform={`translate(${x} ${y}) rotate(-25.5)`} />
+        ))}
+      </>
+    ),
+  },
+  {
+    id: 'pipeline',
+    name: 'Submarine supply pipeline',
+    meaning: 'A submarine pipeline for oil, gas or water – a magenta line with small circles. The product is written beside it.',
+    int1: 'L40.1',
+    group: 'area',
+    draw: () => (
+      <g stroke={MAG} strokeWidth="2.2" fill="none">
+        <line x1="6" y1="50" x2="94" y2="50" strokeDasharray="10 8" />
+        {[20, 38, 56, 74, 92].map((x) => (
+          <circle key={x} cx={x - 1} cy="50" r="2.6" fill={PAPER} />
+        ))}
+        <text x="50" y="68" fontSize="12" fill={MAG} stroke="none" textAnchor="middle" fontStyle="italic">
+          Gas
+        </text>
+      </g>
+    ),
+  },
+  {
+    id: 'windTurbine',
+    name: 'Wind turbine',
+    meaning: 'A single offshore wind turbine. A group of them is charted as a wind farm with a limit line.',
+    int1: 'L5.1',
+    group: 'area',
+    draw: () => (
+      <g stroke={INK} strokeWidth="2.4" strokeLinecap="round" fill="none">
+        <circle cx="50" cy="74" r="3" fill={INK} />
+        <line x1="50" y1="71" x2="50" y2="44" />
+        <line x1="50" y1="44" x2="50" y2="24" />
+        <line x1="50" y1="44" x2="33" y2="54" />
+        <line x1="50" y1="44" x2="67" y2="54" />
+      </g>
+    ),
+  },
+  {
+    id: 'platform',
+    name: 'Offshore platform',
+    meaning: 'A fixed offshore platform, for example for oil or gas production. Its name is often written beside it.',
+    int1: 'L10',
+    group: 'area',
+    draw: () => (
+      <g>
+        <rect x="38" y="38" width="24" height="24" fill="none" stroke={INK} strokeWidth="2.4" />
+        <circle cx="50" cy="50" r="2.6" fill={INK} />
+      </g>
+    ),
+  },
+  {
+    id: 'tssArrow',
+    name: 'Established direction of traffic flow',
+    meaning: 'In a traffic separation scheme, an outlined magenta arrow shows the established direction of traffic in a lane.',
+    int1: 'M10',
+    group: 'area',
+    draw: () => (
+      <path d="M14 42 L62 42 L62 30 L88 50 L62 70 L62 58 L14 58 Z" fill="none" stroke={MAG} strokeWidth="2.4" strokeLinejoin="round" />
+    ),
+  },
+  {
+    id: 'tssRecommended',
+    name: 'Recommended direction of traffic flow',
+    meaning: 'A dashed magenta arrow shows a recommended (not mandatory) direction of traffic.',
+    int1: 'M11',
+    group: 'area',
+    draw: () => (
+      <path
+        d="M14 42 L62 42 L62 30 L88 50 L62 70 L62 58 L14 58 Z"
+        fill="none"
+        stroke={MAG}
+        strokeWidth="2.4"
+        strokeDasharray="6 4"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
+    id: 'sepZone',
+    name: 'Separation zone',
+    meaning: 'A separation zone in a traffic separation scheme: a band tinted magenta between two traffic lanes.',
+    int1: 'M13',
+    group: 'area',
+    draw: () => (
+      <>
+        <path d="M0 40 L100 40 L100 60 L0 60 Z" fill={MAG} fillOpacity="0.28" />
+        <path d="M30 26 L58 26 L58 20 L72 30 L58 40 L58 34 L30 34 Z" fill="none" stroke={MAG} strokeWidth="1.6" transform="translate(0 -8)" />
+        <path d="M70 74 L42 74 L42 80 L28 70 L42 60 L42 66 L70 66 Z" fill="none" stroke={MAG} strokeWidth="1.6" transform="translate(0 8)" />
+      </>
+    ),
+  },
+  {
+    id: 'lightVessel',
+    name: 'Light vessel',
+    meaning: 'A light vessel or major light float: a ship symbol with a light flare. Its light characteristics are written beside it.',
+    int1: 'P6',
+    group: 'aid',
+    draw: () => (
+      <g>
+        <path d="M57 40 C55 28 63 14 73 10 C72 22 65 34 57 40 Z" fill={MAG} />
+        <path d="M22 62 L78 62 L68 74 L32 74 Z" fill={INK} />
+        <rect x="55.5" y="40" width="3" height="22" fill={INK} />
+        <circle cx="50" cy="78" r="2.6" fill={PAPER} stroke={INK} strokeWidth="1.4" />
+      </g>
+    ),
+  },
+  {
+    id: 'leadingLights',
+    name: 'Leading lights',
+    meaning: 'Two lights in line: the firm line is the leading line (the track to follow), with its true bearing.',
+    int1: 'P20.1',
+    group: 'aid',
+    draw: () => (
+      <g>
+        <line x1="10" y1="80" x2="88" y2="22" stroke={INK} strokeWidth="1.8" />
+        {[
+          [64, 40],
+          [80, 28],
+        ].map(([x, y]) => (
+          <g key={x}>
+            <path d={`M${x} ${y} C${x - 3} ${y - 12} ${x + 6} ${y - 24} ${x + 16} ${y - 26} C${x + 14} ${y - 16} ${x + 8} ${y - 6} ${x} ${y} Z`} fill={MAG} />
+            <circle cx={x} cy={y} r="2.8" fill={INK} />
+          </g>
+        ))}
+        <text x="30" y="58" fontSize="11" fill={INK} transform="rotate(-36 30 58)">
+          053°
+        </text>
+      </g>
+    ),
+  },
+  {
+    id: 'sectorLight',
+    name: 'Sector light',
+    meaning: 'A sector light: dashed lines show the sector limits and the colour of each sector is marked (W, R, G). The white sector usually leads through the fairway.',
+    int1: 'P40.1',
+    group: 'aid',
+    draw: () => (
+      <g>
+        <g stroke={INK} strokeWidth="1.2" strokeDasharray="4 3">
+          <line x1="20" y1="80" x2="92" y2="44" />
+          <line x1="20" y1="80" x2="88" y2="24" />
+          <line x1="20" y1="80" x2="70" y2="10" />
+        </g>
+        <path d="M90 62 A72 72 0 0 0 64 24" fill="none" stroke={INK} strokeWidth="1" strokeDasharray="2 3" />
+        <text x="84" y="64" fontSize="13" fill={INK}>G</text>
+        <text x="80" y="42" fontSize="13" fill={INK}>W</text>
+        <text x="66" y="26" fontSize="13" fill={INK}>R</text>
+        <path d="M20 80 C17 68 26 54 36 50 C35 62 28 74 20 80 Z" fill={MAG} />
+        <circle cx="20" cy="80" r="3" fill={INK} />
+      </g>
+    ),
+  },
+  {
+    id: 'ais',
+    name: 'AIS transmitter',
+    meaning: 'An aid to navigation with an AIS transmitter: a magenta circle with the letters AIS. It shows as a symbol on AIS and ECDIS.',
+    int1: 'S17.1',
+    group: 'aid',
+    draw: () => (
+      <g>
+        <circle cx="50" cy="50" r="20" fill="none" stroke={MAG} strokeWidth="2.6" />
+        <circle cx="50" cy="50" r="2.6" fill={INK} />
+        <text x="76" y="80" fontSize="11" fill={MAG} textAnchor="middle" fontStyle="italic">
+          AIS
+        </text>
+      </g>
+    ),
+  },
+  {
+    id: 'contour',
+    name: 'Depth contour',
+    meaning: 'A depth contour: a line joining points of equal depth, here the 10 m line. The water inside it is shallower.',
+    int1: 'I30',
+    group: 'depth',
+    draw: () => (
+      <g>
+        <path d="M0 30 Q30 60 50 50 T100 66" fill="none" stroke="#3d7fb0" strokeWidth="1.6" />
+        <rect x="42" y="44" width="16" height="12" fill={PAPER} />
+        <text x="50" y="54" fontSize="11" fill={INK} textAnchor="middle" fontStyle="italic">
+          10
+        </text>
       </g>
     ),
   },
