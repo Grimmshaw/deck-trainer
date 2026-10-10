@@ -1710,3 +1710,25 @@ a.as-button {
   background: color-mix(in srgb, var(--brass) 25%, transparent);
   color: var(--text);
 }
+
+/* Step pages: one question, one big button per answer */
+.step-question {
+  margin: 8px 2px 4px;
+  font-size: 1.25rem;
+}
+.step-option strong {
+  font-size: 1.15rem;
+}
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+.step-grid .step-option {
+  justify-items: center;
+  text-align: center;
+  padding: 18px 8px;
+}
+.step-grid .step-option strong {
+  font-size: 1.6rem;
+}

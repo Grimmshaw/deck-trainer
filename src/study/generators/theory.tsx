@@ -36,7 +36,8 @@ export function withTheory(gen: Generator, list: (TheoryItem & { id: string })[]
   const find = (key: string) => list.find((t) => prefix + t.id === key)
   return {
     ...gen,
-    items: (ctx) => [...gen.items(ctx), ...list.map((t) => prefix + t.id)],
+    // Theory questions are about meanings and rules, so they are left out when only the alphabet is practised
+    items: (ctx) => [...gen.items(ctx), ...(ctx.focus === 'alphabet' ? [] : list.map((t) => prefix + t.id))],
     label: (key, ctx) => find(key)?.q ?? gen.label(key, ctx),
     make(key, ctx) {
       const t = find(key)

@@ -2,8 +2,16 @@ import type { ReactNode } from 'react'
 import type { StudyRegion } from '../regions'
 import type { CategoryId } from './categories'
 
+/**
+ * What to practise in a category where the items have two sides, like Morse
+ * and flags: the letters themselves, what the single-letter signals mean, or both.
+ */
+export type Focus = 'alphabet' | 'meaning' | 'both'
+
 export interface Ctx {
   region: StudyRegion
+  /** Only the items for this focus. Left out = everything (the final exam, progress). */
+  focus?: Focus
 }
 
 export interface Option {
@@ -57,4 +65,6 @@ export interface Generator {
   label(key: string, ctx: Ctx): string
   /** Pairs for the "Match pairs" game, if the category has one */
   pairs?(ctx: Ctx): MatchPair[]
+  /** Set if the user can choose a focus: a short text for each choice */
+  focus?: Record<Focus, string>
 }
