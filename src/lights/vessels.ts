@@ -8,7 +8,8 @@
 export type LightKind = 'masthead' | 'sideStbd' | 'sidePort' | 'stern' | 'towing' | 'allRound'
 export type ShipLightColor = 'W' | 'R' | 'G' | 'Y'
 export type DayShape = 'ball' | 'diamond' | 'cylinder' | 'coneUp' | 'coneDown'
-export type HullType = 'large' | 'small' | 'sail'
+/** 'largeFwd' is a large vessel with her bridge forward (ro-ro, ferry, supply vessel) */
+export type HullType = 'large' | 'largeFwd' | 'small' | 'sail'
 
 export interface ShipLight {
   kind: LightKind
@@ -73,6 +74,26 @@ export const HULLS: Record<HullType, HullSpec> = {
     anchorAft: { x: -59, z: 11 },
     shapeX: 40,
     shapeTop: 31,
+    shapeSize: 2.6,
+  },
+  // Bridge forward (COLREG Annex I): the forward masthead light is on the mast on
+  // top of the bridge, no more than a quarter of the length from the stem. The
+  // after masthead light is at least half the length further aft and at least
+  // 4.5 m higher. The sidelights are on the bridge wings, not forward of the
+  // forward masthead light, and no higher than 3/4 of its height.
+  largeFwd: {
+    length: 120,
+    mastheadFwd: { x: 42, z: 26 },
+    mastheadAft: { x: -35, z: 33 },
+    sides: { x: 40, y: 11, z: 19.4 },
+    stern: { x: -60, z: 10 },
+    signalX: -35,
+    signalTop: 28.5,
+    signalStep: 4.5,
+    anchorFwd: { x: 57, z: 14 },
+    anchorAft: { x: -59, z: 11 },
+    shapeX: 42,
+    shapeTop: 37,
     shapeSize: 2.6,
   },
   small: {
@@ -154,6 +175,11 @@ function towingLight(h: HullType): ShipLight {
   return light('towing', 'Y', s.stern.x, s.stern.z + s.signalStep)
 }
 
+/** The same variants for a large vessel with her bridge aft and one with her bridge forward */
+function large(make: (h: HullType) => Variant[]): Variant[] {
+  return [...make('large'), ...make('largeFwd')]
+}
+
 // ---------- The vessels ----------
 
 export const VESSELS: Vessel[] = [
@@ -162,7 +188,7 @@ export const VESSELS: Vessel[] = [
     name: 'Power-driven vessel, 50 m or more',
     rule: 'Rule 23(a)',
     description: 'Two masthead lights (the aft one higher), sidelights and a sternlight.',
-    variants: [{ label: 'underway', hull: 'large', lights: [...masthead('large'), ...sidelightsAndStern('large')], shapes: [] }],
+    variants: large((h) => [{ label: 'underway', hull: h, lights: [...masthead(h), ...sidelightsAndStern(h)], shapes: [] }]),
   },
   {
     id: 'power',
@@ -221,39 +247,39 @@ export const VESSELS: Vessel[] = [
     name: 'Vessel not under command',
     rule: 'Rule 27(a)',
     description: 'Two all-round red lights in a vertical line. Sidelights and sternlight when making way. By day two balls.',
-    variants: [
-      { label: 'making way', hull: 'large', lights: [...signals('large', ['R', 'R']), ...sidelightsAndStern('large')], shapes: ['ball', 'ball'] },
-      { label: 'not making way', hull: 'large', lights: signals('large', ['R', 'R']), shapes: ['ball', 'ball'] },
-    ],
+    variants: large((h) => [
+      { label: 'making way', hull: h, lights: [...signals(h, ['R', 'R']), ...sidelightsAndStern(h)], shapes: ['ball', 'ball'] },
+      { label: 'not making way', hull: h, lights: signals(h, ['R', 'R']), shapes: ['ball', 'ball'] },
+    ]),
   },
   {
     id: 'ram',
     name: 'Vessel restricted in her ability to manoeuvre',
     rule: 'Rule 27(b)',
     description: 'All-round red, white, red in a vertical line. When making way also masthead lights, sidelights and sternlight. By day ball, diamond, ball.',
-    variants: [
+    variants: large((h) => [
       {
         label: 'making way',
-        hull: 'large',
-        lights: [...signals('large', ['R', 'W', 'R']), ...masthead('large'), ...sidelightsAndStern('large')],
+        hull: h,
+        lights: [...signals(h, ['R', 'W', 'R']), ...masthead(h), ...sidelightsAndStern(h)],
         shapes: ['ball', 'diamond', 'ball'],
       },
-      { label: 'not making way', hull: 'large', lights: signals('large', ['R', 'W', 'R']), shapes: ['ball', 'diamond', 'ball'] },
-    ],
+      { label: 'not making way', hull: h, lights: signals(h, ['R', 'W', 'R']), shapes: ['ball', 'diamond', 'ball'] },
+    ]),
   },
   {
     id: 'cbd',
     name: 'Vessel constrained by her draught',
     rule: 'Rule 28',
     description: 'The lights of a power-driven vessel plus three all-round red lights in a vertical line. By day a cylinder.',
-    variants: [
+    variants: large((h) => [
       {
         label: 'underway',
-        hull: 'large',
-        lights: [...signals('large', ['R', 'R', 'R']), ...masthead('large'), ...sidelightsAndStern('large')],
+        hull: h,
+        lights: [...signals(h, ['R', 'R', 'R']), ...masthead(h), ...sidelightsAndStern(h)],
         shapes: ['cylinder'],
       },
-    ],
+    ]),
   },
   {
     id: 'pilot',
@@ -299,7 +325,7 @@ export const VESSELS: Vessel[] = [
     rule: 'Rule 30(a)',
     description: 'All-round white light(s): two if 50 m or more (the forward one higher), one if less than 50 m. By day one ball.',
     variants: [
-      { label: '50 m or more', hull: 'large', lights: anchorLights('large'), shapes: ['ball'] },
+      ...large((h) => [{ label: '50 m or more', hull: h, lights: anchorLights(h), shapes: ['ball'] }]),
       { label: 'less than 50 m', hull: 'small', lights: anchorLights('small'), shapes: ['ball'] },
     ],
   },
@@ -308,7 +334,7 @@ export const VESSELS: Vessel[] = [
     name: 'Vessel aground',
     rule: 'Rule 30(d)',
     description: 'Anchor lights plus two all-round red lights in a vertical line. By day three balls.',
-    variants: [{ label: 'aground', hull: 'large', lights: [...anchorLights('large'), ...signals('large', ['R', 'R'])], shapes: ['ball', 'ball', 'ball'] }],
+    variants: large((h) => [{ label: 'aground', hull: h, lights: [...anchorLights(h), ...signals(h, ['R', 'R'])], shapes: ['ball', 'ball', 'ball'] }]),
   },
 ]
 

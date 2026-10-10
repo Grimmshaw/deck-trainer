@@ -20,38 +20,71 @@ const H = 300
 const WATER = 255
 const CX = 100
 
+interface Zone {
+  xMin: number
+  xMax: number
+  yMin: number
+  yMax: number
+}
+
 interface ShapeGeo {
   d: string
   top: number
   xMin: number
   xMax: number
+  /** Width of the body where it meets the water (0 = stands on a rock) */
+  waterWidth: number
   /** Where horizontal bands end. Defaults to the waterline. */
   paintBottom?: number
-  /** Where vertical stripes are drawn. A pillar has a narrow column on a wide base. */
-  stripeZones?: { xMin: number; xMax: number; yMin: number; yMax: number }[]
+  /**
+   * Parts of the body that are round on their own, e.g. the narrow tower and the wide
+   * float of a pillar buoy. Used for vertical stripes and for the shading.
+   */
+  zones?: Zone[]
+  /** Height of a dark rubbing band (fender) around the float */
+  fender?: number
+  /** Open lattice tower (pillar buoys) */
+  lattice?: boolean
 }
 
 const SHAPES: Record<BodyShape, ShapeGeo> = {
-  can: { d: 'M68 185 H132 V266 H68 Z', top: 185, xMin: 68, xMax: 132 },
-  cone: { d: 'M62 266 L138 266 L106 178 L94 178 Z', top: 178, xMin: 62, xMax: 138 },
+  // A can on a wider float
+  can: {
+    d: 'M68 186 H132 V236 H140 Q146 236 146 243 V266 H54 V243 Q54 236 60 236 H68 Z',
+    top: 186,
+    xMin: 54,
+    xMax: 146,
+    waterWidth: 92,
+    zones: [
+      { xMin: 68, xMax: 132, yMin: 0, yMax: 236 },
+      { xMin: 54, xMax: 146, yMin: 236, yMax: H },
+    ],
+    fender: 243,
+  },
+  cone: { d: 'M62 266 L138 266 L106 178 L94 178 Z', top: 178, xMin: 62, xMax: 138, waterWidth: 68 },
   sphere: {
     d: 'M54 214 A46 46 0 1 1 146 214 A46 46 0 1 1 54 214 Z',
     top: 168,
     xMin: 54,
     xMax: 146,
+    waterWidth: 42,
   },
+  // A big round float with an open lattice tower on top
   pillar: {
-    d: 'M58 266 L142 266 L132 230 L112 230 L109 122 L91 122 L88 230 L68 230 Z',
-    top: 122,
-    xMin: 58,
-    xMax: 142,
-    stripeZones: [
-      { xMin: 88, xMax: 112, yMin: 0, yMax: 230 },
-      { xMin: 58, xMax: 142, yMin: 230, yMax: H },
+    d: 'M52 266 L52 239 Q52 220 72 219 L84 219 L89 128 L111 128 L116 219 L128 219 Q148 220 148 239 L148 266 Z',
+    top: 128,
+    xMin: 52,
+    xMax: 148,
+    waterWidth: 96,
+    zones: [
+      { xMin: 84, xMax: 116, yMin: 0, yMax: 219 },
+      { xMin: 52, xMax: 148, yMin: 219, yMax: H },
     ],
+    fender: 232,
+    lattice: true,
   },
-  spar: { d: 'M89 266 L111 266 L106 104 L94 104 Z', top: 104, xMin: 89, xMax: 111 },
-  beacon: { d: 'M89 232 L111 232 L107 118 L93 118 Z', top: 118, xMin: 89, xMax: 111, paintBottom: 229 },
+  spar: { d: 'M89 266 L111 266 L106 104 L94 104 Z', top: 104, xMin: 89, xMax: 111, waterWidth: 21 },
+  beacon: { d: 'M89 232 L111 232 L107 118 L93 118 Z', top: 118, xMin: 89, xMax: 111, waterWidth: 0, paintBottom: 229 },
 }
 
 /** Rock that a fixed beacon stands on */
@@ -139,6 +172,12 @@ export default function BuoySvg({ mark, light, night = false, silhouette = true,
         <filter id={`blur-${uid}`} x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation={2.2 + 1.6 * sc.scale} />
         </filter>
+        <linearGradient id={`shade-${uid}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#000" stopOpacity="0.3" />
+          <stop offset="24%" stopColor="#fff" stopOpacity="0.22" />
+          <stop offset="48%" stopColor="#fff" stopOpacity="0" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.34" />
+        </linearGradient>
         <radialGradient id={`glow-${uid}`}>
           <stop offset="0%" stopColor={lit ? LIGHT_CSS[lit] : 'transparent'} stopOpacity="0.95" />
           <stop offset="35%" stopColor={lit ? LIGHT_CSS[lit] : 'transparent'} stopOpacity="0.45" />
@@ -177,8 +216,23 @@ export default function BuoySvg({ mark, light, night = false, silhouette = true,
           {/* Body with paint */}
           <g clipPath={`url(#body-${uid})`}>
             <Paintwork mark={mark} geo={geo} />
+            {geo.lattice && <Lattice />}
+            {geo.fender && <rect x={0} y={geo.fender - 1.5} width={W} height={3} fill="#000" opacity={0.4} />}
+            {/* Shading that makes the body look round */}
+            {(geo.zones ?? [{ xMin: geo.xMin, xMax: geo.xMax, yMin: 0, yMax: H }]).map((z, i) => (
+              <rect key={i} x={z.xMin} y={z.yMin} width={z.xMax - z.xMin} height={z.yMax - z.yMin} fill={`url(#shade-${uid})`} />
+            ))}
           </g>
           <path d={geo.d} fill="none" stroke="#111" strokeOpacity="0.35" strokeWidth="1.5" />
+          {geo.lattice && (
+            // Platform with a railing round the lantern
+            <g stroke="#3b3b3b" strokeWidth={1.6}>
+              <line x1={82} y1={127} x2={118} y2={127} strokeWidth={3.5} />
+              <line x1={83} y1={127} x2={83} y2={117} />
+              <line x1={117} y1={127} x2={117} y2={117} />
+              <line x1={83} y1={118} x2={117} y2={118} />
+            </g>
+          )}
           {sc.shape === 'beacon' && (
             <>
               <path d={ROCK} fill={night ? '#111' : '#5f5750'} />
@@ -206,6 +260,13 @@ export default function BuoySvg({ mark, light, night = false, silhouette = true,
 
       {/* Sea in front of the mark hides the part below the waterline */}
       <rect y={waterY} width={W} height={H - waterY} fill={`url(#sea-${uid})`} />
+      {!night && geo.waterWidth > 0 && (
+        // A floating mark sits in the water: a dark shadow and a ring of foam round it
+        <>
+          <ellipse cx={sc.x} cy={waterY + 4 * sc.scale} rx={(geo.waterWidth / 2 + 4) * sc.scale} ry={4 * sc.scale} fill="#06213a" opacity={0.3} />
+          <ellipse cx={sc.x} cy={waterY + 0.5} rx={(geo.waterWidth / 2 + 7) * sc.scale} ry={2.2 * sc.scale + 0.8} fill="#fff" opacity={0.65} />
+        </>
+      )}
       <path
         d={wavePath(waterY, sc.scale, W)}
         fill="none"
@@ -238,7 +299,7 @@ function Paintwork({ mark, geo }: { mark: Mark; geo: ShapeGeo }) {
       </>
     )
   }
-  const zones = geo.stripeZones ?? [{ xMin: geo.xMin, xMax: geo.xMax, yMin: 0, yMax: H }]
+  const zones = geo.zones ?? [{ xMin: geo.xMin, xMax: geo.xMax, yMin: 0, yMax: H }]
   return (
     <>
       {zones.map((z, zi) => {
@@ -248,6 +309,29 @@ function Paintwork({ mark, geo }: { mark: Mark; geo: ShapeGeo }) {
         ))
       })}
     </>
+  )
+}
+
+/** Cross-bracing of the open tower on a pillar buoy (its edges run from x 84/116 at y 219 to 89/111 at y 128) */
+function Lattice() {
+  const levels = [219, 189, 158, 128]
+  const xl = (y: number) => 89 - (5 * (y - 128)) / 91
+  const xr = (y: number) => 111 + (5 * (y - 128)) / 91
+  return (
+    <g stroke="#000" strokeOpacity={0.32} strokeWidth={1.6}>
+      {levels.map((y) => (
+        <line key={`h${y}`} x1={xl(y)} y1={y} x2={xr(y)} y2={y} />
+      ))}
+      {levels.slice(1).map((y, i) => {
+        const y0 = levels[i]
+        return (
+          <g key={`x${y}`}>
+            <line x1={xl(y0)} y1={y0} x2={xr(y)} y2={y} />
+            <line x1={xr(y0)} y1={y0} x2={xl(y)} y2={y} />
+          </g>
+        )
+      })}
+    </g>
   )
 }
 

@@ -98,11 +98,12 @@ function Gallery() {
                   <div className="chip-row">
                     {v.variants.map((x, j) => (
                       <button
-                        key={x.label}
+                        key={j}
                         className={`chip ${vi === j ? 'selected' : ''}`}
                         onClick={() => setVariantIdx((s) => ({ ...s, [v.id]: j }))}
                       >
                         {x.label}
+                        {x.hull === 'largeFwd' ? ' · bridge forward' : ''}
                       </button>
                     ))}
                   </div>

@@ -11,10 +11,12 @@ export interface ShipScene extends Backdrop {
   scale: number
   /** Horizontal position of the vessel (viewBox units, 0–300) */
   x: number
+  /** Picks which look the hull is drawn with (0–1, 0 = the plain first look). See HULL_LOOKS. */
+  look: number
 }
 
 export function plainShipScene(aspect: number): ShipScene {
-  return { aspect, scale: 1, x: 150, horizon: 110, sky: 'clear', islands: [] }
+  return { aspect, scale: 1, x: 150, look: 0, horizon: 110, sky: 'clear', islands: [] }
 }
 
 export function randomShipScene(aspect: number, seed: number): ShipScene {
@@ -26,11 +28,12 @@ export function randomShipScene(aspect: number, seed: number): ShipScene {
     aspect,
     scale,
     x: 150 + (r() * 2 - 1) * spread,
+    look: r(),
   }
 }
 
 /** A close-up version for small pictures: the vessel near and in the middle */
 export function closeShipScene(aspect: number, seed: number): ShipScene {
   const r = rng(seed)
-  return { ...randomBackdrop(r, 300, [92, 122]), aspect, scale: 0.9 + r() * 0.1, x: 150 }
+  return { ...randomBackdrop(r, 300, [92, 122]), aspect, scale: 0.9 + r() * 0.1, x: 150, look: r() }
 }

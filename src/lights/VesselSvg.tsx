@@ -1,9 +1,9 @@
 import { useId } from 'react'
 import { islandPath, SKY, wavePath } from '../art/scenery'
 import { LIGHT_CSS } from '../buoyage/light'
-import { boxCorners, convexHull, HULL_MODELS, isVisible, project, type Pt3 } from './geometry'
+import { boxCorners, convexHull, facesObserver, isVisible, pickLook, project, type Decal, type Pt3 } from './geometry'
 import { plainShipScene, type ShipScene } from './scene'
-import { HULLS, type DayShape, type Variant } from './vessels'
+import { HULLS, VESSELS, type DayShape, type Variant } from './vessels'
 
 const W = 300
 const H = 200
@@ -28,7 +28,9 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
   const uid = useId().replace(/:/g, '')
   const sc = scene ?? plainShipScene(0)
   const spec = HULLS[variant.hull]
-  const model = HULL_MODELS[variant.hull]
+  // Which vessel this is decides which looks fit (a tug is never drawn as a trawler)
+  const vesselId = VESSELS.find((v) => v.variants.includes(variant))?.id
+  const model = pickLook(variant.hull, vesselId, sc.look ?? 0)
   const colors = SKY[night ? 'night' : sc.sky]
 
   const k = (230 / Math.max(spec.length, 70)) * sc.scale
@@ -39,6 +41,8 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
   }
   const poly = (pts: [number, number][]) => pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
   const depthOf = (p: Pt3) => project(p, sc.aspect).depth
+  const detail = (d: Decal, key: string) =>
+    facesObserver(d.normal, sc.aspect) ? <polygon key={key} points={poly(d.pts.map(toScreen))} fill={d.fill} /> : null
 
   const boxes = [...model.boxes].sort(
     (a, b) =>
@@ -113,16 +117,23 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
 
       <g opacity={night ? 0 : 1}>
         <polygon points={poly(convexHull(model.outline.map(toScreen)))} fill={model.hullFill} stroke="#111" strokeOpacity={0.3} />
+        {model.bands.map((b, i) => (
+          <polygon key={i} points={poly(convexHull(b.outline.map(toScreen)))} fill={b.fill} />
+        ))}
+        {model.decals.map((d, i) => detail(d, `d${i}`))}
         {boxes.map((b, i) => (
-          <polygon key={i} points={poly(convexHull(boxCorners(b).map(toScreen)))} fill={b.fill} stroke="#111" strokeOpacity={0.25} />
+          <g key={i}>
+            <polygon points={poly(convexHull(boxCorners(b).map(toScreen)))} fill={b.fill} stroke="#111" strokeOpacity={0.25} />
+            {b.details?.map((d, j) => detail(d, `w${j}`))}
+          </g>
         ))}
         {model.sails.map((s, i) => (
-          <polygon key={i} points={poly(s.map(toScreen))} fill="#fbfbf8" stroke="#9aa" strokeWidth={0.8} />
+          <polygon key={i} points={poly(s.map(toScreen))} fill={model.sailFill ?? '#fbfbf8'} stroke="#9aa" strokeWidth={0.8} />
         ))}
-        {model.masts.map(([a, b], i) => {
+        {model.masts.map(([a, b, color], i) => {
           const [x1, y1] = toScreen(a)
           const [x2, y2] = toScreen(b)
-          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#333" strokeWidth={Math.max(1, 1.8 * sc.scale)} />
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color ?? '#333'} strokeWidth={Math.max(1, 1.8 * sc.scale)} />
         })}
         {!night &&
           variant.shapes.map((s, i) => {
