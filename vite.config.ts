@@ -7,8 +7,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      // The privacy policy is a plain page of its own, not part of the app
-      workbox: { navigateFallbackDenylist: [/^\/privacy/] },
+      // The privacy policy and the statistics page are plain pages of their own, not part of the app
+      workbox: { navigateFallbackDenylist: [/^\/privacy/, /^\/stats/, /^\/api\//] },
       includeAssets: ['favicon.svg', 'logo.svg', 'apple-touch-icon.png', 'privacy.html'],
       manifest: {
         name: 'Lanterna – deck officer trainer',

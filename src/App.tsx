@@ -19,6 +19,7 @@ import Match from './components/study/Match'
 import { Splash } from './brand/Logo'
 import Unlock from './components/Unlock'
 import { canOpen, restorePurchases } from './store/entitlement'
+import { track } from './stats/usage'
 
 export interface Settings {
   mode: Mode
@@ -80,6 +81,11 @@ export default function App() {
     restorePurchases()
   }, [])
 
+  // Anonymous usage statistics: one "open" per device and day
+  useEffect(() => {
+    track('open')
+  }, [])
+
   // Splash: the logo shows for a moment when the app starts, then fades out
   const [splash, setSplash] = useState<'show' | 'leaving' | 'gone'>('show')
   useEffect(() => {
@@ -133,8 +139,10 @@ export default function App() {
 
   const openCategory = (id: CategoryId, replace = false) => {
     if (!canOpen(id)) go({ name: 'unlock', category: id }, replace)
-    else if (id === 'exam') go({ name: 'session', category: 'exam', mode: 'exam', count: 40, back: { name: 'hub' }, run: Date.now() }, replace)
-    else if (GENERATORS[id]) go({ name: 'category', category: id }, replace)
+    else if (id === 'exam') {
+      track('start', { category: 'exam', mode: 'exam' })
+      go({ name: 'session', category: 'exam', mode: 'exam', count: 40, back: { name: 'hub' }, run: Date.now() }, replace)
+    } else if (GENERATORS[id]) go({ name: 'category', category: id }, replace)
     else go({ name: 'soon', category: id }, replace)
   }
 
@@ -148,6 +156,7 @@ export default function App() {
   const launch = (category: CategoryId, c: Choice, fromStep: boolean) => {
     const menu: Screen = { name: 'category', category }
     const run = Date.now()
+    track('start', { category, mode: c.mode, focus: c.focus })
     switch (c.mode) {
       case 'learn':
         return go({ name: 'learn', category, back: menu, focus: c.focus }, fromStep)

@@ -5,6 +5,7 @@ import type { Ctx, Generator, Question } from '../../study/types'
 import { pick } from '../../study/util'
 import SoundModeToggle from '../../sound/SoundModeToggle'
 import ReportDialog from '../../report/ReportDialog'
+import { track } from '../../stats/usage'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
@@ -61,6 +62,14 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const [reporting, setReporting] = useState(false)
   const exam = mode === 'exam'
   const [secondsLeft, setSecondsLeft] = useState(count * EXAM_SECONDS_PER_QUESTION)
+
+  // Anonymous usage statistics: the session was finished, and how it went
+  useEffect(() => {
+    if (!finished || answers.length === 0) return
+    const right = answers.filter((a) => a.chosen === a.q.correctId).length
+    const category = generators.length > 1 ? 'exam' : generators[0].category
+    track('finish', { category, mode, focus: ctx.focus, score: Math.round((right / count) * 10) * 10 })
+  }, [finished])
 
   // Exam clock
   useEffect(() => {
