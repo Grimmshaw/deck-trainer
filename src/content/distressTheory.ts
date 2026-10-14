@@ -10,6 +10,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Prohibited', 'Allowed for training at sea', 'Allowed if you call the coast station first', 'Allowed in harbour'],
     why: 'Annex IV 2: the use or exhibition of any of the foregoing signals except for the purpose of indicating distress and need of assistance and the use of other signals which may be confused with them is prohibited.',
     source: 'COLREG Annex IV 2',
+    typed: { accept: ['prohibited'], keywords: [['prohibited', 'forbidden', 'not allowed', 'illegal', 'banned', 'never']], reject: ['training', 'harbour', 'allowed if', 'allowed for', 'allowed in'] },
   },
   {
     id: 'D2',
@@ -17,6 +18,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['For identification from the air', 'To mark a wreck', 'As a quarantine signal', 'To show that a diver is down'],
     why: 'Annex IV 3(a): a piece of orange-coloured canvas with either a black square and circle or other appropriate symbol, for identification from the air.',
     source: 'COLREG Annex IV 3',
+    typed: { accept: ['for identification from the air'], keywords: [['air', 'aircraft', 'plane', 'helicopter', 'sky']], reject: ['wreck', 'quarantine', 'diver'] },
   },
   {
     id: 'D3',
@@ -24,6 +26,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['MAYDAY', 'PAN-PAN', 'SÉCURITÉ', 'SOS'],
     why: 'A distress call starts with MAYDAY spoken three times. PAN-PAN is the urgency signal and SÉCURITÉ the safety signal. Annex IV 1(e): the spoken word MAYDAY by radiotelephony.',
     source: 'COLREG Annex IV, Radio Regulations',
+    typed: { accept: ['MAYDAY'], keywords: ['mayday'], reject: ['pan', 'securite', 'sos', 'relay'] },
   },
   {
     id: 'D4',
@@ -31,6 +34,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['PAN-PAN', 'MAYDAY', 'SÉCURITÉ', 'SEELONCE'],
     why: 'PAN-PAN (spoken three times) is the urgency signal: a very urgent message about the safety of a ship, aircraft or person, but no grave and imminent danger.',
     source: 'Radio Regulations',
+    typed: { accept: ['PAN-PAN'], keywords: [['pan pan', 'panpan', 'pan']], reject: ['mayday', 'securite', 'seelonce'] },
   },
   {
     id: 'D5',
@@ -38,6 +42,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Channel 70', 'Channel 16', 'Channel 13', 'Channel 6'],
     why: 'VHF DSC uses channel 70. The voice distress traffic that follows is on channel 16.',
     source: 'GMDSS',
+    typed: { accept: ['channel 70'], keywords: [['70']], reject: ['16', '13', '6'], exact: true, hint: 'Channel number' },
   },
   {
     id: 'D6',
@@ -45,6 +50,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['2187.5 kHz', '2182 kHz', '518 kHz', '8414.5 kHz'],
     why: 'MF DSC distress alerting is on 2187.5 kHz; the voice distress traffic follows on 2182 kHz. 518 kHz is NAVTEX.',
     source: 'GMDSS',
+    typed: { accept: ['2187.5 kHz'], keywords: [['2187 5']], reject: ['2182', '518', '8414'], exact: true, hint: 'kHz' },
   },
   {
     id: 'D7',
@@ -52,6 +58,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['406 MHz', '121.5 MHz', '156.8 MHz', '9 GHz'],
     why: 'Cospas-Sarsat EPIRBs transmit on 406 MHz. Many also have a 121.5 MHz homing signal.',
     source: 'GMDSS',
+    typed: { accept: ['406 MHz'], keywords: [['406']], reject: ['121', '156', '9'], exact: true, hint: 'MHz' },
   },
   {
     id: 'D8',
@@ -64,6 +71,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'A radar SART answers 9 GHz (X-band) radar pulses. On the screen it shows as a line of 12 dots extending outwards from its position; the dot closest to own ship marks the SART.',
     source: 'GMDSS',
+    typed: { accept: ['a line of 12 dots'], keywords: [['12', 'twelve'], ['dots', 'dot', 'blips', 'echoes', 'echo', 'marks']], reject: ['single', 'morse'], exact: true },
   },
   {
     id: 'D9',
@@ -89,6 +97,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'SOLAS V/33.1: the master of a ship at sea which is in a position to be able to provide assistance, on receiving information from any source that persons are in distress at sea, is bound to proceed with all speed to their assistance, if possible informing them or the SAR service. If he does not, the reason shall be entered in the logbook.',
     source: 'SOLAS V/33',
+    typed: { accept: ['proceed with all speed to their assistance'], keywords: [['proceed', 'go', 'assist', 'help', 'assistance', 'all speed', 'full speed']], reject: ['only', 'flag state', 'unless', 'nationality'] },
   },
   {
     id: 'D11',
@@ -113,6 +122,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'SEELONCE MAYDAY is used by the vessel in distress or the station controlling the distress traffic to impose silence on stations that interfere.',
     source: 'Radio Regulations',
+    typed: { accept: ['radio silence'], keywords: [['silence', 'silent', 'quiet']], reject: ['finished', 'resume', 'sunk'] },
   },
   {
     id: 'D13',
@@ -125,6 +135,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'SEELONCE FEENEE is sent by the station that controlled the distress traffic when it is over: normal working may resume.',
     source: 'Radio Regulations',
+    typed: { accept: ['distress traffic is finished, normal working may resume'], keywords: [['finished', 'over', 'ended', 'ends', 'end', 'completed', 'resume', 'normal']], reject: ['silence is imposed', 'restricted', 'change'] },
   },
   {
     id: 'D14',
@@ -137,6 +148,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'PRUDONCE means that restricted working may resume on the frequency, but distress traffic is still going on – listen carefully and keep transmissions short.',
     source: 'Radio Regulations',
+    typed: { accept: ['restricted working may resume'], keywords: [['restricted', 'limited']], reject: ['finished', 'total', 'repeat'] },
   },
   {
     id: 'D15',
@@ -144,6 +156,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Her position', 'The number of persons on board', 'The weather', 'The name of the master'],
     why: 'Order of a distress message: MAYDAY – this is (name, call sign, MMSI) – position – nature of distress – assistance required – other information, for example persons on board. Position comes first because it is what rescuers need most.',
     source: 'GMDSS / ITU',
+    typed: { accept: ['her position'], keywords: [['position', 'location', 'latitude']], reject: ['persons', 'weather', 'master'] },
   },
   {
     id: 'D16',
@@ -151,6 +164,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['SÉCURITÉ', 'PAN-PAN', 'MAYDAY', 'SEELONCE'],
     why: 'SÉCURITÉ (spoken three times) is the safety signal, used for important navigational or meteorological warnings.',
     source: 'Radio Regulations',
+    typed: { accept: ['SÉCURITÉ'], keywords: [['securite', 'security']], reject: ['pan', 'mayday', 'seelonce'] },
   },
   {
     id: 'D17',
@@ -158,6 +172,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['518 kHz', '490 kHz', '2182 kHz', '156.8 MHz'],
     why: 'International NAVTEX is on 518 kHz in English. 490 kHz (and 4209.5 kHz) are used for national NAVTEX broadcasts.',
     source: 'GMDSS',
+    typed: { accept: ['518 kHz'], keywords: [['518']], reject: ['490', '2182', '156'], exact: true, hint: 'kHz' },
   },
   {
     id: 'D18',
@@ -165,6 +180,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['156.8 MHz', '156.525 MHz', '156.3 MHz', '406 MHz'],
     why: 'Channel 16 (156.8 MHz) is the VHF distress, urgency, safety and calling channel. 156.525 MHz is channel 70 (DSC).',
     source: 'Radio Regulations',
+    typed: { accept: ['156.8 MHz'], keywords: [['156 8', '156 80', '156 800']], reject: ['156 525', '156 3', '406'], exact: true, hint: 'MHz' },
   },
   {
     id: 'D19',
@@ -172,6 +188,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Channel 13', 'Channel 70', 'Channel 6', 'Channel 9'],
     why: 'Channel 13 is used worldwide for navigation safety communication between ships, mainly bridge-to-bridge.',
     source: 'Radio Regulations',
+    typed: { accept: ['channel 13'], keywords: [['13']], reject: ['70', '6', '9'], exact: true, hint: 'Channel number' },
   },
   {
     id: 'D20',
@@ -179,6 +196,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Channel 6', 'Channel 13', 'Channel 70', 'Channel 12'],
     why: 'Channel 6 (156.3 MHz) may be used for communication between ship stations and aircraft engaged in coordinated search and rescue operations.',
     source: 'Radio Regulations',
+    typed: { accept: ['channel 6'], keywords: [['6', '06', 'six']], reject: ['13', '70', '12'], exact: true, hint: 'Channel number' },
   },
   {
     id: 'D21',
@@ -203,6 +221,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'A false alert shall be cancelled at once: reset the equipment, then make an "All stations" broadcast on the associated voice frequency (VHF ch 16) giving name, call sign, MMSI and position, and cancel the distress alert.',
     source: 'IMO GMDSS guidance',
+    typed: { accept: ['cancel it by voice on channel 16'], keywords: [['cancel', 'cancellation'], ['16', 'voice']], reject: ['nothing', 'switch off', 'second'] },
   },
   {
     id: 'D23',
@@ -210,6 +229,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['1.5 to 4 metres', '10 to 15 metres', 'At the surface, when it gets wet', '20 metres'],
     why: 'A hydrostatic release unit frees the EPIRB at a depth of about 1.5 to 4 metres, so it floats up and starts transmitting even if nobody can reach it.',
     source: 'SOLAS / LSA',
+    typed: { accept: ['1.5 to 4 m'], keywords: ['1 5', '4'], reject: ['10', '15', '20', 'surface'], exact: true, hint: 'Metres' },
   },
   {
     id: 'D24',
@@ -217,6 +237,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['48 hours', '12 hours', '96 hours', '6 hours'],
     why: 'The battery of a 406 MHz EPIRB shall have capacity to operate the beacon for at least 48 hours.',
     source: 'IMO performance standards',
+    typed: { accept: ['48 hours'], keywords: [['48']], reject: ['12', '96', '6'], exact: true, hint: 'Hours' },
   },
   {
     id: 'D25',
@@ -224,6 +245,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['About 5 nautical miles', 'About 30 nautical miles', 'About 1 nautical mile', 'About 50 nautical miles'],
     why: 'A radar SART shall be detectable at least 5 nautical miles by a ship\'s radar with the antenna 15 m above sea level, and about 30 nautical miles by an aircraft at 3000 ft.',
     source: 'IMO performance standards',
+    typed: { accept: ['about 5 nautical miles'], keywords: [['5', 'five']], reject: ['30', '1', '50'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'D26',
@@ -236,6 +258,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Close to the SART the radar picks up the response also through the side lobes, so the dots widen into arcs and finally into concentric circles around the SART position.',
     source: 'GMDSS',
+    typed: { accept: ['wide arcs, then concentric circles'], keywords: [['arcs', 'arc'], ['circles', 'circle', 'rings']], reject: ['disappear', 'one bright', 'flashing'] },
   },
   {
     id: 'D27',
@@ -248,6 +271,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'An AIS-SART sends AIS messages with its GPS position. It is shown as a special target (circle with a cross) with the text "SART ACTIVE" (or "SART TEST").',
     source: 'GMDSS',
+    typed: { accept: ['SART ACTIVE'], keywords: ['sart active'], reject: ['12 dots', 'coast station', 'red'] },
   },
   {
     id: 'D28',
@@ -260,6 +284,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'A1: within radiotelephone coverage of at least one VHF coast station with continuous DSC alerting. A2: MF coast station. A3: Inmarsat coverage. A4: the rest – the polar areas.',
     source: 'SOLAS IV/2',
+    typed: { accept: ['a VHF coast station with DSC'], keywords: ['vhf'], reject: ['mf', 'inmarsat', 'navtex'] },
   },
   {
     id: 'D29',
@@ -272,6 +297,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'A4 is an area outside sea areas A1, A2 and A3. These are essentially the polar regions, north and south of about 70°.',
     source: 'SOLAS IV/2',
+    typed: { accept: ['the polar areas'], keywords: [['polar', 'arctic', 'antarctic', 'outside', 'poles', 'pole']], reject: ['vhf', 'inmarsat', 'mf'] },
   },
   {
     id: 'D30',
@@ -279,6 +305,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['EGC – for example SafetyNET', 'Cospas-Sarsat', 'AIS', 'DGPS'],
     why: 'Enhanced Group Call (EGC) – Inmarsat SafetyNET and, today, also Iridium SafetyCast – broadcasts navigational and meteorological warnings and SAR information by satellite.',
     source: 'GMDSS',
+    typed: { accept: ['EGC (SafetyNET)'], keywords: [['egc', 'safetynet', 'safety net', 'inmarsat', 'enhanced group call']], reject: ['cospas', 'ais', 'dgps'] },
   },
   {
     id: 'D31',
@@ -286,6 +313,7 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['40 seconds', '10 seconds', '3 minutes', '1 minute'],
     why: 'LSA Code: a rocket parachute flare shall reach an altitude of not less than 300 m and burn for not less than 40 seconds. A hand flare burns for not less than 1 minute.',
     source: 'LSA Code',
+    typed: { accept: ['40 seconds'], keywords: [['40']], reject: ['10', '3', '1'], exact: true, hint: 'Seconds' },
   },
   {
     id: 'D32',
@@ -293,5 +321,6 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['3 minutes', '40 seconds', '1 minute', '15 minutes'],
     why: 'LSA Code: a buoyant smoke signal shall emit smoke of a highly visible colour at a uniform rate for a period of not less than 3 minutes when floating in calm water.',
     source: 'LSA Code',
+    typed: { accept: ['3 minutes'], keywords: [['3', 'three']], reject: ['40', '1', '15'], exact: true, hint: 'Minutes' },
   },
 ]

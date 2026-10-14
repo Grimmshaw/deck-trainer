@@ -6,6 +6,8 @@ import { pick } from '../../study/util'
 import SoundModeToggle from '../../sound/SoundModeToggle'
 import ReportDialog from '../../report/ReportDialog'
 import { track } from '../../stats/usage'
+import { load, save } from '../../storage'
+import { gradeTyped, type TypedResult } from '../../study/typed'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
@@ -23,7 +25,21 @@ interface Props {
 interface Answered {
   q: Question
   chosen: string | null
+  /** What the user typed, if the question was answered by typing */
+  typed?: string
 }
+
+/** A typed answer and how it was graded */
+interface TypedState {
+  text: string
+  result: TypedResult
+  /** The user said the grading was too strict and counted it as right */
+  override: boolean
+}
+
+/** `chosen` for a typed answer that was wrong (it matches no option) */
+const TYPED_WRONG = 'typed'
+const ANSWER_MODE_KEY = 'deck.answerMode'
 
 /** Seconds per question in exam mode */
 const EXAM_SECONDS_PER_QUESTION = 45
@@ -61,6 +77,12 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const [timedOut, setTimedOut] = useState(false)
   const [reporting, setReporting] = useState(false)
   const exam = mode === 'exam'
+  // Choose from the options, or type the answer (only questions that have a `typed` block; never in the exam)
+  const [typeMode, setTypeMode] = useState(() => load(ANSWER_MODE_KEY, { type: false }).type)
+  const [typed, setTyped] = useState<TypedState | null>(null)
+  const [text, setText] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const nextRef = useRef<HTMLButtonElement>(null)
   const [secondsLeft, setSecondsLeft] = useState(count * EXAM_SECONDS_PER_QUESTION)
 
   // Anonymous usage statistics: the session was finished, and how it went
@@ -70,6 +92,11 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
     const category = generators.length > 1 ? 'exam' : generators[0].category
     track('finish', { category, mode, focus: ctx.focus, score: Math.round((right / count) * 10) * 10 })
   }, [finished])
+
+  // After a typed answer is checked, Enter goes on to the next question
+  useEffect(() => {
+    if (typed) nextRef.current?.focus()
+  }, [typed])
 
   // Exam clock
   useEffect(() => {
@@ -125,6 +152,8 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
     const all = [...answers, a]
     setAnswers(all)
     setChosen(null)
+    setTyped(null)
+    setText('')
     if (all.length >= count) {
       setFinished(true)
     } else {
@@ -133,9 +162,35 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
     }
   }
 
+  const canType = !exam && !!question.typed
+  const typing = canType && typeMode
+  const correctLabel = question.typed?.answer ?? question.options.find((o) => o.id === question.correctId)?.label ?? ''
+  const typedOk = !!typed && (typed.override || typed.result.verdict === 'right' || typed.result.verdict === 'typo')
+
+  const changeMode = (type: boolean) => {
+    setTypeMode(type)
+    save(ANSWER_MODE_KEY, { type })
+  }
+
+  const check = (giveUp = false) => {
+    if (typed || !question.typed) return
+    const input = giveUp ? '' : text
+    const wrong = question.options.filter((o) => o.id !== question.correctId).map((o) => o.label)
+    const result = gradeTyped(input, question.typed, wrong)
+    setTyped({ text: input.trim(), result, override: false })
+    buzz(result.verdict === 'right' || result.verdict === 'typo')
+  }
+
+  // A typed answer is recorded when moving on, so "Count it as right" can still change it
+  const nextAfterTyped = (t: TypedState) => {
+    const ok = t.override || t.result.verdict === 'right' || t.result.verdict === 'typo'
+    record(question.key, ok)
+    advance({ q: question, chosen: ok ? question.correctId : t.text ? TYPED_WRONG : null, typed: t.text || undefined })
+  }
+
   const right = answers.filter((a) => a.chosen === a.q.correctId).length
-  const answered = chosen !== null
-  const correct = chosen === question.correctId
+  const answered = chosen !== null || typed !== null
+  const correct = typed ? typedOk : chosen === question.correctId
 
   const hasSound = generators.some((g) => g.category === 'sound')
 
@@ -161,10 +216,57 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
 
       <div className="round" key={answers.length}>
         {generators.length > 1 && <span className="category-chip">{findCategory(question.category).title}</span>}
+        {canType && (
+          <div className="answer-mode" role="group" aria-label="How to answer">
+            <button aria-pressed={!typeMode} onClick={() => changeMode(false)} disabled={answered}>
+              Choose
+            </button>
+            <button aria-pressed={typeMode} onClick={() => changeMode(true)} disabled={answered}>
+              Type
+            </button>
+          </div>
+        )}
         <p className="question-text">{question.prompt}</p>
         {question.media && <div className="question-media">{question.media}</div>}
         {answered && question.reveal && <div className="question-media">{question.reveal}</div>}
 
+        {typing ? (
+          <form
+            className="typed-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (typed) nextAfterTyped(typed)
+              else if (text.trim()) check()
+            }}
+          >
+            <input
+              ref={inputRef}
+              className={`answer typed-answer ${typed ? (typedOk ? 'right' : 'wrong') : ''}`}
+              value={typed ? typed.text : text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={question.typed?.hint ?? 'Type your answer'}
+              maxLength={120}
+              autoFocus
+              autoCapitalize="off"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint={typed ? 'next' : 'done'}
+              readOnly={!!typed}
+              aria-label="Your answer"
+            />
+            {!typed && (
+              <div className="actions">
+                <button type="button" className="secondary" onClick={() => check(true)}>
+                  Show answer
+                </button>
+                <button type="submit" className="primary" disabled={!text.trim()}>
+                  Check
+                </button>
+              </div>
+            )}
+          </form>
+        ) : (
         <div className={`options ${question.layout === 'pictures' ? 'options-pictures' : ''}`}>
           {question.options.map((o) => {
             const state = !answered ? '' : o.id === question.correctId ? 'right' : o.id === chosen ? 'wrong' : 'dim'
@@ -176,14 +278,24 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
             )
           })}
         </div>
+        )}
 
         {answered && (
           <>
             <div className={`feedback ${correct ? 'right' : 'wrong'}`} role="status">
-              {correct ? 'Correct!' : 'Not quite.'}
+              {typed ? <TypedVerdict t={typed} answer={correctLabel} /> : correct ? 'Correct!' : 'Not quite.'}
               <p className="feedback-detail">{question.explanation}</p>
             </div>
-            <button className="primary big" onClick={() => advance({ q: question, chosen })}>
+            {typed && !typedOk && typed.text && (
+              <button className="secondary" onClick={() => setTyped({ ...typed, override: true })}>
+                My answer was right – count it
+              </button>
+            )}
+            <button
+              ref={nextRef}
+              className="primary big"
+              onClick={() => (typed ? nextAfterTyped(typed) : advance({ q: question, chosen }))}
+            >
               {answers.length + 1 >= count ? 'See results' : 'Next →'}
             </button>
           </>
@@ -207,7 +319,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
             key: question.key,
             question: question.prompt,
             answer: question.options.find((o) => o.id === question.correctId)?.label,
-            chosen: chosen ? question.options.find((o) => o.id === chosen)?.label : undefined,
+            chosen: typed?.text || (chosen ? question.options.find((o) => o.id === chosen)?.label : undefined),
           }}
           onClose={() => setReporting(false)}
         />
@@ -312,7 +424,7 @@ function Results({
                 )}
                 {a.chosen && (
                   <p className="review-wrong">
-                    Your answer: {answerText(a.q, a.chosen)}
+                    Your answer: {a.typed ?? answerText(a.q, a.chosen)}
                   </p>
                 )}
                 {!a.chosen && <p className="review-wrong">Not answered</p>}
@@ -326,6 +438,22 @@ function Results({
         )}
       </div>
     </Shell>
+  )
+}
+
+/** The verdict line for a typed answer */
+function TypedVerdict({ t, answer }: { t: TypedState; answer: string }) {
+  const v = t.result.verdict
+  if (t.override) return <>Counted as right.</>
+  if (v === 'right') return <>Correct!</>
+  return (
+    <>
+      {v === 'typo' ? 'Correct – check the spelling.' : v === 'partial' ? 'Partly right.' : t.text ? 'Not quite.' : 'No answer.'}
+      {v === 'partial' && t.result.missing.length > 0 && (
+        <span className="typed-missing">Missing: {t.result.missing.join(', ')}</span>
+      )}
+      <span className="typed-correct">{answer}</span>
+    </>
   )
 }
 

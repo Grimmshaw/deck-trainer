@@ -22,6 +22,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The medical section', 'The distress section', 'The manoeuvring section', 'The weather section'],
     why: 'The International Code has a medical section, where the signals are three-letter groups beginning with M.',
     source: 'International Code of Signals',
+    typed: { accept: ['the medical section'], keywords: [['medical', 'medicine', 'health']], reject: ['distress', 'manoeuvring', 'weather'] },
   },
   {
     id: 'F3',
@@ -29,6 +30,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The first substitute', 'The second substitute', 'The answering pennant', 'Flag A upside down'],
     why: 'A substitute repeats the flag in its position counted from the top of the hoist: the first substitute repeats the uppermost signal flag of that class, so A + 1st substitute + B = AAB.',
     source: 'International Code of Signals',
+    typed: { accept: ['the first substitute'], keywords: [['first', '1st', '1'], ['substitute', 'sub']], reject: ['second', '2nd', 'answering', 'upside'] },
   },
   {
     id: 'F4',
@@ -36,6 +38,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The signal has been seen', 'The signal has been understood', 'The signal is not understood', 'End of the conversation'],
     why: 'The answering pennant is hoisted at the dip when a hoist is seen, and close up when it is understood.',
     source: 'International Code of Signals',
+    typed: { accept: ['the signal has been seen'], keywords: [['seen', 'sighted', 'observed', 'noticed']], reject: ['understood', 'not', 'end'] },
   },
   {
     id: 'F5',
@@ -43,6 +46,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['N over C', 'A over B', 'U over W', 'O over K'],
     why: 'Annex IV 1(f): the International Code signal of distress indicated by N.C. ("I am in distress and require immediate assistance").',
     source: 'COLREG Annex IV, ICS',
+    typed: { accept: ['NC', 'N over C'], exact: true, hint: 'Two letters' },
   },
   {
     id: 'F6',
@@ -55,6 +59,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'STCW Table A-II/1: the officer shall be able to use the International Code of Signals, and to transmit and receive by Morse light the distress signal SOS and the single-letter signals.',
     source: 'STCW A-II/1',
+    typed: { accept: ['the single-letter signals'], keywords: [['single letter', 'one letter', 'single flag']], reject: ['two letter', 'three letter', 'national'] },
   },
   // ---- Added 9 Oct 2026 (NEW 9 OCT) – waiting for Robin's review ----
   {
@@ -63,6 +68,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The general section', 'The medical section', 'The distress section only', 'Signals between warships'],
     why: 'The Code has single-letter signals for very urgent, important or common messages, two-letter signals for the general section, and three-letter signals beginning with M for the medical section.',
     source: 'International Code of Signals',
+    typed: { accept: ['the general section'], keywords: ['general'], reject: ['medical', 'distress', 'warships'] },
   },
   {
     id: 'F8',
@@ -70,6 +76,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['From the top downwards', 'From the bottom upwards', 'From the outside inwards', 'In any order'],
     why: 'A hoist is read from the top downwards. That is why a substitute repeats the flag counted from the top of the hoist.',
     source: 'International Code of Signals',
+    typed: { accept: ['from the top downwards'], keywords: [['top', 'downwards']], reject: ['bottom up', 'upwards', 'from the bottom', 'outside', 'any order'] },
   },
   {
     id: 'F9',
@@ -77,6 +84,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Three', 'Two', 'Four', 'Ten'],
     why: 'A set has 26 alphabetical flags, 10 numeral pennants, 3 substitutes and the answering pennant.',
     source: 'International Code of Signals',
+    typed: { accept: ['three'], keywords: [['three', '3']], reject: ['two', 'four', 'ten', '2', '4', '10'], exact: true, hint: 'A number' },
   },
   {
     id: 'F10',
@@ -84,6 +92,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['With the numeral pennants 0–9', 'With the letter flags A–J', 'By hoisting the flag several times', 'With the substitutes'],
     why: 'The International Code has ten numeral pennants, 0 to 9.',
     source: 'International Code of Signals',
+    typed: { accept: ['with the numeral pennants'], keywords: [['numeral', 'number', 'numbers', 'numeric'], ['pennant', 'pennants', 'flags']], reject: ['letter', 'substitute', 'substitutes', 'several'] },
   },
   {
     id: 'F11',
@@ -96,6 +105,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'UW: "Thank you very much for your co-operation. I wish you a pleasant voyage." A common courtesy signal, for example when a pilot leaves.',
     source: 'International Code of Signals',
+    typed: { accept: ['thank you, pleasant voyage'], keywords: [['thank', 'thanks'], ['voyage', 'trip', 'journey']], reject: ['abandon', 'abandoning', 'pilot', 'stop'] },
   },
   {
     id: 'F12',
@@ -103,6 +113,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['I am abandoning my vessel', 'I need a doctor', 'Man overboard', 'I require immediate assistance'],
     why: 'AC: "I am abandoning my vessel."',
     source: 'International Code of Signals',
+    typed: { accept: ['I am abandoning my vessel'], keywords: [['abandoning', 'abandon']], reject: ['doctor', 'overboard', 'assistance'] },
   },
   {
     id: 'F13',
@@ -110,6 +121,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['I need a doctor', 'I am abandoning my vessel', 'I am on fire', 'I require a tug'],
     why: 'AN: "I need a doctor." Detailed medical signals are three-letter groups beginning with M.',
     source: 'International Code of Signals',
+    typed: { accept: ['I need a doctor'], keywords: [['doctor', 'medical', 'physician']], reject: ['abandon', 'abandoning', 'fire', 'tug'] },
   },
   {
     id: 'F14',
@@ -117,6 +129,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['I require immediate assistance', 'I am abandoning my vessel', 'I need a doctor', 'I am dragging my anchor'],
     why: 'CB: "I require immediate assistance."',
     source: 'International Code of Signals',
+    typed: { accept: ['I require immediate assistance'], keywords: [['assistance', 'help'], ['immediate', 'urgent', 'now']], reject: ['abandon', 'abandoning', 'doctor', 'dragging'] },
   },
   {
     id: 'F15',
@@ -124,6 +137,7 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['GW', 'AC', 'NC', 'UW'],
     why: 'GW: "Man overboard. Please take action to pick him up (position to be indicated if necessary)." Flag O alone also means "Man overboard".',
     source: 'International Code of Signals',
+    typed: { accept: ['GW'], exact: true, hint: 'Two letters' },
   },
   {
     id: 'F16',
@@ -131,5 +145,6 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['At the starboard yardarm or spreader', 'At the stern, instead of the ensign', 'At the port yardarm', 'At the bow'],
     why: 'The courtesy flag (the visited country\'s flag) is flown at the starboard yardarm or starboard spreader, the position of honour.',
     source: 'Flag etiquette',
+    typed: { accept: ['at the starboard yardarm'], keywords: ['starboard'], reject: ['port', 'stern', 'bow'] },
   },
 ]

@@ -22,6 +22,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Three dots', 'Two dots', 'Five dots', 'The same length'],
     why: 'In Morse code a dash is equal to three dots.',
     source: 'ICS – Morse signalling',
+    typed: { accept: ['three dots'], keywords: [['3', 'three']], reject: ['2', '5', 'same', 'two', 'five'], exact: true, hint: 'How many dots?' },
   },
   {
     id: 'M3',
@@ -29,6 +30,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Seven dots', 'Three dots', 'One dot', 'Five dots'],
     why: 'The space between the parts of one letter is one dot, between two letters three dots, and between two words seven dots.',
     source: 'ICS – Morse signalling',
+    typed: { accept: ['seven dots'], keywords: [['7', 'seven']], reject: ['3', '1', '5'], exact: true, hint: 'How many dots?' },
   },
   {
     id: 'M4',
@@ -36,6 +38,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['AA AA AA …', 'AR', 'AS', 'EEEEE …'],
     why: 'AA AA AA etc. is the call for an unknown station or general call. The station answers with TTTT.',
     source: 'ICS – procedure signals',
+    typed: { accept: ['AA AA AA', 'AA', 'AAA'], exact: true, hint: 'Letters' },
   },
   {
     id: 'M5',
@@ -43,6 +46,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Ending signal – end of transmission', 'Wait', 'Erase – error', 'Word received'],
     why: 'AR is the ending signal, sent as one signal at the end of a transmission.',
     source: 'ICS – procedure signals',
+    typed: { accept: ['end of transmission'], keywords: [['end', 'ending', 'finished', 'over']], reject: ['wait', 'erase', 'received'] },
   },
   {
     id: 'M6',
@@ -50,6 +54,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['T', 'K', 'R', 'AR'],
     why: 'The receiving station answers each word with T ("word received"). R is "received" for the whole message.',
     source: 'ICS – procedure signals',
+    typed: { accept: ['T'], exact: true, hint: 'One letter' },
   },
   {
     id: 'M7',
@@ -57,6 +62,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The erase signal: a series of E', 'AS', 'AR', 'K'],
     why: 'EEEEE … is the erase signal. The receiving station answers with the same, and you send the last word again.',
     source: 'ICS – procedure signals',
+    typed: { accept: ['a series of E', 'EEEEEEEE'], keywords: [['erase', 'e', 'ee', 'eee', 'eeee', 'eeeee', 'eeeeee', 'eeeeeee', 'eeeeeeee', 'eeeeeeeee', 'eeeeeeeeee', 'eeeeeeeeeee', 'eeeeeeeeeeee']], reject: ['as', 'ar', 'k'], exact: true },
   },
   {
     id: 'M8',
@@ -64,6 +70,7 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Waiting signal', 'End of transmission', 'Call for unknown station', 'Erase signal'],
     why: 'AS is the waiting signal or period: "wait".',
     source: 'ICS – procedure signals',
+    typed: { accept: ['wait'], keywords: [['wait', 'waiting', 'stand by', 'standby']], reject: ['end', 'call', 'erase'] },
   },
   {
     id: 'M9',

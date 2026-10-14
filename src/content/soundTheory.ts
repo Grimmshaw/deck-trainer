@@ -10,6 +10,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['About 1 second', 'About 3 seconds', '4 to 6 seconds', 'Half a second'],
     why: 'Rule 32(b): the word "short blast" means a blast of about one second\'s duration.',
     source: 'Rule 32(b)',
+    typed: { accept: ['about 1 second'], keywords: [['1', 'one']], reject: ['3', '4', '6', 'half'], exact: true, hint: 'Seconds' },
   },
   {
     id: 'S32c',
@@ -17,6 +18,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['From 4 to 6 seconds', 'About 1 second', 'At least 10 seconds', '2 to 3 seconds'],
     why: 'Rule 32(c): the term "prolonged blast" means a blast of from four to six seconds\' duration.',
     source: 'Rule 32(c)',
+    typed: { accept: ['4 to 6 seconds'], keywords: [['4', 'four'], ['6', 'six']], reject: ['1', '10', '2', '3'], exact: true, hint: 'Seconds' },
   },
   {
     id: 'S33a',
@@ -24,6 +26,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['A whistle, a bell and a gong', 'A whistle and a bell', 'A whistle only', 'A bell and a gong'],
     why: 'Rule 33(a): a vessel of 12 m or more shall have a whistle, of 20 m or more also a bell, and of 100 m or more also a gong whose tone cannot be confused with that of the bell.',
     source: 'Rule 33(a)',
+    typed: { accept: ['a whistle, a bell and a gong'], keywords: ['whistle', 'bell', 'gong'] },
   },
   {
     id: 'S33b',
@@ -55,6 +58,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['10 seconds', '1 second', '2 minutes', '30 seconds'],
     why: 'Rule 34(b): flashes of about one second, the interval between flashes about one second, and the interval between successive signals not less than ten seconds. The light is an all-round white light visible at least 5 miles.',
     source: 'Rule 34(b)',
+    typed: { accept: ['10 seconds'], keywords: [['10', 'ten']], reject: ['1', '2', '30'], exact: true, hint: 'Seconds' },
   },
   {
     id: 'S35a',
@@ -62,6 +66,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['At intervals of not more than 2 minutes', 'Every 5 minutes', 'Every 30 seconds', 'Only when she hears another vessel'],
     why: 'Rule 35(a): a power-driven vessel making way through the water shall sound at intervals of not more than 2 minutes one prolonged blast.',
     source: 'Rule 35(a)',
+    typed: { accept: ['not more than 2 minutes'], keywords: [['2', 'two']], reject: ['5', '30'], exact: true, hint: 'Minutes' },
   },
   {
     id: 'S35g',
@@ -69,6 +74,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['One short, one prolonged and one short blast', 'Five short blasts', 'One prolonged and two short blasts', 'Three short blasts'],
     why: 'Rule 35(g): a vessel at anchor may in addition sound three blasts in succession, namely one short, one prolonged and one short blast, to give warning of her position and of the possibility of collision.',
     source: 'Rule 35(g)',
+    typed: { accept: ['one short, one prolonged, one short', 'one short, one prolonged and one short blast', 'short prolonged short', 'short long short', 'R', 'letter R'], hint: 'The blasts in order' },
   },
   {
     id: 'S35j',
@@ -88,6 +94,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Four short blasts', 'Two prolonged blasts', 'One short, one prolonged, one short', 'Five short blasts'],
     why: 'Rule 35(k): a pilot vessel when engaged on pilotage duty may, in addition to the signals in 35(a), (b) or (g), sound an identity signal consisting of four short blasts.',
     source: 'Rule 35(k)',
+    typed: { accept: ['four short blasts'], keywords: [['four', '4'], 'short'], reject: ['prolonged', 'five', '5', 'long'] },
   },
   {
     id: 'S35e',
@@ -108,6 +115,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['I am operating astern propulsion', 'I am altering my course to port', 'I am altering my course to starboard', 'I doubt your intentions'],
     why: 'Rule 34(b)(i): one flash – I am altering my course to starboard; two flashes – to port; three flashes – I am operating astern propulsion.',
     source: 'Rule 34(b)',
+    typed: { accept: ['operating astern propulsion'], keywords: [['astern', 'reverse', 'backing']], reject: ['port', 'starboard', 'doubt'] },
   },
   {
     id: 'S34d2',
@@ -115,6 +123,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['At least five short and rapid flashes', 'One long flash', 'Three flashes', 'A searchlight on the other vessel'],
     why: 'Rule 34(d): the whistle signal may be supplemented by a light signal of at least five short and rapid flashes.',
     source: 'Rule 34(d)',
+    typed: { accept: ['at least five short and rapid flashes'], keywords: [['five', '5'], ['flash', 'flashes', 'short']], reject: ['long', 'three', 'searchlight'] },
   },
   {
     id: 'S34e2',
@@ -122,6 +131,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['With one prolonged blast', 'With two short blasts', 'With five short blasts', 'You shall not answer'],
     why: 'Rule 34(e): such signal shall be answered with a prolonged blast by any approaching vessel that may be within hearing around the bend or behind the intervening obstruction.',
     source: 'Rule 34(e)',
+    typed: { accept: ['one prolonged blast'], keywords: [['one prolonged', '1 prolonged', 'prolonged', 'long blast', 'one long']], reject: ['short', 'two', 'five', 'not'] },
   },
   {
     id: 'S34f',
@@ -134,6 +144,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 34(f): if whistles are fitted on a vessel at a distance apart of more than 100 metres, one whistle only shall be used for giving manoeuvring and warning signals.',
     source: 'Rule 34(f)',
+    typed: { accept: ['only one whistle'], keywords: [['one', '1', 'single']], reject: ['both', 'forward', 'one after'] },
   },
   {
     id: 'S35b',
@@ -141,6 +152,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['About 2 seconds', 'About 1 second', 'About 5 seconds', 'About 10 seconds'],
     why: 'Rule 35(b): at intervals of not more than 2 minutes, two prolonged blasts in succession with an interval of about 2 seconds between them.',
     source: 'Rule 35(b)',
+    typed: { accept: ['about 2 seconds'], keywords: [['2', 'two']], reject: ['1', '5', '10'], exact: true, hint: 'Seconds' },
   },
   {
     id: 'S35c',
@@ -148,6 +160,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['A power-driven vessel making way', 'A sailing vessel', 'A vessel engaged in fishing', 'A vessel constrained by her draught'],
     why: 'Rule 35(c): a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, a sailing vessel, a vessel engaged in fishing and a vessel towing or pushing sound one prolonged followed by two short blasts.',
     source: 'Rule 35(c)',
+    typed: { accept: ['a power-driven vessel making way'], keywords: [['power driven', 'power'], 'making way'] },
   },
   {
     id: 'S35d',
@@ -160,6 +173,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 35(d): a vessel engaged in fishing, when at anchor, and a vessel restricted in her ability to manoeuvre when carrying out her work at anchor, shall instead of the signals in 35(g) sound the signal in 35(c).',
     source: 'Rule 35(d)',
+    typed: { accept: ['one prolonged followed by two short blasts'], keywords: [['one prolonged', '1 prolonged', 'prolonged'], ['two short', '2 short']], reject: ['bell only', 'four', 'three', '3'] },
   },
   {
     id: 'S35f',
@@ -172,6 +186,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 35(f): a pushing vessel and a vessel being pushed ahead, rigidly connected in a composite unit, shall be regarded as a power-driven vessel and give the signals in 35(a) or (b).',
     source: 'Rule 35(f)',
+    typed: { accept: ['the signals of a power-driven vessel'], keywords: [['power driven', 'power', 'one or two prolonged', '1 or 2 prolonged']], reject: ['short'] },
   },
   {
     id: 'S35g2',
@@ -184,6 +199,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 35(g): a vessel at anchor shall at intervals of not more than one minute ring the bell rapidly for about 5 seconds.',
     source: 'Rule 35(g)',
+    typed: { accept: ['rapidly for about 5 seconds, every minute'], keywords: [['5', 'five'], ['1 minute', 'one minute', 'minute', '60']], reject: ['three', '30', 'continuously'], exact: true },
   },
   {
     id: 'S35g3',
@@ -208,6 +224,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 35(h): a vessel aground shall give the bell signal and if required the gong signal of 35(g) and shall, in addition, give three separate and distinct strokes on the bell immediately before and after the rapid ringing of the bell.',
     source: 'Rule 35(h)',
+    typed: { accept: ['three separate strokes on the bell before and after'], keywords: [['three', '3'], ['strokes', 'stroke', 'bell']], reject: ['five', 'whistle', 'gong', 'prolonged'] },
   },
   {
     id: 'S35i',
@@ -239,6 +256,7 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     options: ['2 nautical miles', '1 nautical mile', '0.5 nautical mile', '5 nautical miles'],
     why: 'Annex III 1(c): range of audibility – 200 m or more: 2 miles; 75 m to 200 m: 1.5 miles; 20 m to 75 m: 1 mile; less than 20 m: 0.5 mile.',
     source: 'COLREG Annex III 1(c)',
+    typed: { accept: ['2 nautical miles'], keywords: [['2', 'two']], reject: ['1', '0 5', '5', 'half'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'A3freq',
@@ -251,5 +269,6 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Annex III 1(a): 200 m or more – 70–200 Hz; 75 m to 200 m – 130–350 Hz; less than 75 m – 250–700 Hz. The bigger the ship, the deeper the whistle.',
     source: 'COLREG Annex III 1(a)',
+    typed: { accept: ['a lower frequency (deeper tone)'], keywords: [['lower', 'deeper', 'low', 'deep']], reject: ['higher', 'same'] },
   },
 ]

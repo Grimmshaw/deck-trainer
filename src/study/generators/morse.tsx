@@ -2,6 +2,7 @@ import MorseSymbols from '../../components/MorseSymbols'
 import { FLAGS } from '../../flags/flags'
 import { MORSE } from '../../morse'
 import type { Ctx, Generator, MatchPair, Question } from '../types'
+import { letterTyped, signalTyped } from '../typedAnswers'
 import { sample, shuffle } from '../util'
 
 // Multiple-choice Morse questions (used in Learn mode and the final exam).
@@ -43,6 +44,7 @@ function signalQuestion(key: string): Question {
       options: shuffle([x, ...wrong]).map((o) => ({ id: o.letter, label: o.meaning })),
       correctId: x.letter,
       explanation,
+      typed: signalTyped(x.letter, x.meaning),
     }
   }
   return {
@@ -52,6 +54,7 @@ function signalQuestion(key: string): Question {
     options: shuffle([x, ...wrong]).map((o) => ({ id: o.letter, label: MORSE[o.letter], node: <MorseSymbols code={MORSE[o.letter]} size="sm" /> })),
     correctId: x.letter,
     explanation,
+    typed: { ...letterTyped(x.letter), answer: x.letter },
   }
 }
 
@@ -116,6 +119,7 @@ export const morseGenerator: Generator = {
       ),
       options: shuffle([c, ...wrong]).map((x) => ({ id: x, label: x })),
       correctId: c,
+      typed: letterTyped(c),
       explanation: (
         <>
           <MorseSymbols code={MORSE[c]} size="sm" /> is {c}.

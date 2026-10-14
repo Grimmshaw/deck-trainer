@@ -1,14 +1,22 @@
 import type { TheoryItem } from '../study/generators/theory'
+import type { TypedAnswer } from '../study/typed'
 
 // Chart abbreviations and terms (INT 1). The first option is the correct one.
 // Added 8 Oct 2026 – waiting for Robin's review.
 
-const seabed = (id: string, abbr: string, right: string, wrong: string[]): TheoryItem & { id: string } => ({
+const seabed = (
+  id: string,
+  abbr: string,
+  right: string,
+  wrong: string[],
+  accept = [right.toLowerCase()],
+): TheoryItem & { id: string } => ({
   id,
   q: `Nature of the seabed: what does "${abbr}" mean on a chart?`,
   options: [right, ...wrong],
   why: `INT 1 section J: ${abbr} = ${right.toLowerCase()}.`,
   source: 'INT 1 J',
+  typed: { accept, reject: wrong.map((w) => w.toLowerCase()) } satisfies TypedAnswer,
 })
 
 export const CHART_THEORY: (TheoryItem & { id: string })[] = [
@@ -16,17 +24,18 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
   seabed('M', 'M', 'Mud', ['Marl', 'Mussels', 'Moorings']),
   seabed('R', 'R', 'Rock', ['Rubble', 'Reef', 'Restricted']),
   seabed('G', 'G', 'Gravel', ['Grass', 'Granite', 'Ground swell']),
-  seabed('Sh', 'Sh', 'Shells', ['Shingle', 'Shoal', 'Sand and hard']),
-  seabed('St', 'St', 'Stones', ['Sand', 'Steep', 'Stream']),
+  seabed('Sh', 'Sh', 'Shells', ['Shingle', 'Shoal', 'Sand and hard'], ['shells', 'shell']),
+  seabed('St', 'St', 'Stones', ['Sand', 'Steep', 'Stream'], ['stones', 'stone']),
   seabed('Cy', 'Cy', 'Clay', ['Coral', 'Cobbles', 'Cay']),
   seabed('Co', 'Co', 'Coral', ['Cobbles', 'Clay', 'Cove']),
-  seabed('Wd', 'Wd', 'Weed (including kelp)', ['Wood', 'Wreckage', 'Wide']),
+  seabed('Wd', 'Wd', 'Weed (including kelp)', ['Wood', 'Wreckage', 'Wide'], ['weed', 'kelp', 'seaweed', 'weed (including kelp)']),
   {
     id: 'datum',
     q: 'Depths (soundings) on a chart are given below:',
     options: ['Chart datum', 'Mean high water springs', 'Mean sea level', 'The keel of a typical ship'],
     why: 'Soundings and drying heights are referred to chart datum, which on modern charts is usually close to Lowest Astronomical Tide (LAT).',
     source: 'INT 1 H',
+    typed: { accept: ['chart datum', 'CD'], keywords: [['chart datum', 'cd', 'datum']], reject: ['high water', 'mean sea level', 'keel'] },
   },
   {
     id: 'lat',
@@ -34,6 +43,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Lowest Astronomical Tide (LAT)', 'Mean sea level', 'Mean high water springs', 'Highest Astronomical Tide'],
     why: 'Chart datum is chosen so that the tide will seldom fall below it; most modern charts use a level approximately at LAT.',
     source: 'INT 1 H',
+    typed: { accept: ['LAT', 'Lowest Astronomical Tide'], keywords: [['lat', 'lowest astronomical tide', 'lowest astronomical']], reject: ['mean', 'highest'] },
   },
   {
     id: 'elev',
@@ -46,6 +56,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'The elevation is the height of the light\'s focal plane above the height datum, usually MHWS (or MHHW). 12M is the nominal range in nautical miles and 15s the period.',
     source: 'INT 1 P',
+    typed: { accept: ['the elevation of the light'], keywords: [['elevation', 'focal height', 'height above sea', 'above mhws', 'above high water', 'above the sea', 'above sea level', 'above datum']], reject: ['tower', 'ground', 'range', 'depth'] },
   },
   {
     id: 'range',
@@ -53,6 +64,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The nominal range is 12 nautical miles', 'The light is 12 m high', 'There are 12 flashes per minute', 'The light is 12 miles from the coast'],
     why: 'The capital M after the figure is the range in nautical miles. On international charts it is the nominal range.',
     source: 'INT 1 P',
+    typed: { accept: ['nominal range 12 nautical miles'], keywords: [['range', 'nominal', 'luminous', 'seen', 'visible', 'visibility']], reject: ['high', 'flashes', 'from the coast'] },
   },
   {
     id: 'magenta',
@@ -60,6 +72,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Magenta', 'Green', 'Black', 'Yellow'],
     why: 'Magenta is used for lights, radio and radar aids, cables, pipelines and many limits and routeing features, so they stand out from the black and blue.',
     source: 'INT 1',
+    typed: { accept: ['magenta', 'purple'], reject: ['green', 'black', 'yellow'] },
   },
   // ---- Added 9 Oct 2026 (NEW 9 OCT) – waiting for Robin's review ----
   {
@@ -68,6 +81,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Existence doubtful', 'Extreme danger', 'Exact depth', 'Eastern direction'],
     why: 'ED = existence doubtful: the danger has been reported but its existence has not been confirmed. Treat it as real.',
     source: 'INT 1 I1',
+    typed: { accept: ['existence doubtful'], keywords: [['existence', 'exists', 'exist'], ['doubtful', 'doubt', 'uncertain', 'unsure']], reject: ['extreme', 'exact', 'eastern'] },
   },
   {
     id: 'SD',
@@ -75,6 +89,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Sounding doubtful', 'Shallow depth', 'Safe depth', 'Swept depth'],
     why: 'SD = sounding doubtful: the depth may be less than charted.',
     source: 'INT 1 I2',
+    typed: { accept: ['sounding doubtful'], keywords: [['sounding', 'depth'], ['doubtful', 'doubt', 'uncertain']], reject: ['shallow', 'safe', 'swept'] },
   },
   {
     id: 'PA',
@@ -82,6 +97,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Position approximate', 'Prohibited area', 'Pilot advised', 'Permanent anchorage'],
     why: 'PA = position approximate: the position has not been accurately determined or does not stay fixed.',
     source: 'INT 1 B7',
+    typed: { accept: ['position approximate'], keywords: ['position', ['approximate', 'approx', 'approximately', 'roughly']], reject: ['prohibited', 'pilot', 'permanent'] },
   },
   {
     id: 'PD',
@@ -89,6 +105,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Position doubtful', 'Prohibited depth', 'Pilot district', 'Port of departure'],
     why: 'PD = position doubtful: the danger has been reported in various positions and the position is not definitely determined.',
     source: 'INT 1 B8',
+    typed: { accept: ['position doubtful'], keywords: ['position', ['doubtful', 'doubt', 'uncertain']], reject: ['prohibited', 'pilot', 'departure'] },
   },
   {
     id: 'Rep',
@@ -96,6 +113,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Reported, but not confirmed by survey', 'Repaired', 'Repeated sounding', 'Representative depth'],
     why: 'Rep = reported (but not confirmed) – often with the year of the report, for example Rep (2019).',
     source: 'INT 1 I3',
+    typed: { accept: ['reported'], keywords: [['reported', 'report']], reject: ['repaired', 'repeated', 'representative'] },
   },
   {
     id: 'conspic',
@@ -103,6 +121,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Conspicuous – easy to see from seaward', 'Concealed', 'Conspicuous only by night', 'Under construction'],
     why: 'Conspic = conspicuous: the object is easily identified from seaward and good for position fixing. On paper charts conspicuous landmarks are written in capitals.',
     source: 'INT 1 E2',
+    typed: { accept: ['conspicuous'], keywords: [['conspicuous', 'visible', 'easy to see', 'easily seen', 'stands out', 'prominent']], reject: ['concealed', 'only by night', 'construction'] },
   },
   {
     id: 'Iso',
@@ -115,6 +134,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Iso = isophase: all durations of light and darkness are equal. Iso 4s = 2 s light, 2 s dark.',
     source: 'INT 1 P10',
+    typed: { accept: ['isophase'], keywords: [['isophase', 'equal', 'same']], reject: ['isolated', 'short flash', 'fog'] },
   },
   {
     id: 'Oc',
@@ -127,6 +147,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Oc = occulting: the total duration of light in a period is longer than the total duration of darkness.',
     source: 'INT 1 P10',
+    typed: { accept: ['occulting'], keywords: [['occulting', 'occult', 'longer', 'more on']], reject: ['off longer', 'ocean', 'obscured'] },
   },
   {
     id: 'LFl',
@@ -134,6 +155,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Long-flashing – a flash of at least 2 seconds', 'Low-flashing – a weak light', 'Leading light', 'Light float'],
     why: 'LFl = long-flashing: a light whose flash is of not less than 2 seconds\' duration.',
     source: 'INT 1 P10',
+    typed: { accept: ['long-flashing'], keywords: [['long flashing', 'long flash', 'long']], reject: ['low', 'leading', 'float'] },
   },
   {
     id: 'Al',
@@ -146,6 +168,7 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Al = alternating: a light that shows different colours alternately, here white and red.',
     source: 'INT 1 P10',
+    typed: { accept: ['alternating'], keywords: [['alternating', 'alternate', 'alternately', 'alternates']], reject: ['sector', 'sectors', 'topmark', 'aero'] },
   },
   {
     id: 'Dir',
@@ -158,5 +181,6 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Dir = direction light: a light showing a narrow sector (often flanked by sectors of other colour or character) to mark a track to follow.',
     source: 'INT 1 P30',
+    typed: { accept: ['direction light'], keywords: [['direction', 'directional']], reject: ['directly', 'dimmer', 'disused'] },
   },
 ]

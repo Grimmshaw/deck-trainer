@@ -87,6 +87,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 10(c): a vessel shall, so far as practicable, avoid crossing traffic lanes but if obliged to do so shall cross on a heading as nearly as practicable at right angles to the general direction of traffic flow.',
     source: 'Rule 10(c)',
+    typed: { accept: ['at right angles to the traffic flow'], keywords: [['right angle', 'right angles', '90', 'perpendicular']], reject: ['45', 'small angle'] },
   },
   {
     id: 'R13b',
@@ -99,6 +100,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 13(b): a vessel shall be deemed to be overtaking when coming up with another vessel from a direction more than 22.5 degrees abaft her beam – at night she would see only the sternlight.',
     source: 'Rule 13(b)',
+    typed: { accept: ['more than 22.5° abaft her beam'], keywords: ['22 5', 'abaft'], reject: ['forward'], exact: true, hint: 'Angle and direction' },
   },
   {
     id: 'R13d',
@@ -111,6 +113,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 13(d): any subsequent alteration of the bearing does not make the overtaking vessel a crossing vessel or relieve her of the duty of keeping clear until she is finally past and clear.',
     source: 'Rule 13(d)',
+    typed: { accept: ['when finally past and clear'], keywords: ['past', 'clear'], reject: ['abeam', 'crossing'] },
   },
   {
     id: 'R14c',
@@ -123,6 +126,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 14(c): when a vessel is in any doubt as to whether such a situation exists she shall assume that it does exist and act accordingly.',
     source: 'Rule 14(c)',
+    typed: { accept: ['assume that it does exist'], keywords: [['assume', 'treat'], ['exist', 'exists', 'head on']], reject: ['crossing', 'port'] },
   },
   {
     id: 'R15',
@@ -147,6 +151,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 17(c): a power-driven vessel which takes action in a crossing situation to avoid collision with another power-driven vessel shall, if the circumstances admit, not alter course to port for a vessel on her own port side.',
     source: 'Rule 17(c)',
+    typed: { accept: ['altering course to port'], keywords: ['port'], reject: ['starboard', 'speed'] },
   },
   {
     id: 'R18a',
@@ -159,6 +164,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 18(a) lists vessels not under command, restricted in their ability to manoeuvre, engaged in fishing and sailing vessels. A vessel constrained by her draught is covered by Rule 18(d): you shall avoid impeding her safe passage.',
     source: 'Rule 18(a) and (d)',
+    typed: { accept: ['a vessel constrained by her draught', 'CBD'], keywords: [['draught', 'draft', 'cbd']], reject: ['command', 'fishing', 'sailing', 'nuc'] },
   },
   {
     id: 'R18b',
@@ -171,6 +177,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 18(b): a sailing vessel underway shall keep out of the way of a vessel not under command, a vessel restricted in her ability to manoeuvre and a vessel engaged in fishing.',
     source: 'Rule 18(b)',
+    typed: { accept: ['a vessel engaged in fishing'], keywords: [['fishing', 'fisher', 'fishing vessel']], reject: ['power', 'anchor', 'larger'] },
   },
   {
     id: 'R19d',
@@ -183,6 +190,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 19(d): if possible avoid an alteration of course to port for a vessel forward of the beam, other than for a vessel being overtaken, and an alteration towards a vessel abeam or abaft the beam.',
     source: 'Rule 19(d)',
+    typed: { accept: ['an alteration of course to port'], keywords: ['port'], reject: ['starboard', 'speed'] },
   },
   {
     id: 'R19e',
@@ -195,6 +203,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 19(e): reduce speed to the minimum at which she can be kept on her course, take all her way off if necessary, and navigate with extreme caution until danger of collision is over.',
     source: 'Rule 19(e)',
+    typed: { accept: ['reduce speed to the minimum'], keywords: [['reduce speed', 'slow down', 'minimum speed', 'reduce', 'slow', 'minimum']], reject: ['increase', 'port', 'five'] },
   },
   {
     id: 'R21a',
@@ -202,6 +211,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['225°', '360°', '135°', '112.5°'],
     why: 'Rule 21(a): an unbroken light over an arc of 225 degrees, from right ahead to 22.5 degrees abaft the beam on either side.',
     source: 'Rule 21(a)',
+    typed: { accept: ['225°'], keywords: [['225']], reject: ['360', '135', '112'], exact: true, hint: 'Degrees' },
   },
   {
     id: 'R21c',
@@ -209,6 +219,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['135°', '225°', '112.5°', '180°'],
     why: 'Rule 21(c): a white light placed as nearly as practicable at the stern, showing an unbroken light over an arc of 135 degrees, 67.5 degrees from right aft on each side.',
     source: 'Rule 21(c)',
+    typed: { accept: ['135°'], keywords: [['135']], reject: ['225', '112', '180'], exact: true, hint: 'Degrees' },
   },
   {
     id: 'R22',
@@ -216,6 +227,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['6 nautical miles', '3 nautical miles', '5 nautical miles', '2 nautical miles'],
     why: 'Rule 22(a): in vessels of 50 metres or more in length, a masthead light shall be visible at a minimum range of 6 miles; sidelights, sternlight, towing light and all-round lights 3 miles.',
     source: 'Rule 22(a)',
+    typed: { accept: ['6 nautical miles'], keywords: [['6', 'six']], reject: ['3', '5', '2'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'R2b',
@@ -265,6 +277,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 3(b) and (c): a sailing vessel is any vessel under sail provided that propelling machinery, if fitted, is not being used. Any vessel propelled by machinery is a power-driven vessel. By day she shows a cone, apex downwards (Rule 25(e)).',
     source: 'Rule 3(b), 3(c)',
+    typed: { accept: ['a power-driven vessel'], keywords: [['power driven', 'power', 'motor', 'powered']], reject: ['restricted'] },
   },
   {
     id: 'R3d',
@@ -301,6 +314,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 3(i): the word "underway" means that a vessel is not at anchor, or made fast to the shore, or aground. A vessel can be underway but not making way.',
     source: 'Rule 3(i)',
+    typed: { accept: ['not at anchor, made fast to the shore or aground'], keywords: ['anchor', ['made fast', 'moored', 'alongside', 'fast'], 'aground'], reject: ['making way', 'engine', 'pilot'] },
   },
   {
     id: 'R3k',
@@ -313,6 +327,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 3(k): vessels shall be deemed to be in sight of one another only when one can be observed visually from the other.',
     source: 'Rule 3(k)',
+    typed: { accept: ['when one can be seen visually from the other'], keywords: [['visually', 'see', 'seen', 'sight', 'eye', 'eyes', 'visual']], reject: ['radar', 'hear', '2'] },
   },
   {
     id: 'R3l',
@@ -361,6 +376,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 8(e): if necessary to avoid collision or allow more time to assess the situation, a vessel shall slacken her speed or take all way off by stopping or reversing her means of propulsion.',
     source: 'Rule 8(e)',
+    typed: { accept: ['slacken speed or take all way off'], keywords: [['slacken', 'slow', 'reduce', 'stop', 'all way off', 'reverse']], reject: ['increase'] },
   },
   {
     id: 'R8f',
@@ -385,6 +401,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 9(a): a vessel proceeding along the course of a narrow channel or fairway shall keep as near to the outer limit of the channel or fairway which lies on her starboard side as is safe and practicable.',
     source: 'Rule 9(a)',
+    typed: { accept: ['near the outer limit on her starboard side'], keywords: ['starboard'], reject: ['port', 'middle'] },
   },
   {
     id: 'R9d',
@@ -409,6 +426,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 9(f) and Rule 34(e): approach with particular alertness and caution and sound one prolonged blast. Any vessel round the bend that hears it answers with one prolonged blast.',
     source: 'Rule 9(f), 34(e)',
+    typed: { accept: ['sound one prolonged blast'], keywords: [['one prolonged', '1 prolonged', 'a prolonged', 'prolonged blast', 'one long', 'long blast']], reject: ['two', '2', 'five', '5', 'short'] },
   },
   {
     id: 'R10b',
@@ -433,6 +451,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 10(h): a vessel not using a traffic separation scheme shall avoid it by as wide a margin as is practicable.',
     source: 'Rule 10(h)',
+    typed: { accept: ['avoid it by as wide a margin as practicable'], keywords: [['wide margin', 'widest margin', 'as wide', 'well clear', 'keep clear', 'avoid it', 'keep away']], reject: ['inside', 'small angle', 'follow'] },
   },
   {
     id: 'R10i',
@@ -457,6 +476,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 12(a)(i): when each has the wind on a different side, the vessel which has the wind on the port side shall keep out of the way of the other.',
     source: 'Rule 12(a)(i)',
+    typed: { accept: ['the one with the wind on her port side', 'port tack'], keywords: ['port'], reject: ['starboard', 'windward', 'larger'] },
   },
   {
     id: 'R12a2',
@@ -469,6 +489,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 12(a)(ii): when both have the wind on the same side, the vessel which is to windward shall keep out of the way of the vessel which is to leeward.',
     source: 'Rule 12(a)(ii)',
+    typed: { accept: ['the vessel to windward'], keywords: [['windward']], reject: ['leeward', 'faster'] },
   },
   {
     id: 'R12b',
@@ -481,6 +502,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 12(b): the windward side shall be deemed to be the side opposite to that on which the mainsail is carried (in a square-rigged vessel, the largest fore-and-aft sail).',
     source: 'Rule 12(b)',
+    typed: { accept: ['the side opposite the mainsail'], keywords: [['opposite', 'other side'], ['mainsail', 'main sail', 'main', 'boom']] },
   },
   {
     id: 'R13a',
@@ -493,6 +515,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 13(a): notwithstanding anything in Rules 4–18, any vessel overtaking any other shall keep out of the way of the vessel being overtaken. Rule 18 does not change that.',
     source: 'Rule 13(a)',
+    typed: { accept: ['the sailing vessel'], keywords: ['sailing'], reject: ['both', 'larger'] },
   },
   {
     id: 'R13c',
@@ -505,6 +528,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 13(c): when a vessel is in any doubt as to whether she is overtaking another, she shall assume that this is the case and act accordingly.',
     source: 'Rule 13(c)',
+    typed: { accept: ['that you are overtaking'], keywords: [['overtaking', 'overtake']], reject: ['crossing', 'head on', 'stand on'] },
   },
   {
     id: 'R14a',
@@ -517,6 +541,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 14(a): when two power-driven vessels are meeting on reciprocal or nearly reciprocal courses so as to involve risk of collision, each shall alter her course to starboard so that each shall pass on the port side of the other.',
     source: 'Rule 14(a)',
+    typed: { accept: ['each alters to starboard and they pass port to port'], keywords: ['starboard'], reject: ['course to port', 'alter to port', 'alters to port', 'turn to port', 'turns to port', 'starboard to starboard', 'larger', 'stands on'] },
   },
   {
     id: 'R14b',
@@ -529,6 +554,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 14(b): such a situation shall be deemed to exist when a vessel sees the other ahead or nearly ahead and by night she could see the masthead lights of the other in a line or nearly in a line and/or both sidelights, and by day the corresponding aspect.',
     source: 'Rule 14(b)',
+    typed: { accept: ['masthead lights in line and/or both sidelights'], keywords: [['both sidelights', 'both side lights', 'red and green', 'green and red', 'in line', 'in a line']], reject: ['only', 'sternlight'] },
   },
   {
     id: 'R16',
@@ -541,6 +567,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 16: every vessel which is directed to keep out of the way of another vessel shall, so far as possible, take early and substantial action to keep well clear.',
     source: 'Rule 16',
+    typed: { accept: ['early and substantial action'], keywords: ['early', 'substantial'], reject: ['small', 'wait', 'course and speed'] },
   },
   {
     id: 'R17a',
@@ -601,6 +628,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 19(b): every vessel shall proceed at a safe speed adapted to the prevailing circumstances and conditions of restricted visibility. A power-driven vessel shall have her engines ready for immediate manoeuvre.',
     source: 'Rule 19(b)',
+    typed: { accept: ['ready for immediate manoeuvre'], keywords: [['ready', 'standby', 'stand by', 'immediate']], reject: ['stopped', 'full', 'automatic'] },
   },
   {
     id: 'R20b',
@@ -632,6 +660,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['3 nautical miles', '6 nautical miles', '2 nautical miles', '1 nautical mile'],
     why: 'Rule 22(a): in vessels of 50 metres or more, masthead light 6 miles; sidelights, sternlight, towing light and all-round lights 3 miles.',
     source: 'Rule 22(a)',
+    typed: { accept: ['3 nautical miles'], keywords: [['3', 'three']], reject: ['6', '2', '1'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'R36',
@@ -644,6 +673,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 36: you may make light or sound signals that cannot be mistaken for any signal authorized elsewhere in the Rules, or direct a searchlight beam in the direction of the danger. Any light to attract attention shall be such that it cannot be mistaken for an aid to navigation; high-intensity intermittent or revolving lights, such as strobe lights, shall be avoided.',
     source: 'Rule 36',
+    typed: { accept: ['strobe lights'], keywords: [['strobe', 'high intensity', 'flashing', 'revolving', 'intermittent']], reject: ['searchlight', 'vhf'] },
   },
   // ---- Added 8 Oct 2026 – waiting for Robin's review ----
   {
@@ -717,6 +747,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 9(g): any vessel shall, if the circumstances of the case admit, avoid anchoring in a narrow channel.',
     source: 'Rule 9(g)',
+    typed: { accept: ['avoid anchoring in a narrow channel'], keywords: [['avoid', 'not', 'no', 'dont', 'don t']], reject: ['anywhere', '20', 'two'] },
   },
   {
     id: 'R10d',
@@ -729,6 +760,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 10(d)(i): a vessel shall not use an inshore traffic zone when she can safely use the appropriate traffic lane. However, vessels of less than 20 m, sailing vessels and vessels engaged in fishing may use it. (10(d)(ii) also allows vessels going to or from a port, installation or pilot station inside the zone.)',
     source: 'Rule 10(d)',
+    typed: { accept: ['vessels under 20 m, sailing vessels and vessels engaged in fishing'], keywords: [['20', 'twenty'], ['sailing', 'sail'], ['fishing']], reject: ['50', 'tanker'] },
   },
   {
     id: 'R10k',
@@ -753,6 +785,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 18(c): a vessel engaged in fishing when underway shall, so far as possible, keep out of the way of (i) a vessel not under command and (ii) a vessel restricted in her ability to manoeuvre.',
     source: 'Rule 18(c)',
+    typed: { accept: ['a vessel not under command and a vessel restricted in her ability to manoeuvre', 'NUC and RAM'], keywords: [['not under command', 'nuc'], ['restricted', 'ram']], reject: ['sailing', 'power'] },
   },
   {
     id: 'R18f',
@@ -797,6 +830,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['The International Maritime Organization (IMO)', 'Each port authority', 'IALA', 'The flag state of each vessel'],
     why: 'Rule 1(d): traffic separation schemes may be adopted by the Organization (IMO) for the purpose of these Rules.',
     source: 'Rule 1(d)',
+    typed: { accept: ['IMO', 'International Maritime Organization'], keywords: [['imo', 'international maritime organization', 'international maritime organisation']], reject: ['port', 'iala', 'flag'] },
   },
   {
     id: 'R1e',
@@ -821,6 +855,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 3(b): the term "power-driven vessel" means any vessel propelled by machinery. A sailing vessel with her engine running ahead is therefore a power-driven vessel.',
     source: 'Rule 3(b)',
+    typed: { accept: ['any vessel propelled by machinery'], keywords: [['propelled', 'driven', 'under power', 'using'], ['machinery', 'engine', 'engines', 'motor']], reject: ['whether', '12', '7'] },
   },
   {
     id: 'R3e',
@@ -840,6 +875,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Her length overall', 'Her length between perpendiculars', 'Her length on the waterline', 'Her registered length'],
     why: 'Rule 3(j): the words "length" and "breadth" of a vessel mean her length overall and greatest breadth.',
     source: 'Rule 3(j)',
+    typed: { accept: ['length overall', 'LOA'], keywords: [['overall', 'loa']], reject: ['perpendiculars', 'waterline', 'registered'] },
   },
   {
     id: 'R6a',
@@ -864,6 +900,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 7(a): every vessel shall use all available means appropriate to the circumstances to determine if risk of collision exists. If there is any doubt such risk shall be deemed to exist.',
     source: 'Rule 7(a)',
+    typed: { accept: ['such risk shall be deemed to exist'], keywords: [['exist', 'exists', 'is risk', 'there is risk']], reject: ['no risk', 'vhf', 'starboard'] },
   },
   {
     id: 'R7d2',
@@ -900,6 +937,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 8(d): action taken to avoid collision shall result in passing at a safe distance. The effectiveness of the action shall be carefully checked until the other vessel is finally past and clear.',
     source: 'Rule 8(d)',
+    typed: { accept: ['check the effectiveness of the action'], keywords: [['check', 'monitor', 'verify', 'watch'], ['effective', 'effectiveness', 'working', 'works', 'result']], reject: ['return', 'report'] },
   },
   {
     id: 'R8f3',
@@ -948,6 +986,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 10(a): this Rule applies to traffic separation schemes adopted by the Organization and does not relieve any vessel of her obligation under any other rule.',
     source: 'Rule 10(a)',
+    typed: { accept: ['no'], keywords: [['no', 'not']], reject: ['yes'] },
   },
   {
     id: 'R10b3',
@@ -960,6 +999,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 10(b)(iii): normally join or leave a traffic lane at the termination of the lane, but when joining or leaving from either side do so at as small an angle to the general direction of traffic flow as practicable.',
     source: 'Rule 10(b)(iii)',
+    typed: { accept: ['at as small an angle as practicable'], keywords: [['small angle', 'small an angle', 'small', 'shallow angle', 'narrow angle']], reject: ['right angle', 'right angles', '90', '45'] },
   },
   {
     id: 'R10e',
@@ -984,6 +1024,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 10(f): a vessel navigating in areas near the terminations of traffic separation schemes shall do so with particular caution.',
     source: 'Rule 10(f)',
+    typed: { accept: ['with particular caution'], keywords: [['caution', 'careful', 'care', 'alert', 'alertness']], reject: ['right of way', '10 knots'] },
   },
   {
     id: 'R10g',
@@ -1020,6 +1061,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 11: the Rules in Section II apply to vessels in sight of one another. In restricted visibility, when vessels are not in sight of one another, Rule 19 applies instead.',
     source: 'Rule 11',
+    typed: { accept: ['only to vessels in sight of one another'], keywords: ['in sight'], reject: ['any', 'restricted', 'narrow'] },
   },
   {
     id: 'R14day',
@@ -1032,6 +1074,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 14(b): such a situation shall be deemed to exist when a vessel sees the other ahead or nearly ahead, and by night she could see the masthead lights in a line or nearly in a line and/or both sidelights, and by day she observes the corresponding aspect of the other vessel.',
     source: 'Rule 14(b)',
+    typed: { accept: ['her masts in line'], keywords: [['masts', 'mast'], ['line', 'in line', 'aligned']], reject: ['ball', 'port side', 'bearing'] },
   },
   {
     id: 'R15b',
@@ -1051,6 +1094,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 17(d): this Rule does not relieve the give-way vessel of her obligation to keep out of the way.',
     source: 'Rule 17(d)',
+    typed: { accept: ['no'], keywords: [['no', 'not']], reject: ['yes', 'both'] },
   },
   {
     id: 'R18d2',
@@ -1106,6 +1150,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['In all weathers', 'Only in good visibility', 'Only at night', 'Only outside harbours'],
     why: 'Rule 20(a): Rules in this Part shall be complied with in all weathers.',
     source: 'Rule 20(a)',
+    typed: { accept: ['in all weathers'], keywords: [['all weathers', 'all weather', 'any weather', 'always']], reject: ['only', 'night', 'good'] },
   },
   {
     id: 'R20b2',
@@ -1137,6 +1182,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['By day', 'By night', 'Only in restricted visibility', 'Only in harbour'],
     why: 'Rule 20(d): the Rules concerning shapes shall be complied with by day.',
     source: 'Rule 20(d)',
+    typed: { accept: ['by day'], keywords: [['day', 'daytime', 'daylight']], reject: ['night', 'fog', 'harbour'] },
   },
   {
     id: 'R22mast20',
@@ -1144,6 +1190,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['5 miles', '3 miles', '6 miles', '2 miles'],
     why: 'Rule 22(b): in vessels of 12 m or more but less than 50 m, the masthead light shall be visible 5 miles – except that where the length of the vessel is less than 20 m, 3 miles.',
     source: 'Rule 22(b)',
+    typed: { accept: ['5 miles'], keywords: [['5', 'five']], reject: ['3', '6', '2'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'R22stern',
@@ -1151,6 +1198,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['3 miles', '2 miles', '6 miles', '5 miles'],
     why: 'Rule 22(a): in vessels of 50 m or more – masthead light 6 miles, sidelight 3 miles, sternlight 3 miles, towing light 3 miles, all-round light 3 miles.',
     source: 'Rule 22(a)',
+    typed: { accept: ['3 miles'], keywords: [['3', 'three']], reject: ['2', '6', '5'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'R22side12',
@@ -1158,6 +1206,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['1 mile', '2 miles', '3 miles', 'Half a mile'],
     why: 'Rule 22(c): in vessels of less than 12 m – masthead light 2 miles, sidelight 1 mile, sternlight 2 miles, towing light 2 miles, all-round light 2 miles.',
     source: 'Rule 22(c)',
+    typed: { accept: ['1 mile'], keywords: [['1', 'one']], reject: ['2', '3', 'half'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'R22round',
@@ -1165,6 +1214,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['3 miles', '2 miles', '6 miles', '5 miles'],
     why: 'Rule 22(a): in vessels of 50 m or more, a white, red, green or yellow all-round light shall be visible at least 3 miles.',
     source: 'Rule 22(a)',
+    typed: { accept: ['3 miles'], keywords: [['3', 'three']], reject: ['2', '6', '5'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'R31',
@@ -1196,6 +1246,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['At least 4.5 m vertically higher', 'At least 1 m higher', 'At least 2 m higher', 'At the same height'],
     why: 'Annex I 2(a)(ii): when two masthead lights are carried the after one shall be at least 4.5 metres vertically higher than the forward one.',
     source: 'COLREG Annex I 2(a)(ii)',
+    typed: { accept: ['4.5 m'], keywords: [['4 5']], reject: ['1', '2', 'same'], exact: true, hint: 'Metres' },
   },
   {
     id: 'A1h3',
@@ -1203,6 +1254,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['2.5 m', '1 m', '4.5 m', '6 m'],
     why: 'Annex I 2(c): the masthead light of a power-driven vessel of 12 metres but less than 20 metres in length shall be placed at a height above the gunwale of not less than 2.5 metres.',
     source: 'COLREG Annex I 2(c)',
+    typed: { accept: ['2.5 m'], keywords: [['2 5']], reject: ['1', '4 5', '6'], exact: true, hint: 'Metres' },
   },
   {
     id: 'A1hz',
@@ -1222,6 +1274,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['0.6 m', '0.3 m', '1 m', '1.5 m'],
     why: 'Annex I 6(a)(i): a ball shall have a diameter of not less than 0.6 metre. Smaller shapes may be used on vessels of less than 20 m.',
     source: 'COLREG Annex I 6(a)',
+    typed: { accept: ['0.6 m'], keywords: [['0 6', '60 cm']], reject: ['0 3', '1', '1 5'], exact: true, hint: 'Metres' },
   },
   {
     id: 'A1cyl',
@@ -1229,6 +1282,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Twice its diameter', 'Equal to its diameter', 'Half its diameter', '1.5 m regardless of diameter'],
     why: 'Annex I 6(a)(iii): a cylinder shall have a diameter of at least 0.6 metre and a height of twice its diameter. A cone has a height equal to its base diameter.',
     source: 'COLREG Annex I 6(a)',
+    typed: { accept: ['twice its diameter'], keywords: [['twice', 'two times', '2 times', 'double', '2x']], reject: ['equal', 'half', '1 5'] },
   },
   {
     id: 'A1gap',
@@ -1236,6 +1290,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['1.5 m', '0.6 m', '1 m', '2 m'],
     why: 'Annex I 6(b): the vertical distance between shapes shall be at least 1.5 metre. Vessels of less than 20 m may use smaller shapes and reduce the distance accordingly.',
     source: 'COLREG Annex I 6(b)',
+    typed: { accept: ['1.5 m'], keywords: [['1 5']], reject: ['0 6', '2'], exact: true, hint: 'Metres' },
   },
   {
     id: 'A2shoot',
@@ -1243,6 +1298,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Shooting her nets', 'Hauling her nets', 'Her net has come fast upon an obstruction', 'She is at anchor'],
     why: 'Annex II 2(a): vessels of 20 m or more engaged in trawling show (i) when shooting their nets: two white lights in a vertical line; (ii) when hauling: one white light over one red light; (iii) when the net has come fast upon an obstruction: two red lights.',
     source: 'COLREG Annex II 2(a)',
+    typed: { accept: ['shooting her nets'], keywords: [['shooting', 'shoot', 'setting', 'casting']], reject: ['hauling', 'fast', 'anchor'] },
   },
   {
     id: 'A2haul',
@@ -1250,6 +1306,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Hauling her nets', 'Shooting her nets', 'Her net has come fast upon an obstruction', 'Pair trawling'],
     why: 'Annex II 2(a)(ii): when hauling their nets, one white light over one red light in a vertical line.',
     source: 'COLREG Annex II 2(a)',
+    typed: { accept: ['hauling her nets'], keywords: [['hauling', 'haul']], reject: ['shooting', 'fast', 'pair'] },
   },
   {
     id: 'A2fast',
@@ -1257,6 +1314,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Her net has come fast upon an obstruction', 'She is hauling her nets', 'She is shooting her nets', 'She is pair trawling'],
     why: 'Annex II 2(a)(iii): when the net has come fast upon an obstruction, two red lights in a vertical line.',
     source: 'COLREG Annex II 2(a)',
+    typed: { accept: ['her net is fast on an obstruction'], keywords: [['fast', 'stuck', 'snagged', 'caught', 'obstruction', 'fouled']], reject: ['hauling', 'shooting', 'pair'] },
   },
   {
     id: 'A2pair',

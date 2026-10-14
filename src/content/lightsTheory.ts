@@ -15,6 +15,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     ],
     why: 'Rule 21(d): a towing light is a yellow light having the same characteristics as the sternlight.',
     source: 'Rule 21(d)',
+    typed: { accept: ['a yellow light like the sternlight'], keywords: ['yellow', ['135', 'sternlight', 'stern light']], reject: ['white', 'flashing', 'red'] },
   },
   {
     id: 'L21e',
@@ -22,6 +23,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['360°', '225°', '135°', '112.5°'],
     why: 'Rule 21(e): an all-round light shows an unbroken light over an arc of the horizon of 360 degrees.',
     source: 'Rule 21(e)',
+    typed: { accept: ['360°'], keywords: [['360']], reject: ['225', '135', '112'], exact: true, hint: 'Degrees' },
   },
   {
     id: 'L21f',
@@ -29,6 +31,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['120 flashes or more per minute', '60 flashes per minute', '30 flashes per minute', 'One flash every 10 seconds'],
     why: 'Rule 21(f): a flashing light is a light flashing at regular intervals at a frequency of 120 flashes or more per minute.',
     source: 'Rule 21(f)',
+    typed: { accept: ['120 flashes or more per minute'], keywords: [['120']], reject: ['60', '30', '10'], exact: true, hint: 'Flashes per minute' },
   },
   {
     id: 'L22b',
@@ -36,6 +39,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['2 nautical miles', '3 nautical miles', '1 nautical mile', '5 nautical miles'],
     why: 'Rule 22(b): masthead light 5 miles (3 miles if under 20 m), sidelights 2 miles, sternlight, towing light and all-round lights 2 miles.',
     source: 'Rule 22(b)',
+    typed: { accept: ['2 nautical miles'], keywords: [['2', 'two']], reject: ['3', '1', '5'], exact: true, hint: 'Nautical miles' },
   },
   {
     id: 'L23b',
@@ -43,6 +47,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['An all-round flashing yellow light', 'An all-round flashing red light', 'Two all-round red lights', 'A blue flashing light'],
     why: 'Rule 23(b): an air-cushion vessel in the non-displacement mode shall, in addition to the lights in Rule 23(a), exhibit an all-round flashing yellow light.',
     source: 'Rule 23(b)',
+    typed: { accept: ['an all-round flashing yellow light'], keywords: ['yellow', ['flashing', 'flash']], reject: ['red', 'blue'] },
   },
   {
     id: 'L23c',
@@ -50,6 +55,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['A high-intensity all-round flashing red light', 'An all-round flashing yellow light', 'Three all-round red lights', 'Nothing extra'],
     why: 'Rule 23(c): a WIG craft only when taking off, landing and in flight near the surface shall, in addition to the lights in Rule 23(a), exhibit a high-intensity all-round flashing red light.',
     source: 'Rule 23(c)',
+    typed: { accept: ['an all-round flashing red light'], keywords: ['red', ['flashing', 'flash']], reject: ['yellow', 'three', 'nothing'] },
   },
   {
     id: 'L23d',
@@ -76,6 +82,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['All-round red over all-round green', 'All-round green over all-round red', 'All-round white over red', 'Two all-round white lights'],
     why: 'Rule 25(c): a sailing vessel underway may, in addition to sidelights and sternlight, exhibit at or near the top of the mast two all-round lights in a vertical line, the upper red and the lower green. Not together with the combined lantern of 25(b).',
     source: 'Rule 25(c)',
+    typed: { accept: ['red over green', 'red above green', 'all-round red over all-round green', 'green under red', 'green below red'] },
   },
   {
     id: 'L25d',
@@ -107,6 +114,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['An all-round white light, or by day a cone point up', 'An all-round red light, or by day a ball', 'Two all-round green lights', 'A yellow flashing light'],
     why: 'Rule 26(c)(ii): when there is outlying gear extending more than 150 m horizontally from the vessel, an all-round white light or a cone apex upwards in the direction of the gear.',
     source: 'Rule 26(c)',
+    typed: { accept: ['an all-round white light'], keywords: ['white'], reject: ['red', 'green', 'yellow', 'ball'] },
   },
   {
     id: 'L27d',
@@ -114,6 +122,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Two all-round green lights, or two diamonds by day', 'Two all-round red lights, or two balls by day', 'One all-round white light', 'Nothing extra'],
     why: 'Rule 27(d): in addition to the RAM lights, two all-round red lights or two balls on the side where the obstruction exists, and two all-round green lights or two diamonds on the side on which another vessel may pass.',
     source: 'Rule 27(d)',
+    typed: { accept: ['two all-round green lights'], keywords: [['two', '2'], 'green'], reject: ['red', 'balls', 'white'] },
   },
   {
     id: 'L27f',
@@ -121,6 +130,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Within 1000 m', 'Within 500 m', 'Within 200 m', 'Within 2 nautical miles'],
     why: 'Rule 27(f): these lights or shapes indicate that it is dangerous for another vessel to approach within 1000 m of the mine clearance vessel.',
     source: 'Rule 27(f)',
+    typed: { accept: ['1000 m'], keywords: [['1000', '1 000', 'one thousand', '1 km', '1 kilometre', '1 kilometer']], reject: ['500', '200', '2'], exact: true, hint: 'Metres' },
   },
   {
     id: 'L27b',
@@ -140,5 +150,6 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     options: ['Vessels of 100 m or more', 'Vessels of 50 m or more', 'All vessels at anchor', 'No vessel – it is always optional'],
     why: 'Rule 30(c): a vessel at anchor may, and a vessel of 100 m or more shall, also use the available working or equivalent lights to illuminate her decks.',
     source: 'Rule 30(c)',
+    typed: { accept: ['100 m or more'], keywords: [['100']], reject: ['50', 'no vessel', 'all vessels at anchor'], exact: true, hint: 'Length' },
   },
 ]

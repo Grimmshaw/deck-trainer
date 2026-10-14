@@ -4,6 +4,7 @@ import SoundButton from '../../sound/SoundButton'
 import { isSilent } from '../../sound/soundMode'
 import type { Generator, Question } from '../types'
 import { sample, shuffle } from '../util'
+import { SOUND_TYPED } from '../typedAnswers'
 
 // Sound signals (Rules 32–35): hear a signal and pick its meaning, or the other way round.
 
@@ -67,6 +68,7 @@ export const soundGenerator: Generator = {
         ),
         options: shuffle([s, ...wrong]).map((o) => ({ id: o.id, label: o.meaning })),
         correctId: s.id,
+        typed: { accept: [s.meaning.toLowerCase()], ...SOUND_TYPED[s.id] },
         explanation: explain(s),
       }
     }

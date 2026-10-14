@@ -1,6 +1,7 @@
 import { DISTRESS_SIGNALS, NOT_DISTRESS } from '../../content/distress'
 import type { Generator, Question } from '../types'
 import { pick, sample, shuffle } from '../util'
+import { DISTRESS_TYPED } from '../typedAnswers'
 
 // COLREG Annex IV: recognise the signals that indicate distress and need of assistance.
 
@@ -27,6 +28,7 @@ export const distressGenerator: Generator = {
           { id: 'clear', label: 'Keep clear of me; I am manoeuvring with difficulty' },
         ]),
         correctId: 'distress',
+        typed: DISTRESS_TYPED,
         explanation: (
           <>
             {d.text}. <strong>{d.ref}</strong>

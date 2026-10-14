@@ -1,5 +1,6 @@
 import type { CategoryId } from '../categories'
 import type { Generator, Question } from '../types'
+import type { TypedAnswer } from '../typed'
 import { shuffle } from '../util'
 
 export interface TheoryItem {
@@ -8,6 +9,8 @@ export interface TheoryItem {
   options: string[]
   why: string
   source: string
+  /** Optional: right answers for typing the answer instead of choosing (see study/typed.ts) */
+  typed?: TypedAnswer
 }
 
 /** Turns a written multiple-choice question into a Question with shuffled options */
@@ -19,6 +22,7 @@ export function theoryQuestion(key: string, category: CategoryId, t: TheoryItem)
     prompt: t.q,
     options: shuffle(t.options.map((label, i) => ({ id: ids[i], label }))),
     correctId: 'a',
+    typed: t.typed,
     explanation: (
       <>
         {t.why} <span className="muted small">({t.source})</span>

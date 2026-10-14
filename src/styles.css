@@ -1698,6 +1698,35 @@ h2,
 .unlock-list li::marker {
   color: var(--signal);
 }
+/* Access code (web only) */
+.link-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  color: var(--muted, inherit);
+  text-decoration: underline;
+  justify-self: center;
+}
+.code-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 4px;
+}
+.code-form input {
+  min-width: 0;
+  padding: 12px 14px;
+  font: inherit;
+  letter-spacing: 0.08em;
+  color: var(--text, inherit);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 10px;
+}
+.code-form p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
 a.as-button {
   display: block;
   text-align: center;
@@ -1731,4 +1760,56 @@ a.as-button {
 }
 .step-grid .step-option strong {
   font-size: 1.6rem;
+}
+
+/* Typed answers: choose or type, the text field and the verdict */
+.answer-mode {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.answer-mode button {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.answer-mode button[aria-pressed='true'] {
+  color: var(--signal-ink);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+.answer-mode button:disabled {
+  opacity: 0.6;
+}
+.typed-form {
+  display: grid;
+  gap: 10px;
+}
+.answer.typed-answer {
+  font-size: 1.15rem;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+}
+.typed-missing,
+.typed-correct {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.95rem;
+}
+.typed-missing {
+  font-weight: 400;
+  color: var(--text);
+}
+.typed-correct {
+  color: var(--text);
+}
+.typed-correct::before {
+  content: 'Answer: ';
+  font-weight: 400;
+  color: var(--muted);
 }

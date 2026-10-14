@@ -1,13 +1,9 @@
 // IALA theory questions. Q1–Q20 were reviewed by Robin (Google Doc "IALA sample questions").
 // The first option is the correct one; the app shuffles them.
 
-export interface TheoryQuestion {
-  id: string
-  q: string
-  options: string[]
-  why: string
-  source: string
-}
+import type { TheoryItem } from '../study/generators/theory'
+
+export type TheoryQuestion = TheoryItem & { id: string }
 
 export const IALA_THEORY: TheoryQuestion[] = [
   {
@@ -16,6 +12,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["Keep it on your port side", "Keep it on your starboard side", "Pass on either side", "Keep well clear, it marks a wreck"],
     why: "In Region A, port-hand marks are red and can-shaped. When following the direction of buoyage, keep them on your port side.",
     source: "IALA MBS (R1001), lateral marks, Region A",
+    typed: { accept: ['port', 'port side'], keywords: ['port'], reject: ['starboard', 'either'], hint: 'Which side?' },
   },
   {
     id: 'Q2',
@@ -23,6 +20,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["Red", "Green", "Yellow", "Black and red"],
     why: "Region B reverses the lateral colours: starboard-hand marks are red and port-hand marks are green (\"red right returning\"). Region B covers the Americas, Japan, the Republic of Korea and the Philippines.",
     source: "IALA MBS (R1001), lateral marks and buoyage regions",
+    typed: { accept: ['red'], reject: ['green'], hint: 'Colour' },
   },
   {
     id: 'Q3',
@@ -30,6 +28,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["A single red can (cylinder)", "A single red sphere", "A single green cone, point up", "Two black spheres"],
     why: "Port-hand marks carry a single red cylinder (can). Starboard-hand marks in Region A carry a single green cone, point up.",
     source: "IALA MBS (R1001), lateral marks",
+    typed: { accept: ['a single red can', 'red can', 'red cylinder'], keywords: [['can', 'cylinder', 'cylindrical']], reject: ['cone', 'sphere', 'green', 'two'], hint: 'Shape and colour' },
   },
   {
     id: 'Q4',
@@ -37,6 +36,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["Preferred channel to port", "Preferred channel to starboard", "A wreck", "The start of a traffic separation scheme"],
     why: "This is a modified starboard-hand mark. It shows where a channel divides and that the preferred (main) channel is to port. Keep it on your starboard side to follow the preferred channel.",
     source: "IALA MBS (R1001), preferred channel marks",
+    typed: { accept: ['preferred channel to port'], keywords: [['preferred', 'main'], 'port'], reject: ['starboard'] },
   },
   {
     id: 'Q5',
@@ -44,6 +44,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["Composite group flashing Fl(2+1)", "Fl(2)", "Q(6)+LFl", "Iso 4s"],
     why: "Fl(2+1) is reserved for modified lateral (preferred channel) marks. Normal lateral marks may use any rhythm except this one.",
     source: "IALA MBS (R1001), preferred channel marks",
+    typed: { accept: ['Fl(2+1)', 'composite group flashing Fl(2+1)', 'composite group flashing 2+1'], exact: true, hint: 'e.g. Fl(3)' },
   },
   {
     id: 'Q6',
@@ -51,6 +52,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["North", "South", "East", "West"],
     why: "Two cones pointing up is a north cardinal mark. The safe water is to the north, so pass north of it.",
     source: "IALA MBS (R1001), cardinal marks",
+    typed: { accept: ['north', 'to the north'], keywords: ['north'], reject: ['south', 'east', 'west'], hint: 'One word' },
   },
   {
     id: 'Q7',
@@ -58,6 +60,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["East cardinal mark", "West cardinal mark", "Isolated danger mark", "Safe water mark"],
     why: "East cardinal marks show three very quick (or quick) flashes: VQ(3) 5s or Q(3) 10s.",
     source: "IALA MBS (R1001), cardinal marks",
+    typed: { accept: ['east cardinal mark', 'east cardinal'], keywords: ['east', 'cardinal'], reject: ['west', 'north', 'south'] },
   },
   {
     id: 'Q8',
@@ -86,6 +89,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["Two black spheres, one above the other", "A single red sphere", "A yellow X", "Two black cones, base to base"],
     why: "Isolated danger marks carry two black spheres. They are black with one or more broad red horizontal bands.",
     source: "IALA MBS (R1001), isolated danger marks",
+    typed: { accept: ['two black spheres'], keywords: [['two', '2'], ['sphere', 'spheres', 'ball', 'balls']], reject: ['cone', 'cones', 'red', 'single'] },
   },
   {
     id: 'Q12',
@@ -93,6 +97,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["White, Fl(2)", "Red, Fl(2)", "White, Iso", "Yellow, Fl"],
     why: "Group flashing two, white. Think of the two black spheres on top.",
     source: "IALA MBS (R1001), isolated danger marks",
+    typed: { accept: ['white Fl(2)'], keywords: [['white', 'w'], ['fl 2', 'group flashing 2', 'group flashing two']], reject: ['red', 'yellow', 'green'], exact: true, hint: 'Colour and rhythm, e.g. red Fl(3)' },
   },
   {
     id: 'Q13',
@@ -107,6 +112,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["Safe water, with navigable water all around", "Isolated danger", "Preferred channel", "Emergency wreck"],
     why: "This is a safe water mark, used for example as a landfall or mid-channel mark.",
     source: "IALA MBS (R1001), safe water marks",
+    typed: { accept: ['safe water mark', 'safe water'], keywords: ['safe water'], reject: ['danger'] },
   },
   {
     id: 'Q15',
@@ -121,6 +127,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["A special mark", "A new danger", "A west cardinal mark", "A safe water mark"],
     why: "Special marks are yellow with a yellow X topmark and, if lit, a yellow light. They mark special areas or features, such as a cable, spoil ground or data buoy.",
     source: "IALA MBS (R1001), special marks",
+    typed: { accept: ['special mark', 'special'], keywords: ['special'] },
   },
   {
     id: 'Q17',
@@ -135,6 +142,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["D", "A", "U", "K"],
     why: "A new danger mark may carry a racon coded Morse \"D\" (\u2013 \u00b7 \u00b7), showing about 1 nautical mile long on the radar display.",
     source: "IALA MBS (R1001), new dangers",
+    typed: { accept: ['D', 'delta'], exact: true, hint: 'One letter' },
   },
   {
     id: 'Q19',
@@ -149,6 +157,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ["A port-hand lateral mark", "An isolated danger mark", "A south cardinal mark", "A special mark"],
     why: "In Region A, red lights are used only on port-hand marks: the normal port-hand mark, and the modified port-hand mark (preferred channel to starboard), which shows Fl(2+1) R. The isolated danger mark also shows Fl(2), but in white.",
     source: "IALA MBS (R1001), lateral marks",
+    typed: { accept: ['port-hand lateral mark', 'port-hand mark', 'port lateral mark'], keywords: ['port'], reject: ['starboard', 'isolated', 'cardinal', 'special'] },
   },
   // ---- Added 8 Oct 2026 – waiting for Robin's review ----
   {
@@ -164,6 +173,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['Red', 'Green', 'White', 'Yellow'],
     why: 'In Region A port-hand marks are red and show a red light; starboard-hand marks are green with a green light. Region B is the other way round.',
     source: 'IALA MBS – lateral marks',
+    typed: { accept: ['red'], reject: ['green'], hint: 'Colour' },
   },
   {
     id: 'Q23',
@@ -171,6 +181,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['A single green cone, point up', 'A single green can', 'Two green cones, points up', 'A green sphere'],
     why: 'A starboard-hand mark carries a single green cone, point upward (Region A). A port-hand mark carries a single red can.',
     source: 'IALA MBS – lateral marks',
+    typed: { accept: ['a single green cone, point up', 'green cone'], keywords: [['cone', 'conical']], reject: ['can', 'cylinder', 'sphere', 'two', '2', 'down', 'red'], hint: 'Shape and colour' },
   },
   {
     id: 'Q24',
@@ -178,6 +189,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['Green', 'Red', 'Yellow', 'Black and red'],
     why: 'In Region B the colours are reversed: port-hand marks are green and starboard-hand marks are red ("red right returning").',
     source: 'IALA MBS – Region B',
+    typed: { accept: ['green'], reject: ['red'], hint: 'Colour' },
   },
   {
     id: 'Q25',
@@ -216,6 +228,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['Black above yellow', 'Yellow above black', 'Black with one broad yellow band', 'Yellow with one broad black band'],
     why: 'The topmark cones point to where the black is: north – both up, so black is at the top. South is yellow above black, east is black with a yellow band, west is yellow with a black band.',
     source: 'IALA MBS – cardinal marks',
+    typed: { accept: ['black above yellow', 'black over yellow', 'black on top, yellow below', 'black top, yellow bottom', 'yellow below black', 'yellow under black'], hint: 'Top and bottom colour' },
   },
   {
     id: 'Q29',
@@ -230,6 +243,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['Two black cones, both points down', 'Two black cones, both points up', 'Two black cones, base to base', 'Two black cones, point to point'],
     why: 'South: both cones point down (to the south). North: both up. East: base to base. West: point to point.',
     source: 'IALA MBS – cardinal marks',
+    typed: { accept: ['two black cones, points down', 'two cones down', 'cones down'], keywords: [['cone', 'cones'], 'down'], reject: ['up', 'base', 'point to point'] },
   },
   {
     id: 'Q31',
@@ -244,6 +258,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['White', 'Yellow', 'Red', 'Green'],
     why: 'Cardinal marks show white lights, very quick or quick flashing. The number of flashes tells you which quadrant.',
     source: 'IALA MBS – cardinal marks',
+    typed: { accept: ['white'], reject: ['yellow', 'red', 'green'], hint: 'Colour' },
   },
   {
     id: 'Q33',
@@ -258,6 +273,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['On its north side', 'On its south side', 'On either side', 'On its east side'],
     why: 'A cardinal mark is named after the quadrant it is in, seen from the danger. The safe water is on the named side, so you pass north of a north cardinal mark.',
     source: 'IALA MBS – cardinal marks',
+    typed: { accept: ['north', 'north side', 'on its north side'], keywords: ['north'], reject: ['south', 'east', 'west'] },
   },
   {
     id: 'Q35',
@@ -279,6 +295,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['White', 'Red', 'Yellow', 'Green'],
     why: 'A safe water mark shows a white light: isophase, occulting, one long flash every 10 s, or Morse "A".',
     source: 'IALA MBS – safe water marks',
+    typed: { accept: ['white'], reject: ['yellow', 'red', 'green'], hint: 'Colour' },
   },
   {
     id: 'Q38',
@@ -286,6 +303,7 @@ export const IALA_THEORY: TheoryQuestion[] = [
     options: ['Yellow', 'White', 'Red', 'Blue'],
     why: 'Special marks are yellow and show a yellow light, with a rhythm that cannot be confused with the white lights of cardinal, isolated danger or safe water marks.',
     source: 'IALA MBS – special marks',
+    typed: { accept: ['yellow'], reject: ['white', 'red', 'blue'], hint: 'Colour' },
   },
   {
     id: 'Q39',

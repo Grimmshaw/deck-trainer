@@ -8,6 +8,7 @@ import LightBlinker from '../../buoyage/LightBlinker'
 import type { Generator, Question } from '../types'
 import { pick, sample, shuffle } from '../util'
 import { theoryQuestion } from './theory'
+import { charTyped, MARK_TYPED } from '../typedAnswers'
 
 // Buoyage questions: "what is this mark?" generated from the IALA data model
 // (by day or only the light at night), plus the reviewed theory questions.
@@ -71,6 +72,7 @@ export const buoyageGenerator: Generator = {
       ) : undefined,
       options: shuffle([mark, ...others]).map((m) => ({ id: m.id, label: m.name })),
       correctId: mark.id,
+      typed: MARK_TYPED[mark.id],
       explanation: (
         <>
           {mark.meaning} Light: <strong>{light.label}</strong>
@@ -135,6 +137,7 @@ function charQuestion(key: string): Question {
     media: <LightBlinker light={charLight(spec, colour)} />,
     options: shuffle([c, ...wrong]).map((x) => ({ id: x.spec, label: withColour(x.spec, colour) })),
     correctId: spec,
+    typed: charTyped(spec, colour),
     explanation: (
       <>
         <strong>{label}</strong>. {CHAR_HELP[c.family]}

@@ -7,7 +7,9 @@ import type { CategoryId } from '../study/categories'
 // - In the Google Play app (a Trusted Web Activity) the Digital Goods API
 //   is available, and the purchase is made with the Payment Request API.
 // - On the web there is no purchase: the free part is open and the rest
-//   shows a link to the app on Google Play.
+//   shows a link to the app on Google Play. Testers can unlock the web
+//   version with an access code (checked by netlify/functions/access-code.mts).
+//   Codes never unlock the Google Play app – Google requires Play Billing there.
 // - While PAYWALL_ON is false (the beta), everything is open everywhere.
 
 /** Turn on when the app is released on Google Play */
@@ -24,12 +26,16 @@ const PLAY_BILLING = 'https://play.google.com/billing'
 const FREE: CategoryId[] = ['morse']
 
 const KEY = 'deck.unlock'
-let unlocked = load(KEY, { unlocked: false }).unlocked
+/** code is set when the unlock came from an access code (web only) */
+const stored = load(KEY, { unlocked: false, code: '' })
+let unlocked = stored.unlocked
+let unlockCode = stored.code
 const listeners = new Set<() => void>()
 
-function setUnlocked(v: boolean) {
+function setUnlocked(v: boolean, code = '') {
   unlocked = v
-  save(KEY, { unlocked: v })
+  unlockCode = v ? code : ''
+  save(KEY, { unlocked: v, code: unlockCode })
   listeners.forEach((l) => l())
 }
 
@@ -116,11 +122,18 @@ async function verify(token: string): Promise<boolean> {
 /** On start in the Play app: unlock if the user has bought before (also after reinstalling) */
 export async function restorePurchases(): Promise<void> {
   const s = await playService()
-  if (!s) return
+  if (!s) {
+    await recheckCode()
+    return
+  }
   try {
     const owned = (await s.listPurchases()).find((p) => p.itemId === SKU)
-    if (!owned) return
-    if (!unlocked) setUnlocked(true)
+    if (!owned) {
+      // An access code from the web does not count in the Google Play app
+      if (unlockCode) setUnlocked(false)
+      return
+    }
+    if (!unlocked || unlockCode) setUnlocked(true)
     // Make sure it is acknowledged, otherwise Google refunds it after three days
     const done = load('deck.ack', { token: '' }).token
     if (done !== owned.purchaseToken && (await verify(owned.purchaseToken))) save('deck.ack', { token: owned.purchaseToken })
@@ -151,4 +164,37 @@ export async function buy(): Promise<BuyResult> {
   } catch (e) {
     return (e as Error).name === 'AbortError' ? 'cancelled' : 'failed'
   }
+}
+
+// ---------- Access codes (web only) ----------
+
+async function checkCode(code: string): Promise<boolean | null> {
+  try {
+    const res = await fetch('/api/access-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    })
+    if (!res.ok) return null
+    return ((await res.json()) as { valid?: boolean }).valid === true
+  } catch {
+    return null // offline
+  }
+}
+
+export type CodeResult = 'ok' | 'wrong' | 'offline' | 'in-app'
+
+export async function redeemCode(code: string): Promise<CodeResult> {
+  if (await playService()) return 'in-app'
+  const valid = await checkCode(code)
+  if (valid === null) return 'offline'
+  if (!valid) return 'wrong'
+  setUnlocked(true, code.trim())
+  return 'ok'
+}
+
+/** On start on the web: lock again if the code has been removed on the server */
+async function recheckCode(): Promise<void> {
+  if (!unlockCode) return
+  if ((await checkCode(unlockCode)) === false) setUnlocked(false)
 }

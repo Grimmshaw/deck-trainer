@@ -1,6 +1,7 @@
 import { CHART_SYMBOLS, ChartSymbolSvg, type ChartSymbol } from '../../chart/symbols'
 import type { Generator, Question } from '../types'
 import { shuffle } from '../util'
+import { CHART_TYPED } from '../typedAnswers'
 
 // Chart symbols (INT 1): name the symbol, or pick the right symbol.
 
@@ -43,6 +44,7 @@ export const chartGenerator: Generator = {
         ),
         options: shuffle([s, ...wrong]).map((o) => ({ id: o.id, label: o.name })),
         correctId: s.id,
+        typed: { accept: [s.name.toLowerCase()], ...CHART_TYPED[s.id] },
         explanation: explain(s),
       }
     }

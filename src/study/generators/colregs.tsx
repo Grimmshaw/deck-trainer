@@ -19,6 +19,7 @@ import VesselSvg from '../../lights/VesselSvg'
 import type { Generator, Question } from '../types'
 import { sample, shuffle } from '../util'
 import { theoryQuestion } from './theory'
+import { ACTION_TYPED, FOG_TYPED } from '../typedAnswers'
 
 // "What do you do?" scenarios built on the lights engine, plus theory questions.
 
@@ -66,6 +67,7 @@ export const colregsGenerator: Generator = {
         media: fogMedia(f),
         options: shuffle([f.action, ...fogDistractors(f.action)]).map((a) => ({ id: a, label: FOG_ACTION_TEXT[a] })),
         correctId: f.action,
+        typed: FOG_TYPED[f.action],
         explanation: fogWhy(f),
       }
     }
@@ -93,6 +95,7 @@ export const colregsGenerator: Generator = {
       reveal: e.night ? <VesselSvg variant={e.variant} scene={scene} size={340} /> : undefined,
       options: shuffle([e.action, ...wrong]).map((a) => ({ id: a, label: ACTION_TEXT[a] })),
       correctId: e.action,
+      typed: ACTION_TYPED[e.action],
       explanation: (
         <>
           She is: <strong>{e.vessel.name.toLowerCase()}</strong>

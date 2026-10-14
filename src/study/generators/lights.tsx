@@ -17,6 +17,7 @@ import VesselSvg from '../../lights/VesselSvg'
 import { ASPECTS, VESSELS } from '../../lights/vessels'
 import type { Generator, Question } from '../types'
 import { pick, shuffle } from '../util'
+import { HEADING_TYPED, VESSEL_TYPED } from '../typedAnswers'
 
 // "What is this vessel?" from her lights at night or her day shapes.
 // Built on the navigation lights engine, which avoids ambiguous pictures.
@@ -66,6 +67,8 @@ export const lightsGenerator: Generator = {
       reveal: q.vessel.dayOnly ? undefined : <VesselSvg variant={q.variant} night={!q.night} scene={q.scene} size={340} />,
       options: q.options.map((v) => ({ id: v.id, label: v.name })),
       correctId: q.vessel.id,
+      // Not when other vessels show the same day shapes: a typed name of one of them would also be right
+      typed: q.lookalikes.length ? undefined : { accept: [q.vessel.name.toLowerCase()], ...VESSEL_TYPED[q.vessel.id] },
       explanation: (
         <>
           {q.vessel.description} You are {q.aspect.name}.{variantNote} <strong>{q.vessel.rule}</strong>
@@ -173,6 +176,7 @@ function headingQuestion(key: string): Question {
     reveal: <VesselSvg variant={q.variant} scene={q.scene} size={340} />,
     options: HEADINGS.map((x) => ({ id: x, label: HEADING_TEXT[x] })),
     correctId: h,
+    typed: HEADING_TYPED[h],
     explanation: (
       <>
         {HEADING_WHY[h]} She is {article(q.vessel.name)} {lower(q.vessel.name)} and you are {q.aspect.name}.

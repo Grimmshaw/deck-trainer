@@ -2,6 +2,7 @@ import { FLAGS, FlagSvg, type Flag } from '../../flags/flags'
 import MorseSymbols from '../../components/MorseSymbols'
 import { MORSE } from '../../morse'
 import type { Ctx, Generator, MatchPair, Question } from '../types'
+import { letterTyped, signalTyped } from '../typedAnswers'
 import { sample, shuffle } from '../util'
 
 // International Code of Signals letter flags. Two kinds of items:
@@ -71,6 +72,7 @@ export const flagsGenerator: Generator = {
           options: shuffle([f, ...wrong]).map((o) => ({ id: o.letter, label: o.meaning! })),
           correctId: f.letter,
           explanation: explain(f),
+          typed: signalTyped(f.letter, f.meaning!),
         }
       }
       return {
@@ -81,6 +83,7 @@ export const flagsGenerator: Generator = {
         correctId: f.letter,
         explanation: explain(f),
         layout: 'pictures',
+        typed: { ...letterTyped(f.letter, f.word), answer: `${f.letter} (${f.word})` },
       }
     }
 
@@ -94,6 +97,7 @@ export const flagsGenerator: Generator = {
         options: shuffle([f, ...wrong]).map((o) => ({ id: o.letter, label: `${o.letter} – ${o.word}` })),
         correctId: f.letter,
         explanation: explain(f),
+        typed: letterTyped(f.letter, f.word),
       }
     }
     return {

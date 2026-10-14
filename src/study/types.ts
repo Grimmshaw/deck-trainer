@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { StudyRegion } from '../regions'
 import type { CategoryId } from './categories'
+import type { TypedAnswer } from './typed'
 
 /**
  * What to practise in a category where the items have two sides, like Morse
@@ -35,6 +36,8 @@ export interface Question {
   reveal?: ReactNode
   /** 'pictures' shows the options as a 2 × 2 grid of pictures */
   layout?: 'pictures'
+  /** Set if the question can also be answered by typing. Grade with gradeTyped() from study/typed. */
+  typed?: TypedAnswer
 }
 
 export interface Flashcard {

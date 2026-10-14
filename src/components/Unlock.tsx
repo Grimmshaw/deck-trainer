@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { LanternMark } from '../brand/Logo'
-import { buy, localPrice, PLAY_URL, playService, useUnlocked, type BuyResult } from '../store/entitlement'
+import { buy, localPrice, PLAY_URL, playService, redeemCode, useUnlocked, type BuyResult, type CodeResult } from '../store/entitlement'
 
 // Shown when a locked category is opened. In the Google Play app it sells
-// "Unlock all"; on the web it points to the app.
+// "Unlock all"; on the web it points to the app, and testers can enter an
+// access code. The code field is never shown in the Google Play app.
 
 const INCLUDED = [
   'Buoyage (IALA) – marks, lights and light characters',
@@ -19,6 +20,9 @@ export default function Unlock({ onBack, onDone }: { onBack: () => void; onDone:
   const [inApp, setInApp] = useState<boolean | null>(null)
   const [price, setPrice] = useState('')
   const [state, setState] = useState<BuyResult | 'busy' | null>(null)
+  const [showCode, setShowCode] = useState(false)
+  const [code, setCode] = useState('')
+  const [codeState, setCodeState] = useState<CodeResult | 'busy' | null>(null)
 
   useEffect(() => {
     playService().then((s) => setInApp(!!s))
@@ -32,6 +36,13 @@ export default function Unlock({ onBack, onDone }: { onBack: () => void; onDone:
   const purchase = async () => {
     setState('busy')
     setState(await buy())
+  }
+
+  const submitCode = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!code.trim()) return
+    setCodeState('busy')
+    setCodeState(await redeemCode(code))
   }
 
   return (
@@ -62,6 +73,34 @@ export default function Unlock({ onBack, onDone }: { onBack: () => void; onDone:
             Get Lanterna on Google Play
           </a>
           <p className="muted small center">The full version is unlocked in the app on Google Play.</p>
+
+          {!showCode ? (
+            <button type="button" className="link-btn small" onClick={() => setShowCode(true)}>
+              I have an access code
+            </button>
+          ) : (
+            <form className="code-form" onSubmit={submitCode}>
+              <input
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value.toUpperCase())
+                  setCodeState(null)
+                }}
+                placeholder="Access code"
+                autoCapitalize="characters"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-label="Access code"
+                autoFocus
+              />
+              <button type="submit" className="secondary" disabled={!code.trim() || codeState === 'busy'}>
+                {codeState === 'busy' ? 'Checking…' : 'Unlock'}
+              </button>
+              {codeState === 'wrong' && <p className="small center feedback-detail">That code is not valid.</p>}
+              {codeState === 'offline' && <p className="small center">No connection – try again when you are online.</p>}
+            </form>
+          )}
         </div>
       ) : (
         <div className="actions-col">
