@@ -13,9 +13,9 @@ import type { CategoryId } from '../study/categories'
 // - While PAYWALL_ON is false (the beta), everything is open everywhere.
 
 /** Turn on when the app is released on Google Play */
-export const PAYWALL_ON = false
+export const PAYWALL_ON = true
 
-/** In-app product id, created in Play Console (Monetise → Products → In-app products) */
+/** One-time product id, created in Play Console (Monetize with Play → Products → One-time products) */
 export const SKU = 'lanterna_full'
 export const PACKAGE = 'se.lanternakonsult.lanterna'
 export const PLAY_URL = `https://play.google.com/store/apps/details?id=${PACKAGE}`
