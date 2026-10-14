@@ -142,10 +142,26 @@ export async function restorePurchases(): Promise<void> {
   }
 }
 
-export type BuyResult = 'ok' | 'cancelled' | 'failed' | 'unavailable'
+export type BuyResult = 'ok' | 'cancelled' | 'failed' | 'unavailable' | 'notfound'
+
+/** What went wrong in the last failed purchase, shown small under the message to help when testing */
+export let lastBuyError = ''
 
 export async function buy(): Promise<BuyResult> {
-  if (!(await playService()) || !('PaymentRequest' in window)) return 'unavailable'
+  const s = await playService()
+  if (!s || !('PaymentRequest' in window)) return 'unavailable'
+  lastBuyError = ''
+  // Google Play does not know the product yet (just created, not active, or wrong id)
+  try {
+    const items = await s.getDetails([SKU])
+    if (!items.some((i) => i.itemId === SKU)) {
+      lastBuyError = `getDetails: ${SKU} not returned`
+      return 'notfound'
+    }
+  } catch (e) {
+    lastBuyError = `getDetails: ${(e as Error).name} ${(e as Error).message}`
+    return 'notfound'
+  }
   try {
     const request = new PaymentRequest([{ supportedMethods: PLAY_BILLING, data: { sku: SKU } }], {
       // Required by the API but ignored by Google Play
@@ -154,6 +170,8 @@ export async function buy(): Promise<BuyResult> {
     const response = await request.show()
     const token = (response.details as { purchaseToken?: string }).purchaseToken
     const ok = token ? await verify(token) : false
+    if (!token) lastBuyError = 'no purchase token'
+    else if (!ok) lastBuyError = 'server could not verify the purchase'
     await response.complete(ok ? 'success' : 'fail')
     if (ok && token) {
       save('deck.ack', { token })
@@ -162,7 +180,9 @@ export async function buy(): Promise<BuyResult> {
     }
     return 'failed'
   } catch (e) {
-    return (e as Error).name === 'AbortError' ? 'cancelled' : 'failed'
+    if ((e as Error).name === 'AbortError') return 'cancelled'
+    lastBuyError = `${(e as Error).name} ${(e as Error).message}`
+    return 'failed'
   }
 }
 

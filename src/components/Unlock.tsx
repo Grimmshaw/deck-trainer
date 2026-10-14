@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { LanternMark } from '../brand/Logo'
-import { buy, localPrice, PLAY_URL, playService, redeemCode, useUnlocked, type BuyResult, type CodeResult } from '../store/entitlement'
+import { buy, lastBuyError, localPrice, PLAY_URL, playService, redeemCode, useUnlocked, type BuyResult, type CodeResult } from '../store/entitlement'
 
 // Shown when a locked category is opened. In the Google Play app it sells
 // "Unlock all"; on the web it points to the app, and testers can enter an
@@ -114,6 +114,12 @@ export default function Unlock({ onBack, onDone }: { onBack: () => void; onDone:
             </p>
           )}
           {state === 'unavailable' && <p className="small center">Google Play Billing is not available on this device.</p>}
+          {state === 'notfound' && (
+            <p className="small center feedback-detail">The purchase is not available right now. Please try again later.</p>
+          )}
+          {(state === 'failed' || state === 'notfound') && lastBuyError && (
+            <p className="muted small center">({lastBuyError})</p>
+          )}
         </div>
       )}
     </div>
