@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { LanternMark } from '../brand/Logo'
-import { buy, lastBuyError, localPrice, PLAY_URL, playService, redeemCode, useUnlocked, type BuyResult, type CodeResult } from '../store/entitlement'
+import { buy, lastBuyError, localPrice, PLAY_URL, playService, redeemCode, trialAvailable, TRIAL_QUESTIONS, useUnlocked, type BuyResult, type CodeResult } from '../store/entitlement'
+import { findCategory, type CategoryId } from '../study/categories'
 
 // Shown when a locked category is opened. In the Google Play app it sells
 // "Unlock all"; on the web it points to the app, and testers can enter an
@@ -15,7 +16,20 @@ const INCLUDED = [
   'Final exam with everything mixed',
 ]
 
-export default function Unlock({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+export default function Unlock({
+  category,
+  onBack,
+  onDone,
+  onTrial,
+}: {
+  /** The locked category the user tried to open */
+  category: CategoryId
+  onBack: () => void
+  onDone: () => void
+  /** Start the free round in this category */
+  onTrial: () => void
+}) {
+  const canTry = trialAvailable(category)
   const unlocked = useUnlocked()
   const [inApp, setInApp] = useState<boolean | null>(null)
   const [price, setPrice] = useState('')
@@ -66,6 +80,17 @@ export default function Unlock({ onBack, onDone }: { onBack: () => void; onDone:
           <li key={t}>{t}</li>
         ))}
       </ul>
+
+      {canTry && (
+        <div className="trial-card">
+          <p>
+            Not sure yet? Try <strong>{TRIAL_QUESTIONS} free questions</strong> in {findCategory(category).title} first.
+          </p>
+          <button className="secondary" onClick={onTrial}>
+            Try {TRIAL_QUESTIONS} free questions
+          </button>
+        </div>
+      )}
 
       {inApp === false ? (
         <div className="actions-col">

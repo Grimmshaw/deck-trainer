@@ -1813,3 +1813,40 @@ a.as-button {
   font-weight: 400;
   color: var(--muted);
 }
+
+/* Free round in a locked category, and the one-time rating request */
+.trial-card,
+.rate-card {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--brass) 55%, transparent);
+}
+.trial-card p,
+.rate-card p {
+  margin: 0;
+}
+.results .trial-card,
+.results .rate-card {
+  margin: 4px 0 12px;
+  text-align: center;
+}
+.trial-chip {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--signal-ink);
+  background: var(--signal);
+  vertical-align: 1px;
+}
+.tag-try {
+  background: color-mix(in srgb, var(--signal) 30%, transparent);
+}

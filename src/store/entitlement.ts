@@ -47,6 +47,38 @@ export function canOpen(id: CategoryId): boolean {
   return !PAYWALL_ON || unlocked || isFree(id)
 }
 
+// ---------- Free trial: one practice round per locked category ----------
+
+/** Questions in the free round */
+export const TRIAL_QUESTIONS = 10
+const TRIAL_KEY = 'deck.trial'
+let trialsUsed: string[] = load(TRIAL_KEY, { used: [] as string[] }).used
+
+/** True if this locked category still has its free round */
+export function trialAvailable(id: CategoryId): boolean {
+  return !canOpen(id) && id !== 'exam' && !trialsUsed.includes(id)
+}
+
+/** The free round has started: it is used even if the user leaves early */
+export function markTrialUsed(id: CategoryId): void {
+  if (trialsUsed.includes(id)) return
+  trialsUsed = [...trialsUsed, id]
+  save(TRIAL_KEY, { used: trialsUsed })
+}
+
+// ---------- Asking for a rating on Google Play, once ----------
+
+const RATE_KEY = 'deck.rateAsked'
+
+/** After a good round of at least 10 questions, if never asked before */
+export function shouldAskForRating(right: number, total: number): boolean {
+  return total >= 10 && right / total >= 0.8 && !load(RATE_KEY, { asked: false }).asked
+}
+
+export function ratingAsked(): void {
+  save(RATE_KEY, { asked: true })
+}
+
 /** Re-renders when the purchase state changes */
 export function useUnlocked(): boolean {
   return useSyncExternalStore(

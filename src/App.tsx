@@ -18,7 +18,7 @@ import Learn from './components/study/Learn'
 import Match from './components/study/Match'
 import { Splash } from './brand/Logo'
 import Unlock from './components/Unlock'
-import { canOpen, restorePurchases } from './store/entitlement'
+import { canOpen, markTrialUsed, restorePurchases, TRIAL_QUESTIONS } from './store/entitlement'
 import { track } from './stats/usage'
 
 export interface Settings {
@@ -39,7 +39,7 @@ type Screen =
   | { name: 'gallery'; category: 'buoyage' | 'lights' }
   /** A category's start page, or (with `choice`) one of the step pages after it */
   | { name: 'category'; category: CategoryId; choice?: Choice }
-  | { name: 'session'; category: CategoryId; mode: SessionMode; count: number; back: Screen; run: number; focus?: Focus }
+  | { name: 'session'; category: CategoryId; mode: SessionMode; count: number; back: Screen; run: number; focus?: Focus; trial?: boolean }
   | { name: 'learn'; category: CategoryId; back: Screen; focus?: Focus }
   | { name: 'match'; category: CategoryId; back: Screen; focus?: Focus }
   | { name: 'soon'; category: CategoryId }
@@ -175,6 +175,13 @@ export default function App() {
     }
   }
 
+  // The free round in a locked category: one practice session, then back to the unlock page
+  const startTrial = (category: CategoryId) => {
+    markTrialUsed(category)
+    track('start', { category, mode: 'trial' })
+    go({ name: 'session', category, mode: 'practice', count: TRIAL_QUESTIONS, back: { name: 'hub' }, run: Date.now(), trial: true }, true)
+  }
+
   const generatorsFor = (id: CategoryId): Generator[] =>
     id === 'exam' ? EXAM_CATEGORIES.map((c) => GENERATORS[c]!) : [GENERATORS[id]!]
 
@@ -244,7 +251,9 @@ export default function App() {
           count={screen.count}
           ctx={runCtx}
           onExit={() => go(screen.back)}
-          onPracticeMistakes={() => startSession(screen.category, 'mistakes', 10, screen.back)}
+          onPracticeMistakes={screen.trial ? undefined : () => startSession(screen.category, 'mistakes', 10, screen.back)}
+          trial={screen.trial}
+          onUnlock={() => go({ name: 'unlock', category: screen.category }, true)}
         />
       )}
 
@@ -269,8 +278,10 @@ export default function App() {
 
       {screen.name === 'unlock' && (
         <Unlock
+          category={screen.category}
           onBack={hub}
           onDone={() => openCategory(screen.category, true)}
+          onTrial={() => startTrial(screen.category)}
         />
       )}
 

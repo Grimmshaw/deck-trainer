@@ -8,6 +8,7 @@ import ReportDialog from '../../report/ReportDialog'
 import { track } from '../../stats/usage'
 import { load, save } from '../../storage'
 import { gradeTyped, type TypedResult } from '../../study/typed'
+import { PLAY_URL, playService, ratingAsked, shouldAskForRating } from '../../store/entitlement'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
@@ -20,6 +21,10 @@ interface Props {
   onExit: () => void
   /** Start a new session that practises the items answered wrong */
   onPracticeMistakes?: () => void
+  /** The free round in a locked category */
+  trial?: boolean
+  /** Open the unlock page (after the free round) */
+  onUnlock?: () => void
 }
 
 interface Answered {
@@ -44,7 +49,7 @@ const ANSWER_MODE_KEY = 'deck.answerMode'
 /** Seconds per question in exam mode */
 const EXAM_SECONDS_PER_QUESTION = 45
 
-export default function Session({ title, generators, mode, count, ctx, onExit, onPracticeMistakes }: Props) {
+export default function Session({ title, generators, mode, count, ctx, onExit, onPracticeMistakes, trial, onUnlock }: Props) {
   const recent = useRef<string[]>([])
   const pools = useMemo(
     () =>
@@ -90,7 +95,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
     if (!finished || answers.length === 0) return
     const right = answers.filter((a) => a.chosen === a.q.correctId).length
     const category = generators.length > 1 ? 'exam' : generators[0].category
-    track('finish', { category, mode, focus: ctx.focus, score: Math.round((right / count) * 10) * 10 })
+    track('finish', { category, mode: trial ? 'trial' : mode, focus: ctx.focus, score: Math.round((right / count) * 10) * 10 })
   }, [finished])
 
   // After a typed answer is checked, Enter goes on to the next question
@@ -133,6 +138,8 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
         timedOut={timedOut}
         onExit={onExit}
         onPracticeMistakes={onPracticeMistakes}
+        trial={trial}
+        onUnlock={onUnlock}
       />
     )
   }
@@ -198,6 +205,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
     <Shell title={title} onExit={onExit} right={hasSound ? <SoundModeToggle compact /> : undefined}>
       <div className="scorebar">
         <span>
+          {trial && <span className="trial-chip">Free round</span>}
           Question <strong>{answers.length + 1}</strong>/{count}
         </span>
         {exam ? (
@@ -350,6 +358,8 @@ function Results({
   timedOut,
   onExit,
   onPracticeMistakes,
+  trial,
+  onUnlock,
 }: {
   title: string
   answers: Answered[]
@@ -357,10 +367,23 @@ function Results({
   timedOut: boolean
   onExit: () => void
   onPracticeMistakes?: () => void
+  trial?: boolean
+  onUnlock?: () => void
 }) {
   const right = answers.filter((a) => a.chosen === a.q.correctId).length
   const pct = Math.round((right / count) * 100)
   const wrong = answers.filter((a) => a.chosen !== a.q.correctId)
+
+  // Ask once for a rating on Google Play, after a good round, only in the Play app
+  const [askRating, setAskRating] = useState(false)
+  useEffect(() => {
+    if (trial || !shouldAskForRating(right, answers.length)) return
+    playService().then((s) => {
+      if (!s) return
+      ratingAsked()
+      setAskRating(true)
+    })
+  }, [])
 
   // Score per category (useful in the mixed final exam)
   const byCat = new Map<CategoryId, { right: number; total: number }>()
@@ -387,6 +410,32 @@ function Results({
               ? ` Time ran out after ${answers.length} of ${count} questions.`
               : ` You answered ${answers.length} of ${count} questions.`)}
         </p>
+
+        {trial && onUnlock && (
+          <div className="trial-card">
+            <p>
+              That was your free round. Unlock the full version to keep going in every category – one payment, no
+              subscription.
+            </p>
+            <button className="primary big" onClick={onUnlock}>
+              Unlock all
+            </button>
+          </div>
+        )}
+
+        {askRating && (
+          <div className="rate-card">
+            <p>Finding Lanterna useful? A rating on Google Play helps other cadets find it.</p>
+            <div className="actions">
+              <button className="secondary" onClick={() => setAskRating(false)}>
+                Not now
+              </button>
+              <a className="primary as-button" href={PLAY_URL} target="_blank" rel="noopener" onClick={() => setAskRating(false)}>
+                Rate Lanterna
+              </a>
+            </div>
+          </div>
+        )}
 
         {byCat.size > 1 && (
           <div className="cat-scores">
