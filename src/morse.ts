@@ -9,7 +9,8 @@ export const MORSE: Record<string, string> = {
 }
 
 export type Level = 1 | 2 | 3
-export type Mode = 'decode' | 'encode'
+/** 'light' is reading Morse from a flashing lamp */
+export type Mode = 'decode' | 'encode' | 'light'
 
 const AZ = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const DIGITS = '0123456789'

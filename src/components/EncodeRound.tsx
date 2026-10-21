@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { toMorse } from '../morse'
 import { Feedback } from './DecodeRound'
 import MorseSymbols from './MorseSymbols'
+import { TapHint, useTapToContinue } from './study/TapToContinue'
 
 interface Props {
   word: string
@@ -20,7 +21,6 @@ export default function EncodeRound({ word, onResult, onNext }: Props) {
   const codes = toMorse(word)
   const [input, setInput] = useState('')
   const [result, setResult] = useState<boolean | null>(null)
-  const nextRef = useRef<HTMLButtonElement>(null)
 
   const groups = input.split(' ')
   const entered = input.trim().split(/\s+/).filter(Boolean)
@@ -60,13 +60,8 @@ export default function EncodeRound({ word, onResult, onNext }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return
-      if (done) {
-        if (e.key === 'Enter') {
-          e.preventDefault()
-          onNext()
-        }
-        return
-      }
+      // When done, Enter is handled by useTapToContinue
+      if (done) return
       if (e.key === '.' || e.key === ',') add('.')
       else if (e.key === '-' || e.key === '_') add('-')
       else if (e.key === ' ') gap()
@@ -77,11 +72,9 @@ export default function EncodeRound({ word, onResult, onNext }: Props) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [add, gap, back, check, done, onNext])
+  }, [add, gap, back, check, done])
 
-  useEffect(() => {
-    if (done) nextRef.current?.focus()
-  }, [done])
+  const tapReady = useTapToContinue(done, onNext)
 
   return (
     <div className="round">
@@ -167,9 +160,7 @@ export default function EncodeRound({ word, onResult, onNext }: Props) {
             </tbody>
           </table>
           <Feedback ok={result === true} word={word} />
-          <button ref={nextRef} className="primary big" onClick={onNext}>
-            Next →
-          </button>
+          <TapHint ready={tapReady} />
         </>
       )}
     </div>

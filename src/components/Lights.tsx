@@ -38,7 +38,11 @@ function Gallery() {
 
   const scenes = useMemo(
     () =>
-      VESSELS.map((_, i) => (sceneSeed === null ? plainShipScene(aspect) : randomShipScene(aspect, sceneSeed + i * 7919))),
+      VESSELS.map((v, i) => {
+        // A vessel with a yard (mine clearance, dredger) is shown from ahead when the chosen side view would hide it
+        const a = v.aspects && !v.aspects.includes(aspect) ? v.aspects[0] : aspect
+        return sceneSeed === null ? plainShipScene(a) : randomShipScene(a, sceneSeed + i * 7919)
+      }),
     [aspect, sceneSeed],
   )
 
@@ -85,7 +89,7 @@ function Gallery() {
             <div key={v.id} className="vessel-card">
               {hidden ? (
                 <div className="vessel-placeholder muted small">
-                  At night she shows the lights of a power-driven vessel.
+                  {v.nightLooksLike ?? 'At night she shows the lights of a power-driven vessel.'}
                 </div>
               ) : (
                 <VesselSvg variant={variant} night={night} scene={scenes[i]} size={340} />
@@ -94,6 +98,7 @@ function Gallery() {
                 <strong>{v.name}</strong>
                 <span className="rule">{v.rule}</span>
                 <span className="muted small">{v.description}</span>
+                {v.aspects && !v.aspects.includes(aspect) && <span className="muted small">Shown from ahead: from the side her yard lines up.</span>}
                 {v.variants.length > 1 && (
                   <div className="chip-row">
                     {v.variants.map((x, j) => (

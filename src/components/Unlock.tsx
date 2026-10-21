@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { LanternMark } from '../brand/Logo'
 import { buy, lastBuyError, localPrice, PLAY_URL, playService, redeemCode, trialAvailable, TRIAL_QUESTIONS, useUnlocked, type BuyResult, type CodeResult } from '../store/entitlement'
 import { findCategory, type CategoryId } from '../study/categories'
+import { track } from '../stats/usage'
 
 // Shown when a locked category is opened. In the Google Play app it sells
 // "Unlock all"; on the web it points to the app, and testers can enter an
@@ -41,6 +42,8 @@ export default function Unlock({
   useEffect(() => {
     playService().then((s) => setInApp(!!s))
     localPrice().then(setPrice)
+    // The purchase path in the statistics: this page was shown, for this category
+    if (!unlocked) track('lock', { category })
   }, [])
 
   useEffect(() => {
@@ -49,7 +52,10 @@ export default function Unlock({
 
   const purchase = async () => {
     setState('busy')
-    setState(await buy())
+    track('buy', { category })
+    const result = await buy()
+    track(result === 'ok' ? 'bought' : 'buyfail', { category, mode: result === 'ok' ? undefined : result })
+    setState(result)
   }
 
   const submitCode = async (e: FormEvent) => {
@@ -94,7 +100,7 @@ export default function Unlock({
 
       {inApp === false ? (
         <div className="actions-col">
-          <a className="primary big as-button" href={PLAY_URL} target="_blank" rel="noopener">
+          <a className="primary big as-button" href={PLAY_URL} target="_blank" rel="noopener" onClick={() => track('getapp', { category })}>
             Get Lanterna on Google Play
           </a>
           <p className="muted small center">The full version is unlocked in the app on Google Play.</p>

@@ -73,7 +73,9 @@ export function nightSignature(v: Variant, deg: number): string {
 }
 
 export function daySignature(v: Variant): string {
-  return `${v.hull === 'sail' ? 'sail' : 'ship'}:${v.shapes.join(',')}`
+  // Shapes that are not in one vertical line (mine clearance, dredger) get their sides in the signature
+  const where = v.shapeAt ? '@' + v.shapeAt.map((p) => Math.sign(p.y)).join('') : ''
+  return `${v.hull === 'sail' ? 'sail' : 'ship'}:${v.shapes.join(',')}${where}`
 }
 
 // ---------- Hull models ----------
@@ -472,7 +474,7 @@ const SMALL_LOOKS: Look[] = [
   }),
   smallLook({
     name: 'tug',
-    fits: ['power', 'towing', 'towingLong', 'anchor'],
+    fits: ['power', 'towing', 'towingLong', 'anchor', 'towingRam'],
     hull: '#8c2a22',
     boot: '#1c1c1c',
     // Thick black rubber fender all round
@@ -565,7 +567,39 @@ const SAIL_LOOKS: Look[] = [
   sailLook({ name: 'ketch', hull: '#f2f2f2', boot: '#7a1f1f', sails: '#c98b5a', mizzen: true }),
 ]
 
-export const HULL_LOOKS: Record<HullType, Look[]> = { large: LARGE_LOOKS, largeFwd: FWD_LOOKS, small: SMALL_LOOKS, sail: SAIL_LOOKS }
+// Motorboat (8 m): low hull, a small wheelhouse or console, and a short mast at x 1
+// for the all-round light (or the signal lights of a small diving boat).
+const BOAT_DECK = pts([[4.2, 0, 1.25], [2.4, 1.25, 1.1], [-3.9, 1.2, 1.0], [-3.9, -1.2, 1.0], [2.4, -1.25, 1.1]])
+const BOAT_WL = pts([[3.6, 0, 0], [2, 1.0, 0], [-3.8, 1.0, 0], [-3.8, -1.0, 0], [2, -1.0, 0]])
+
+function boatLook(o: { name: string; hull: string; boot: string; house: string; houseX: [number, number]; houseTop: number }): Look {
+  const house = { x: o.houseX, y: [-0.85, 0.85] as [number, number] }
+  return {
+    name: o.name,
+    outline: [...BOAT_DECK, ...BOAT_WL],
+    hullFill: o.hull,
+    bands: [{ outline: [...BOAT_WL, ...lift(BOAT_WL, 0.3, 1.03)], fill: o.boot }],
+    decals: [],
+    boxes: [
+      {
+        ...house,
+        z: [1.0, o.houseTop],
+        fill: o.house,
+        details: windowRows(house, [{ z: [o.houseTop - 0.55, o.houseTop - 0.15], spacing: 0.9, width: 0.7 }]),
+      },
+    ],
+    masts: [[{ x: 1, y: 0, z: o.houseTop }, { x: 1, y: 0, z: 3.8 }]],
+    sails: [],
+  }
+}
+
+const BOAT_LOOKS: Look[] = [
+  boatLook({ name: 'motorboat', hull: '#f2f2f2', boot: '#1f3b63', house: '#e4e4dc', houseX: [-0.8, 1.6], houseTop: 2.1 }),
+  boatLook({ name: 'workboat', hull: '#c75b2a', boot: '#1f1f1f', house: '#eef1f4', houseX: [-1.4, 1.4], houseTop: 2.3 }),
+  boatLook({ name: 'grey boat', hull: '#5b6670', boot: '#1f1f1f', house: '#d9dde0', houseX: [-0.4, 1.5], houseTop: 2 }),
+]
+
+export const HULL_LOOKS: Record<HullType, Look[]> = { large: LARGE_LOOKS, largeFwd: FWD_LOOKS, small: SMALL_LOOKS, sail: SAIL_LOOKS, boat: BOAT_LOOKS }
 
 /** The first look of each hull, used where the picture should always be the same */
 export const HULL_MODELS: Record<HullType, HullModel> = {
@@ -573,6 +607,7 @@ export const HULL_MODELS: Record<HullType, HullModel> = {
   largeFwd: FWD_LOOKS[0],
   small: SMALL_LOOKS[0],
   sail: SAIL_LOOKS[0],
+  boat: BOAT_LOOKS[0],
 }
 
 /** The looks a vessel may be drawn with */

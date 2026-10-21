@@ -12,20 +12,38 @@ import { APP_VERSION } from '../report/report'
 //
 // Visit the app once with ?nostats in the address to stop counting on that
 // device (for your own phones and computers). ?stats turns it back on.
+//
+// Added 15 Oct 2026 (still anonymous – no id, no IP, no fingerprint):
+// - the phone's language (just "en", "ru", "tl" …)
+// - how long since the app was first opened on this device, only as an
+//   interval: first day / first week / first month / older
+// - the channel the device first came from, if the link had ?src=… (for
+//   example app.lanternakonsult.se/?src=fb-ph)
+// - "quit" when an exercise is left before the end, with how far it got
+// - the purchase path: lock page shown, Buy pressed, bought, purchase failed
+// - at the end of an exercise, which questions were answered right or wrong
+//   (only the question ids, to find unclear questions)
 
-export type UsageEvent = 'open' | 'start' | 'finish'
+export type UsageEvent = 'open' | 'start' | 'finish' | 'quit' | 'lock' | 'buy' | 'bought' | 'buyfail' | 'getapp' | 'share'
 
 export interface UsageData {
   category?: string
   mode?: string
   focus?: string
-  /** Result in percent, rounded to tens */
+  /** Result in percent, rounded to tens (for "quit": how far it got) */
   score?: number
+  /** A count: the number of questions in a practice, or words or cards done */
+  count?: number
+  /** "open" only: buoyage region and light/dark theme */
+  region?: string
+  theme?: string
 }
 
 const OFF_KEY = 'deck.nostats'
 const DAY_KEY = 'deck.statsDay'
 const SEEN_KEY = 'deck.statsSeen'
+const FIRST_KEY = 'deck.statsFirst'
+const SRC_KEY = 'deck.statsSrc'
 
 function get(key: string): string | null {
   try {
@@ -48,6 +66,9 @@ try {
   const q = new URLSearchParams(window.location.search)
   if (q.has('nostats')) set(OFF_KEY, '1')
   if (q.has('stats')) set(OFF_KEY, null)
+  // The first channel a device came from is kept (later links don't change it)
+  const src = (q.get('src') ?? '').toLowerCase()
+  if (/^[a-z0-9-]{1,24}$/.test(src) && !get(SRC_KEY)) set(SRC_KEY, src)
 } catch {
   // ignore
 }
@@ -66,6 +87,24 @@ function platform(): string {
   return 'desktop'
 }
 
+/** The phone's language, just the main part: "en", "ru", "tl" */
+function language(): string {
+  const l = (navigator.language || '').toLowerCase().split('-')[0]
+  return /^[a-z]{2,3}$/.test(l) ? l : '-'
+}
+
+/** Only an interval since the first open on this device: d0 = first day, w1 = first week, m1 = first month, old */
+function age(): string {
+  const today = new Date().toISOString().slice(0, 10)
+  const first = get(FIRST_KEY)
+  if (!first) {
+    set(FIRST_KEY, today)
+    return 'd0'
+  }
+  const days = Math.round((Date.parse(today) - Date.parse(first)) / 86400000)
+  return days < 1 ? 'd0' : days <= 7 ? 'w1' : days <= 30 ? 'm1' : 'old'
+}
+
 function send(body: Record<string, unknown>) {
   const json = JSON.stringify(body)
   try {
@@ -78,15 +117,25 @@ function send(body: Record<string, unknown>) {
 
 export function track(event: UsageEvent, data: UsageData = {}) {
   if (off()) return
-  const base = { e: event, p: platform(), v: APP_VERSION }
+  const base = { e: event, p: platform(), v: APP_VERSION, l: language(), src: get(SRC_KEY) ?? undefined }
   if (event === 'open') {
     const today = new Date().toISOString().slice(0, 10)
     if (get(DAY_KEY) === today) return
     set(DAY_KEY, today)
     const isNew = get(SEEN_KEY) === null
     set(SEEN_KEY, '1')
-    send({ ...base, n: isNew ? 1 : 0 })
+    send({ ...base, n: isNew ? 1 : 0, a: age(), c: data.region, m: data.theme })
     return
   }
-  send({ ...base, c: data.category, m: data.mode, f: data.focus, s: data.score })
+  send({ ...base, c: data.category, m: data.mode, f: data.focus, s: data.score, k: data.count })
+}
+
+/**
+ * Which questions were answered right or wrong in one exercise (only the
+ * question ids). The statistics page lists the questions almost everyone
+ * gets wrong: often an unclear question or a wrong answer key.
+ */
+export function trackAnswers(category: string, answers: [key: string, right: boolean][]) {
+  if (off() || answers.length === 0) return
+  send({ e: 'ans', c: category, a: answers.slice(0, 60).map(([k, ok]) => [k, ok ? 1 : 0]) })
 }

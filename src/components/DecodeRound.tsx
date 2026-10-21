@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { toMorse } from '../morse'
 import MorseSymbols from './MorseSymbols'
+import MorseLamp from './MorseLamp'
+import { TapHint, useTapToContinue } from './study/TapToContinue'
 
 interface Props {
   word: string
   onResult: (ok: boolean) => void
   onNext: () => void
+  /** Show the word as a flashing lamp instead of dots and dashes */
+  light?: boolean
 }
 
 /**
@@ -24,17 +28,16 @@ function dotSize(codes: string[]): number {
   return Math.max(7, Math.min(16, u))
 }
 
-export default function DecodeRound({ word, onResult, onNext }: Props) {
+export default function DecodeRound({ word, onResult, onNext, light }: Props) {
   const codes = toMorse(word)
   const unit = dotSize(codes)
   const [answer, setAnswer] = useState('')
   const [result, setResult] = useState<boolean | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const nextRef = useRef<HTMLButtonElement>(null)
+  const tapReady = useTapToContinue(result !== null, onNext)
 
   useEffect(() => {
     if (result === null) inputRef.current?.focus()
-    else nextRef.current?.focus()
   }, [result])
 
   const finish = (ok: boolean) => {
@@ -54,8 +57,12 @@ export default function DecodeRound({ word, onResult, onNext }: Props) {
 
   return (
     <form className="round" onSubmit={submit}>
-      <p className="prompt">What does this say?</p>
+      <p className="prompt">{light ? 'What does the light signal?' : 'What does this say?'}</p>
 
+      {light && result === null && <MorseLamp word={word} />}
+
+      {/* By light, the dots and dashes are shown only after answering */}
+      {(!light || result !== null) && (
       <div className="letters">
         {codes.map((code, i) => {
           const state =
@@ -68,6 +75,7 @@ export default function DecodeRound({ word, onResult, onNext }: Props) {
           )
         })}
       </div>
+      )}
 
       <input
         ref={inputRef}
@@ -96,9 +104,7 @@ export default function DecodeRound({ word, onResult, onNext }: Props) {
       ) : (
         <>
           <Feedback ok={result} word={word} />
-          <button ref={nextRef} type="submit" className="primary big">
-            Next →
-          </button>
+          <TapHint ready={tapReady} />
         </>
       )}
     </form>

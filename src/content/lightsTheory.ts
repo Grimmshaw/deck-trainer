@@ -66,6 +66,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'L24e',
+    focus: ['lights', 'shapes'],
     q: 'A vessel being towed shows:',
     options: [
       'Sidelights and a sternlight – and a diamond by day if the tow is longer than 200 m',
@@ -110,6 +111,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'L26c',
+    focus: ['lights', 'shapes'],
     q: 'A vessel fishing (not trawling) with gear extending more than 150 m horizontally shows, in the direction of the gear:',
     options: ['An all-round white light, or by day a cone point up', 'An all-round red light, or by day a ball', 'Two all-round green lights', 'A yellow flashing light'],
     why: 'Rule 26(c)(ii): when there is outlying gear extending more than 150 m horizontally from the vessel, an all-round white light or a cone apex upwards in the direction of the gear.',
@@ -118,6 +120,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'L27d',
+    focus: ['lights', 'shapes'],
     q: 'A dredger restricted in her ability to manoeuvre shows on the side where another vessel may pass:',
     options: ['Two all-round green lights, or two diamonds by day', 'Two all-round red lights, or two balls by day', 'One all-round white light', 'Nothing extra'],
     why: 'Rule 27(d): in addition to the RAM lights, two all-round red lights or two balls on the side where the obstruction exists, and two all-round green lights or two diamonds on the side on which another vessel may pass.',
@@ -126,6 +129,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'L27f',
+    focus: ['lights', 'shapes'],
     q: 'A vessel engaged in mine clearance shows three all-round green lights or three balls. How close is it dangerous to approach her?',
     options: ['Within 1000 m', 'Within 500 m', 'Within 200 m', 'Within 2 nautical miles'],
     why: 'Rule 27(f): these lights or shapes indicate that it is dangerous for another vessel to approach within 1000 m of the mine clearance vessel.',
@@ -134,6 +138,7 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'L27b',
+    focus: ['lights', 'shapes'],
     q: 'A vessel restricted in her ability to manoeuvre is at anchor. What does she show?',
     options: [
       'The RAM lights or shapes plus the anchor lights or ball',
@@ -151,5 +156,79 @@ export const LIGHTS_THEORY: (TheoryItem & { id: string })[] = [
     why: 'Rule 30(c): a vessel at anchor may, and a vessel of 100 m or more shall, also use the available working or equivalent lights to illuminate her decks.',
     source: 'Rule 30(c)',
     typed: { accept: ['100 m or more'], keywords: [['100']], reject: ['50', 'no vessel', 'all vessels at anchor'], exact: true, hint: 'Length' },
+  },
+  // ---------- Added 15 Oct 2026 – waiting for Robin's review ----------
+  {
+    id: 'L24c',
+    q: 'A power-driven vessel pushing ahead or towing alongside (not a composite unit) shows:',
+    options: [
+      'Two masthead lights in a vertical line, sidelights and a sternlight',
+      'Two masthead lights in a vertical line, sidelights, a sternlight and a towing light',
+      'Three masthead lights in a vertical line',
+      'One masthead light, sidelights and two all-round red lights',
+    ],
+    why: 'Rule 24(c): two masthead lights in a vertical line, sidelights and a sternlight. The yellow towing light is only for towing astern. At night she can look like a vessel towing astern seen from ahead.',
+    source: 'Rule 24(c)',
+  },
+  {
+    id: 'L24b',
+    q: 'A pushing vessel and a vessel pushed ahead, rigidly connected in a composite unit, shall show:',
+    options: [
+      'The lights of one power-driven vessel (Rule 23)',
+      'Two masthead lights in a vertical line and a towing light',
+      'The lights of a vessel restricted in her ability to manoeuvre',
+      'No lights on the pushed vessel, and towing lights on the pusher',
+    ],
+    why: 'Rule 24(b): when rigidly connected in a composite unit they are regarded as a power-driven vessel and show the lights of Rule 23.',
+    source: 'Rule 24(b)',
+  },
+  {
+    id: 'L25b',
+    q: 'In a sailing vessel of less than 20 m, the sidelights and sternlight may be:',
+    options: [
+      'Combined in one lantern at or near the top of the mast',
+      'Left out if she shows an all-round white light',
+      'Replaced by red over green all-round lights',
+      'Shown only when other vessels are near',
+    ],
+    why: 'Rule 25(b): in a sailing vessel of less than 20 m they may be combined in one lantern (a tricolour) carried at or near the top of the mast.',
+    source: 'Rule 25(b)',
+  },
+  {
+    id: 'L25c2',
+    q: 'May a sailing vessel show the all-round red over green lights together with a tricolour lantern?',
+    options: [
+      'No – they shall not be shown with the combined lantern',
+      'Yes, always',
+      'Only under 12 m',
+      'Only when she is also using her engine',
+    ],
+    why: 'Rule 25(c): the optional red over green may be shown with the ordinary sidelights and sternlight, but not in conjunction with the combined lantern of 25(b).',
+    source: 'Rule 25(c)',
+  },
+  {
+    id: 'L27e',
+    focus: ['lights', 'shapes'],
+    q: 'A small vessel engaged in diving operations cannot show all the lights and shapes of Rule 27(b). By day she shows:',
+    options: [
+      'A rigid replica of the code flag A, at least 1 m high',
+      'Two black balls in a vertical line',
+      'A black cylinder',
+      'A red and white diver-down flag of any size',
+    ],
+    why: 'Rule 27(e): she shows three all-round lights red, white, red, and by day a rigid replica of the International Code flag "A", not less than 1 m in height, so that it can be seen all round.',
+    source: 'Rule 27(e)',
+  },
+  {
+    id: 'L27c',
+    q: 'A towing vessel and her tow are severely restricted in their ability to deviate from their course. In addition to the towing lights she shows:',
+    options: [
+      'All-round red, white, red in a vertical line (by day ball, diamond, ball)',
+      'Two all-round red lights (by day two balls)',
+      'A second yellow towing light',
+      'Three all-round green lights (by day three balls)',
+    ],
+    why: 'Rule 27(c): in addition to the lights or shapes of Rule 24(a), she shows the lights or shapes of Rule 27(b)(i) and (ii): red, white, red / ball, diamond, ball.',
+    source: 'Rule 27(c)',
   },
 ]

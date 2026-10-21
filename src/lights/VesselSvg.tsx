@@ -22,9 +22,11 @@ interface Props {
   size?: number
   /** Crop in towards the vessel, for small pictures (1 = whole scene) */
   zoom?: number
+  /** At night: a dashed ring where a light is missing (for "what is missing here?") */
+  marker?: Pt3
 }
 
-export default function VesselSvg({ variant, night = false, silhouette = true, scene, size = 300, zoom = 1 }: Props) {
+export default function VesselSvg({ variant, night = false, silhouette = true, scene, size = 300, zoom = 1, marker }: Props) {
   const uid = useId().replace(/:/g, '')
   const sc = scene ?? plainShipScene(0)
   const spec = HULLS[variant.hull]
@@ -33,7 +35,8 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
   const model = pickLook(variant.hull, vesselId, sc.look ?? 0)
   const colors = SKY[night ? 'night' : sc.sky]
 
-  const k = (230 / Math.max(spec.length, 70)) * sc.scale
+  // The 8 m motorboat is drawn a little larger than true scale, so her lights and shapes can be told apart
+  const k = (230 / Math.max(spec.length, variant.hull === 'boat' ? 32 : 70)) * sc.scale
   const waterY = sc.horizon + (192 - sc.horizon) * (0.3 + 0.7 * sc.scale)
   const toScreen = (p: Pt3): [number, number] => {
     const q = project(p, sc.aspect)
@@ -58,7 +61,7 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
   let cx = sc.x
   let cy = waterY - (H / zoom) * 0.12
   if (zoom > 1 && night && lights.length > 0) {
-    const pts = lights.map((l) => toScreen(l))
+    const pts = [...lights, ...(marker ? [marker] : [])].map((l) => toScreen(l))
     const xs = pts.map((p) => p[0])
     const ys = pts.map((p) => p[1])
     const bw = Math.max(...xs) - Math.min(...xs)
@@ -136,9 +139,26 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
           return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color ?? '#333'} strokeWidth={Math.max(1, 1.8 * sc.scale)} />
         })}
         {!night &&
+          variant.shapeAt &&
+          (() => {
+            // A yard across the mast for shapes hung at its ends (mine clearance, dredger)
+            const side = variant.shapeAt.filter((p) => p.y !== 0)
+            if (!side.length) return null
+            const z = Math.max(...side.map((p) => p.z)) + 0.4
+            const ys = side.map((p) => p.y)
+            const [x1, y1] = toScreen({ x: side[0].x, y: Math.min(...ys), z })
+            const [x2, y2] = toScreen({ x: side[0].x, y: Math.max(...ys), z })
+            return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#333" strokeWidth={Math.max(1, 1.5 * sc.scale)} />
+          })()}
+        {!night &&
           variant.shapes.map((s, i) => {
             // Day shapes are drawn about twice life size and stacked down from the top of the hoist
             const size = Math.max(7, spec.shapeSize * k * VEX * 2.2)
+            const at = variant.shapeAt?.[i]
+            if (at) {
+              const [cx, top] = toScreen(at)
+              return <ShapeMark key={i} kind={s} cx={cx} cy={top + size * 0.6} size={size} />
+            }
             const [cx, top] = toScreen({ x: spec.shapeX, y: 0, z: spec.shapeTop })
             return <ShapeMark key={i} kind={s} cx={cx} cy={top + size * 0.6 + i * size * 1.3} size={size} />
           })}
@@ -148,12 +168,29 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
         const [x, y] = toScreen(l)
         return (
           <g key={i}>
+            {/* A flashing light: 120 flashes a minute (Rule 21(f)) */}
+            {l.flash && <animate attributeName="opacity" values="1;1;0.08;0.08" keyTimes="0;0.45;0.5;1" dur="0.5s" repeatCount="indefinite" />}
             <circle cx={x} cy={y} r={glow} fill={LIGHT_CSS[l.color]} opacity={0.14} />
             <circle cx={x} cy={y} r={glow * 0.55} fill={LIGHT_CSS[l.color]} opacity={0.3} />
             <circle cx={x} cy={y} r={core} fill={LIGHT_CSS[l.color]} />
           </g>
         )
       })}
+
+      {night &&
+        marker &&
+        (() => {
+          const [x, y] = toScreen(marker)
+          const r = Math.max(5, glow * 0.85)
+          return (
+            <g>
+              <circle cx={x} cy={y} r={r} fill="none" stroke="#ffffff" strokeWidth={1.3} strokeDasharray="2.6 2" />
+              <text x={x} y={y + r * 0.45} textAnchor="middle" fontSize={r * 1.25} fontWeight={800} fill="#ffffff">
+                ?
+              </text>
+            </g>
+          )
+        })()}
 
       {/* Sea in front of the hull */}
       <rect y={waterY} width={W} height={H - waterY} fill={`url(#sea-${uid})`} />
@@ -176,5 +213,23 @@ function ShapeMark({ kind, cx, cy, size }: { kind: DayShape; cx: number; cy: num
       return <polygon points={`${cx},${cy - size * 0.7} ${cx + h},${cy} ${cx},${cy + size * 0.7} ${cx - h},${cy}`} fill="#111" />
     case 'cylinder':
       return <rect x={cx - h * 0.8} y={cy - size * 0.8} width={h * 1.6} height={size * 1.6} fill="#111" />
+    case 'flagA': {
+      // Rigid replica of code flag A: white at the hoist, blue swallowtail at the fly
+      size = size * 1.3
+      const w = size * 1.5
+      const top = cy - size / 2
+      const x0 = cx - w / 2
+      return (
+        <g>
+          <rect x={x0} y={top} width={w / 2} height={size} fill="#fff" stroke="#222" strokeWidth={0.6} />
+          <polygon
+            points={`${x0 + w / 2},${top} ${x0 + w},${top} ${x0 + w * 0.78},${cy} ${x0 + w},${top + size} ${x0 + w / 2},${top + size}`}
+            fill="#1d4fa8"
+            stroke="#222"
+            strokeWidth={0.6}
+          />
+        </g>
+      )
+    }
   }
 }

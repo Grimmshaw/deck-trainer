@@ -84,4 +84,47 @@ export const MORSE_THEORY: (TheoryItem & { id: string })[] = [
     why: 'STCW Table A-II/1: ability to transmit and receive, by Morse light, the distress signal SOS and the single-letter signals in the International Code of Signals.',
     source: 'STCW A-II/1',
   },
+  // ---------- Added 15 Oct 2026 – waiting for Robin's review ----------
+  {
+    id: 'M10',
+    q: 'How long is the space between two letters?',
+    options: ['Three dots', 'One dot', 'Five dots', 'Seven dots'],
+    why: 'The space between two letters is equal to three dots (one dash). Between the parts of one letter it is one dot, and between two words seven dots.',
+    source: 'ICS – Morse signalling',
+  },
+  {
+    id: 'M11',
+    q: 'How long is the space between the dots and dashes of the same letter?',
+    options: ['One dot', 'Three dots', 'Half a dot', 'Seven dots'],
+    why: 'Inside one letter the dots and dashes are separated by a space equal to one dot.',
+    source: 'ICS – Morse signalling',
+  },
+  {
+    id: 'M12',
+    q: 'By flashing light, a station calls you with AAAA… How do you answer?',
+    options: ['TTTT… until the calling station stops', 'AAAA… back to the caller', 'K', 'R'],
+    why: 'The calling signal is a series of AAAA…, and the station called answers with the answering signal, a series of TTTT…, until the calling station stops.',
+    source: 'ICS – procedure signals',
+  },
+  {
+    id: 'M13',
+    q: 'What does the procedure signal K mean at the end of a transmission?',
+    options: ['Invitation to transmit', 'Received', 'Wait', 'End of work'],
+    why: 'K at the end of a transmission is the invitation to the other station to transmit.',
+    source: 'ICS – procedure signals',
+  },
+  {
+    id: 'M14',
+    q: 'Which procedure signal means "Received" (your last signal has been received)?',
+    options: ['R', 'T', 'K', 'AS'],
+    why: 'R = received, or I have received your last signal. T is sent after each word received, K is an invitation to transmit and AS means wait.',
+    source: 'ICS – procedure signals',
+  },
+  {
+    id: 'M15',
+    q: 'What does AAA mean in a Morse message?',
+    options: ['Full stop or decimal point', 'The general call', 'Repeat the last word', 'End of the message'],
+    why: 'AAA is the full stop or decimal point. The general call is a series of AAAA… sent before the message.',
+    source: 'ICS – procedure signals',
+  },
 ]

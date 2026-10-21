@@ -5,11 +5,16 @@ import { isSilent } from '../../sound/soundMode'
 import type { Generator, Question } from '../types'
 import { sample, shuffle } from '../util'
 import { SOUND_TYPED } from '../typedAnswers'
+import { SOUND_SITUATIONS } from '../../content/soundSituations'
 
 // Sound signals (Rules 32–35): hear a signal and pick its meaning, or the other way round.
 
 const PREFIX = 'sound:'
+/** "Which signal do you give?" situations */
+const SIT = 'sound:sit:'
 const byKey = (key: string) => SOUND_SIGNALS.find((s) => PREFIX + s.id === key)!
+const sitByKey = (key: string) => SOUND_SITUATIONS.find((x) => SIT + x.id === key)!
+const signal = (id: string) => SOUND_SIGNALS.find((s) => s.id === id)!
 const samePattern = (a: SoundSignal, b: SoundSignal) => a.pattern.join('') === b.pattern.join('')
 const contextText = (s: SoundSignal) =>
   s.context === 'sight' ? 'Vessels in sight of one another.' : 'In restricted visibility.'
@@ -32,8 +37,8 @@ function explain(s: SoundSignal) {
 
 export const soundGenerator: Generator = {
   category: 'sound',
-  items: () => SOUND_SIGNALS.map((s) => PREFIX + s.id),
-  label: (key) => byKey(key).meaning,
+  items: () => [...SOUND_SIGNALS.map((s) => PREFIX + s.id), ...SOUND_SITUATIONS.map((x) => SIT + x.id)],
+  label: (key) => (key.startsWith(SIT) ? sitByKey(key).text : byKey(key).meaning),
 
   pairs: () =>
     SOUND_SIGNALS.map((s) => ({
@@ -43,6 +48,23 @@ export const soundGenerator: Generator = {
       right: `${s.context === 'sight' ? 'In sight' : 'Fog'}: ${s.meaning}`,
     })),
   make(key): Question {
+    if (key.startsWith(SIT)) {
+      const x = sitByKey(key)
+      const s = signal(x.answer)
+      return {
+        key,
+        category: 'sound',
+        prompt: `${x.text} ${x.ask ?? 'Which signal do you give?'}`,
+        options: shuffle([s, ...others(s)]).map((o) => ({ id: o.id, label: o.pattern.join(' '), node: <PatternBars pattern={o.pattern} /> })),
+        correctId: s.id,
+        explanation: (
+          <>
+            {x.why ? `${x.why} ` : ''}
+            {explain(s)}
+          </>
+        ),
+      }
+    }
     const s = byKey(key)
     const wrong = others(s)
     if (Math.random() < 0.65) {
@@ -83,6 +105,22 @@ export const soundGenerator: Generator = {
   },
 
   card(key) {
+    if (key.startsWith(SIT)) {
+      const x = sitByKey(key)
+      const s = signal(x.answer)
+      return {
+        title: 'Which signal do you give?',
+        front: <p className="card-text">{x.text}</p>,
+        back: (
+          <>
+            <PatternBars pattern={s.pattern} />
+            <strong>{s.meaning}</strong>
+            <p>{x.why ?? s.note}</p>
+            <p className="rule">{s.rule}</p>
+          </>
+        ),
+      }
+    }
     const s = byKey(key)
     return {
       title: s.rule,

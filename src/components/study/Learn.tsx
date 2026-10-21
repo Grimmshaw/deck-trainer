@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { track } from '../../stats/usage'
 import { pickKey, record } from '../../study/progress'
 import type { Ctx, Flashcard, Generator } from '../../study/types'
 
@@ -26,6 +27,18 @@ export default function Learn({ title, generator, ctx, onExit }: Props) {
   const [current, setCurrent] = useState<{ key: string; card: Flashcard }>(draw)
   const [flipped, setFlipped] = useState(false)
   const [done, setDone] = useState({ known: 0, total: 0 })
+
+  // Learn has no end: when it is left, the statistics get how many cards and how many were known
+  const latest = useRef(done)
+  latest.current = done
+  useEffect(
+    () => () => {
+      const d = latest.current
+      if (d.total === 0) return
+      track('finish', { category: generator.category, mode: 'learn', focus: ctx.focus, score: Math.round((d.known / d.total) * 10) * 10, count: d.total })
+    },
+    [],
+  )
 
   const answer = (knew: boolean) => {
     record(current.key, knew)

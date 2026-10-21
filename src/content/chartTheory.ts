@@ -183,4 +183,57 @@ export const CHART_THEORY: (TheoryItem & { id: string })[] = [
     source: 'INT 1 P30',
     typed: { accept: ['direction light'], keywords: [['direction', 'directional']], reject: ['directly', 'dimmer', 'disused'] },
   },
+  // ---------- Added 15 Oct 2026 – waiting for Robin's review ----------
+  {
+    id: 'Q',
+    q: 'What does "Q" mean in a light description?',
+    options: ['Quick flashing – 50 to 60 flashes a minute', 'Very quick – 100 to 120 flashes a minute', 'One flash every 4 seconds', 'A quiet fog signal'],
+    why: 'Q = quick light: 50 or 60 flashes per minute. VQ = very quick: 100 or 120 flashes per minute.',
+    source: 'INT 1 P10',
+  },
+  {
+    id: 'VQ',
+    q: 'What does "VQ" mean in a light description?',
+    options: ['Very quick flashing – 100 to 120 flashes a minute', 'Quick flashing – 50 to 60 flashes a minute', 'A light visible from one quarter only', 'A light with variable colours'],
+    why: 'VQ = very quick light: 100 or 120 flashes per minute. Cardinal marks use Q or VQ.',
+    source: 'INT 1 P10',
+  },
+  {
+    id: 'Fl21',
+    q: 'What does "Fl(2+1)" mean in a light description?',
+    options: [
+      'A group of two flashes followed by a single flash',
+      'Two flashes every second',
+      'Two lights, one above the other',
+      'Two flashes, then a long flash of at least 2 s',
+    ],
+    why: 'Fl(2+1) is a composite group-flashing light: two flashes, then one. In the IALA system it is used only on preferred channel marks.',
+    source: 'INT 1 P10',
+  },
+  {
+    id: 'Mo',
+    q: 'What does "Mo(U)" mean in a light description?',
+    options: ['A light flashing the Morse letter U (· · –)', 'A light visible only from the south', 'A moored light-float', 'A light with a U-shaped sector'],
+    why: 'Mo = Morse code light: the light shows the Morse letter in brackets, here U (· · –).',
+    source: 'INT 1 P10',
+  },
+  {
+    id: 'sector',
+    q: 'On a chart, the bearings that limit the sectors of a sector light are given:',
+    options: [
+      'From seaward, towards the light',
+      'From the light, out towards the sea',
+      'As magnetic bearings from the light',
+      'Relative to north on the nearest compass rose, from the light',
+    ],
+    why: 'Sector limits are true bearings measured from seaward towards the light – the bearing on which you see the light change colour.',
+    source: 'INT 1 P40',
+  },
+  {
+    id: 'contour',
+    q: 'A depth contour on a chart joins points of:',
+    options: ['Equal depth', 'Equal height above sea level', 'Equal tidal stream', 'Equal magnetic variation'],
+    why: 'A depth contour (depth line) joins points of the same depth below chart datum. Contours on land join points of equal height.',
+    source: 'INT 1 I30',
+  },
 ]

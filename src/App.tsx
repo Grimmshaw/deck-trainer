@@ -16,6 +16,8 @@ import CategoryHome, { previousChoice, type Choice } from './components/study/Ca
 import Session, { type SessionMode } from './components/study/Session'
 import Learn from './components/study/Learn'
 import Match from './components/study/Match'
+import ExamSetup from './components/study/ExamSetup'
+import SignalsExam from './components/SignalsExam'
 import { Splash } from './brand/Logo'
 import Unlock from './components/Unlock'
 import { canOpen, markTrialUsed, restorePurchases, TRIAL_QUESTIONS } from './store/entitlement'
@@ -39,11 +41,29 @@ type Screen =
   | { name: 'gallery'; category: 'buoyage' | 'lights' }
   /** A category's start page, or (with `choice`) one of the step pages after it */
   | { name: 'category'; category: CategoryId; choice?: Choice }
-  | { name: 'session'; category: CategoryId; mode: SessionMode; count: number; back: Screen; run: number; focus?: Focus; trial?: boolean }
+  | {
+      name: 'session'
+      category: CategoryId
+      mode: SessionMode
+      count: number
+      back: Screen
+      run: number
+      focus?: Focus
+      trial?: boolean
+      /** Final exam: the categories chosen for it */
+      cats?: CategoryId[]
+    }
+  /** Final exam: choose the categories before it starts */
+  | { name: 'examSetup' }
+  /** Unofficial practice in the format of the Indian signals (Morse) exam */
+  | { name: 'signalsExam' }
   | { name: 'learn'; category: CategoryId; back: Screen; focus?: Focus }
   | { name: 'match'; category: CategoryId; back: Screen; focus?: Focus }
   | { name: 'soon'; category: CategoryId }
   | { name: 'unlock'; category: CategoryId }
+
+/** The final exam: number of questions (45 seconds each, see Session) */
+const EXAM_QUESTIONS = 40
 
 const DEFAULT_SETTINGS: Settings = { mode: 'decode', level: 1, length: 3 }
 const DEFAULT_STATS: Stats = { bestStreak: 0 }
@@ -83,7 +103,7 @@ export default function App() {
 
   // Anonymous usage statistics: one "open" per device and day
   useEffect(() => {
-    track('open')
+    track('open', { region: regionId, theme: document.documentElement.getAttribute('data-theme') ?? 'auto' })
   }, [])
 
   // Splash: the logo shows for a moment when the app starts, then fades out
@@ -139,16 +159,20 @@ export default function App() {
 
   const openCategory = (id: CategoryId, replace = false) => {
     if (!canOpen(id)) go({ name: 'unlock', category: id }, replace)
-    else if (id === 'exam') {
-      track('start', { category: 'exam', mode: 'exam' })
-      go({ name: 'session', category: 'exam', mode: 'exam', count: 40, back: { name: 'hub' }, run: Date.now() }, replace)
-    } else if (GENERATORS[id]) go({ name: 'category', category: id }, replace)
+    else if (id === 'exam') go({ name: 'examSetup' }, replace)
+    else if (GENERATORS[id]) go({ name: 'category', category: id }, replace)
     else go({ name: 'soon', category: id }, replace)
   }
 
   // A new session started from a finished one replaces it in the history
-  const startSession = (category: CategoryId, mode: SessionMode, count: number, back: Screen) =>
-    go({ name: 'session', category, mode, count, back, run: Date.now() }, screen.name === 'session')
+  const startSession = (category: CategoryId, mode: SessionMode, count: number, back: Screen, cats?: CategoryId[]) =>
+    go({ name: 'session', category, mode, count, back, run: Date.now(), cats }, screen.name === 'session')
+
+  // The final exam, with the chosen categories. It replaces the setup page, so leaving it goes back to the start page.
+  const startExam = (cats: CategoryId[]) => {
+    track('start', { category: 'exam', mode: 'exam' })
+    go({ name: 'session', category: 'exam', mode: 'exam', count: EXAM_QUESTIONS, back: { name: 'hub' }, run: Date.now(), cats }, true)
+  }
 
   // Start what was chosen on a category page. Step pages replace each other in
   // the history, and what starts replaces the last step, so leaving it goes
@@ -156,7 +180,7 @@ export default function App() {
   const launch = (category: CategoryId, c: Choice, fromStep: boolean) => {
     const menu: Screen = { name: 'category', category }
     const run = Date.now()
-    track('start', { category, mode: c.mode, focus: c.focus })
+    track('start', { category, mode: c.mode, focus: c.focus, count: c.mode === 'practice' ? (c.count ?? 10) : undefined })
     switch (c.mode) {
       case 'learn':
         return go({ name: 'learn', category, back: menu, focus: c.focus }, fromStep)
@@ -170,6 +194,7 @@ export default function App() {
         return go({ name: 'session', category, mode: 'mistakes', count: 10, back: menu, run }, fromStep)
       case 'decode':
       case 'encode':
+      case 'light':
         setSettings({ mode: c.mode, level: c.level ?? settings.level, length: c.length ?? settings.length })
         return go({ name: 'practice' }, fromStep)
     }
@@ -182,8 +207,8 @@ export default function App() {
     go({ name: 'session', category, mode: 'practice', count: TRIAL_QUESTIONS, back: { name: 'hub' }, run: Date.now(), trial: true }, true)
   }
 
-  const generatorsFor = (id: CategoryId): Generator[] =>
-    id === 'exam' ? EXAM_CATEGORIES.map((c) => GENERATORS[c]!) : [GENERATORS[id]!]
+  const generatorsFor = (id: CategoryId, cats?: CategoryId[]): Generator[] =>
+    id === 'exam' ? (cats?.length ? cats : EXAM_CATEGORIES).map((c) => GENERATORS[c]!) : [GENERATORS[id]!]
 
   return (
     <div className="app">
@@ -220,7 +245,16 @@ export default function App() {
           }}
           onChoose={(c, fromStep) => go({ name: 'category', category: screen.category, choice: c }, fromStep)}
           onLaunch={(c, fromStep) => launch(screen.category, c, fromStep)}
-          typing={screen.category === 'morse' ? { bestStreak: stats.bestStreak } : undefined}
+          typing={
+            screen.category === 'morse'
+              ? {
+                  bestStreak: stats.bestStreak,
+                  // Part of the full version, like the final exam
+                  examLocked: !canOpen('exam'),
+                  onSignalsExam: () => (canOpen('exam') ? go({ name: 'signalsExam' }) : go({ name: 'unlock', category: 'exam' })),
+                }
+              : undefined
+          }
           reference={
             screen.category === 'buoyage' || screen.category === 'lights'
               ? {
@@ -246,12 +280,13 @@ export default function App() {
         <Session
           key={screen.run}
           title={screen.category === 'exam' ? 'Final exam' : findCategory(screen.category).title}
-          generators={generatorsFor(screen.category)}
+          statsCategory={screen.category}
+          generators={generatorsFor(screen.category, screen.cats)}
           mode={screen.mode}
           count={screen.count}
           ctx={runCtx}
           onExit={() => go(screen.back)}
-          onPracticeMistakes={screen.trial ? undefined : () => startSession(screen.category, 'mistakes', 10, screen.back)}
+          onPracticeMistakes={screen.trial ? undefined : () => startSession(screen.category, 'mistakes', 10, screen.back, screen.cats)}
           trial={screen.trial}
           onUnlock={() => go({ name: 'unlock', category: screen.category }, true)}
         />
@@ -274,6 +309,12 @@ export default function App() {
           ctx={runCtx}
           onExit={() => go(screen.back)}
         />
+      )}
+
+      {screen.name === 'signalsExam' && <SignalsExam onExit={() => go({ name: 'category', category: 'morse' })} />}
+
+      {screen.name === 'examSetup' && (
+        <ExamSetup questions={EXAM_QUESTIONS} minutes={Math.round((EXAM_QUESTIONS * 45) / 60)} onBack={hub} onStart={startExam} />
       )}
 
       {screen.name === 'unlock' && (

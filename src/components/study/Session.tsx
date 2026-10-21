@@ -5,15 +5,18 @@ import type { Ctx, Generator, Question } from '../../study/types'
 import { pick } from '../../study/util'
 import SoundModeToggle from '../../sound/SoundModeToggle'
 import ReportDialog from '../../report/ReportDialog'
-import { track } from '../../stats/usage'
-import { load, save } from '../../storage'
+import { track, trackAnswers } from '../../stats/usage'
 import { gradeTyped, type TypedResult } from '../../study/typed'
 import { PLAY_URL, playService, ratingAsked, shouldAskForRating } from '../../store/entitlement'
+import { TapHint, useTapToContinue } from './TapToContinue'
+import { shareQuestion } from '../../share/shareQuestion'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
 interface Props {
   title: string
+  /** For the statistics: the category, or 'exam' for the final exam */
+  statsCategory: CategoryId
   generators: Generator[]
   mode: SessionMode
   count: number
@@ -44,12 +47,14 @@ interface TypedState {
 
 /** `chosen` for a typed answer that was wrong (it matches no option) */
 const TYPED_WRONG = 'typed'
-const ANSWER_MODE_KEY = 'deck.answerMode'
+/** Share of questions that ask for a typed answer, when the question has one (never in the exam) */
+const TYPED_SHARE = 0.25
+const rollTyped = () => Math.random() < TYPED_SHARE
 
 /** Seconds per question in exam mode */
 const EXAM_SECONDS_PER_QUESTION = 45
 
-export default function Session({ title, generators, mode, count, ctx, onExit, onPracticeMistakes, trial, onUnlock }: Props) {
+export default function Session({ title, statsCategory, generators, mode, count, ctx, onExit, onPracticeMistakes, trial, onUnlock }: Props) {
   const recent = useRef<string[]>([])
   const pools = useMemo(
     () =>
@@ -81,27 +86,44 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const [finished, setFinished] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
   const [reporting, setReporting] = useState(false)
+  const roundRef = useRef<HTMLDivElement>(null)
+  const [sharing, setSharing] = useState<'busy' | 'saved' | 'failed' | null>(null)
   const exam = mode === 'exam'
-  // Choose from the options, or type the answer (only questions that have a `typed` block; never in the exam)
-  const [typeMode, setTypeMode] = useState(() => load(ANSWER_MODE_KEY, { type: false }).type)
+  // Now and then a question is answered by typing instead of choosing (only questions that have a `typed` block)
+  const [typeMode, setTypeMode] = useState(rollTyped)
   const [typed, setTyped] = useState<TypedState | null>(null)
   const [text, setText] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const nextRef = useRef<HTMLButtonElement>(null)
+  const goNext = useRef<() => void>(() => {})
   const [secondsLeft, setSecondsLeft] = useState(count * EXAM_SECONDS_PER_QUESTION)
 
-  // Anonymous usage statistics: the session was finished, and how it went
+  // Anonymous usage statistics: the session was finished, and how it went,
+  // or (when it is left before the end) how far it got
+  const statsMode = trial ? 'trial' : mode
+  const sent = useRef(false)
+  const sendAnswers = (list: Answered[]) =>
+    trackAnswers(statsCategory, list.map((a) => [a.q.key, a.chosen === a.q.correctId]))
   useEffect(() => {
-    if (!finished || answers.length === 0) return
+    if (!finished || answers.length === 0 || sent.current) return
+    sent.current = true
     const right = answers.filter((a) => a.chosen === a.q.correctId).length
-    const category = generators.length > 1 ? 'exam' : generators[0].category
-    track('finish', { category, mode: trial ? 'trial' : mode, focus: ctx.focus, score: Math.round((right / count) * 10) * 10 })
+    track('finish', { category: statsCategory, mode: statsMode, focus: ctx.focus, score: Math.round((right / count) * 10) * 10, count })
+    sendAnswers(answers)
   }, [finished])
+  const latest = useRef(answers)
+  latest.current = answers
+  useEffect(
+    () => () => {
+      const list = latest.current
+      if (sent.current || list.length === 0) return
+      track('quit', { category: statsCategory, mode: statsMode, focus: ctx.focus, score: Math.round((list.length / count) * 10) * 10, count })
+      sendAnswers(list)
+    },
+    [],
+  )
 
-  // After a typed answer is checked, Enter goes on to the next question
-  useEffect(() => {
-    if (typed) nextRef.current?.focus()
-  }, [typed])
+  // After the answer is shown, a tap anywhere goes on (not while the report sheet is open)
+  const tapReady = useTapToContinue((chosen !== null || typed !== null) && !reporting && !finished, () => goNext.current())
 
   // Exam clock
   useEffect(() => {
@@ -161,6 +183,8 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
     setChosen(null)
     setTyped(null)
     setText('')
+    setTypeMode(rollTyped())
+    setSharing(null)
     if (all.length >= count) {
       setFinished(true)
     } else {
@@ -173,11 +197,6 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const typing = canType && typeMode
   const correctLabel = question.typed?.answer ?? question.options.find((o) => o.id === question.correctId)?.label ?? ''
   const typedOk = !!typed && (typed.override || typed.result.verdict === 'right' || typed.result.verdict === 'typo')
-
-  const changeMode = (type: boolean) => {
-    setTypeMode(type)
-    save(ANSWER_MODE_KEY, { type })
-  }
 
   const check = (giveUp = false) => {
     if (typed || !question.typed) return
@@ -198,6 +217,7 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
   const right = answers.filter((a) => a.chosen === a.q.correctId).length
   const answered = chosen !== null || typed !== null
   const correct = typed ? typedOk : chosen === question.correctId
+  goNext.current = () => (typed ? nextAfterTyped(typed) : advance({ q: question, chosen }))
 
   const hasSound = generators.some((g) => g.category === 'sound')
 
@@ -222,18 +242,8 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
         <div className="progress-fill" style={{ width: `${(answers.length / count) * 100}%` }} />
       </div>
 
-      <div className="round" key={answers.length}>
+      <div className="round" key={answers.length} ref={roundRef}>
         {generators.length > 1 && <span className="category-chip">{findCategory(question.category).title}</span>}
-        {canType && (
-          <div className="answer-mode" role="group" aria-label="How to answer">
-            <button aria-pressed={!typeMode} onClick={() => changeMode(false)} disabled={answered}>
-              Choose
-            </button>
-            <button aria-pressed={typeMode} onClick={() => changeMode(true)} disabled={answered}>
-              Type
-            </button>
-          </div>
-        )}
         <p className="question-text">{question.prompt}</p>
         {question.media && <div className="question-media">{question.media}</div>}
         {answered && question.reveal && <div className="question-media">{question.reveal}</div>}
@@ -299,13 +309,6 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
                 My answer was right – count it
               </button>
             )}
-            <button
-              ref={nextRef}
-              className="primary big"
-              onClick={() => (typed ? nextAfterTyped(typed) : advance({ q: question, chosen }))}
-            >
-              {answers.length + 1 >= count ? 'See results' : 'Next →'}
-            </button>
           </>
         )}
         {exam && (
@@ -314,10 +317,29 @@ export default function Session({ title, generators, mode, count, ctx, onExit, o
           </button>
         )}
         {!exam && (
-          <button className="report-link" onClick={() => setReporting(true)}>
-            Report a problem with this question
-          </button>
+          <div className="question-links">
+            {/* Sound questions have nothing to show in a picture */}
+            {question.category !== 'sound' && (
+              <button
+                className="report-link"
+                disabled={sharing === 'busy'}
+                onClick={async () => {
+                  if (!roundRef.current) return
+                  setSharing('busy')
+                  track('share', { category: question.category })
+                  const r = await shareQuestion(roundRef.current, findCategory(question.category).title)
+                  setSharing(r === 'saved' || r === 'failed' ? r : null)
+                }}
+              >
+                {sharing === 'busy' ? 'Making the picture…' : sharing === 'saved' ? 'Picture saved' : sharing === 'failed' ? 'Could not make the picture' : 'Share this question'}
+              </button>
+            )}
+            <button className="report-link" onClick={() => setReporting(true)}>
+              Report a problem with this question
+            </button>
+          </div>
         )}
+        {answered && <TapHint ready={tapReady} last={answers.length + 1 >= count} />}
       </div>
       {reporting && (
         <ReportDialog

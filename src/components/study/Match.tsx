@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { track } from '../../stats/usage'
 import { record } from '../../study/progress'
 import type { Ctx, Generator, MatchPair } from '../../study/types'
 import { shuffle } from '../../study/util'
@@ -70,9 +71,30 @@ export default function Match({ title, generator, ctx, onExit }: Props) {
   }
 
   const nextRound = () => {
-    if (round >= ROUNDS) setDone(true)
-    else newRound(round + 1)
+    if (round >= ROUNDS) {
+      setDone(true)
+      const pairsDone = ROUNDS * PER_ROUND
+      track('finish', {
+        category: generator.category,
+        mode: 'match',
+        focus: ctx.focus,
+        score: Math.round((Math.max(0, pairsDone - mistakes) / pairsDone) * 10) * 10,
+        count: pairsDone,
+      })
+    } else newRound(round + 1)
   }
+
+  // Left before the last round: how far it got
+  const progress = useRef({ round, done })
+  progress.current = { round, done }
+  useEffect(
+    () => () => {
+      const p = progress.current
+      if (p.done) return
+      track('quit', { category: generator.category, mode: 'match', focus: ctx.focus, score: Math.round(((p.round - 1) / ROUNDS) * 10) * 10, count: ROUNDS * PER_ROUND })
+    },
+    [],
+  )
 
   const restart = () => {
     setMistakes(0)

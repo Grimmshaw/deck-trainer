@@ -7,9 +7,10 @@
 
 export type LightKind = 'masthead' | 'sideStbd' | 'sidePort' | 'stern' | 'towing' | 'allRound'
 export type ShipLightColor = 'W' | 'R' | 'G' | 'Y'
-export type DayShape = 'ball' | 'diamond' | 'cylinder' | 'coneUp' | 'coneDown'
-/** 'largeFwd' is a large vessel with her bridge forward (ro-ro, ferry, supply vessel) */
-export type HullType = 'large' | 'largeFwd' | 'small' | 'sail'
+/** 'flagA' is the rigid replica of code flag A (Rule 27(e), small vessels diving) */
+export type DayShape = 'ball' | 'diamond' | 'cylinder' | 'coneUp' | 'coneDown' | 'flagA'
+/** 'largeFwd' is a large vessel with her bridge forward (ro-ro, ferry, supply vessel); 'boat' is an 8 m motorboat */
+export type HullType = 'large' | 'largeFwd' | 'small' | 'sail' | 'boat'
 
 export interface ShipLight {
   kind: LightKind
@@ -17,6 +18,8 @@ export interface ShipLight {
   x: number
   y: number
   z: number
+  /** A flashing light (the yellow light of an air-cushion vessel) */
+  flash?: boolean
 }
 
 export interface Variant {
@@ -26,6 +29,11 @@ export interface Variant {
   lights: ShipLight[]
   /** Day shapes from top to bottom */
   shapes: DayShape[]
+  /**
+   * Where each shape hangs, when they are not in one vertical line (mine
+   * clearance: one at the masthead and one at each yardarm). Top of the shape.
+   */
+  shapeAt?: { x: number; y: number; z: number }[]
 }
 
 export interface Vessel {
@@ -36,6 +44,16 @@ export interface Vessel {
   variants: Variant[]
   /** Shown only by day: at night it looks exactly like another vessel */
   dayOnly?: boolean
+  /** For a day-only vessel: what she looks like at night (shown in the gallery) */
+  nightLooksLike?: string
+  /** Not used in "What is wrong?" (her signals are not one vertical line) */
+  noFix?: boolean
+  /**
+   * Only show her from these aspects in questions. Shapes and lights at the
+   * ends of a yard line up behind each other from the side, so a mine clearance
+   * vessel or a dredger is only asked about from ahead or astern.
+   */
+  aspects?: number[]
 }
 
 // ---------- Where things go on each hull ----------
@@ -108,6 +126,20 @@ export const HULLS: Record<HullType, HullSpec> = {
     shapeX: 4,
     shapeTop: 16.6,
     shapeSize: 1.5,
+  },
+  // An 8 m motorboat. The short mast with the all-round light is at x 1.
+  boat: {
+    length: 8,
+    mastheadFwd: { x: 1, z: 3.6 },
+    sides: { x: 2.2, y: 0.95, z: 1.35 },
+    stern: { x: -3.8, z: 1.1 },
+    signalX: 1,
+    signalTop: 3.6,
+    signalStep: 0.75,
+    anchorFwd: { x: 1, z: 3.6 },
+    shapeX: 1,
+    shapeTop: 4.2,
+    shapeSize: 0.55,
   },
   sail: {
     length: 12,
@@ -201,9 +233,17 @@ export const VESSELS: Vessel[] = [
     id: 'sailing',
     name: 'Sailing vessel underway',
     rule: 'Rule 25',
-    description: 'Sidelights and a sternlight only. She may also show all-round red over green at the top of the mast.',
+    description:
+      'Sidelights and a sternlight only. Under 20 m they may be combined in one tricolour lantern at the top of the mast. She may also show all-round red over green at the top of the mast (never with the tricolour).',
     variants: [
       { label: 'underway', hull: 'sail', lights: sidelightsAndStern('sail'), shapes: [] },
+      {
+        label: 'underway, with a tricolour lantern',
+        hull: 'sail',
+        // Rule 25(b): sidelights and sternlight combined in one lantern at the masthead
+        lights: [light('sideStbd', 'G', 1.15, 15.4, 0.12), light('sidePort', 'R', 1.15, 15.4, -0.12), light('stern', 'W', 0.85, 15.4)],
+        shapes: [],
+      },
       {
         label: 'underway, with optional red over green',
         hull: 'sail',
@@ -336,6 +376,128 @@ export const VESSELS: Vessel[] = [
     description: 'Anchor lights plus two all-round red lights in a vertical line. By day three balls.',
     variants: large((h) => [{ label: 'aground', hull: h, lights: [...anchorLights(h), ...signals(h, ['R', 'R'])], shapes: ['ball', 'ball', 'ball'] }]),
   },
+
+  // ---------- Added 15 Oct 2026 ----------
+  {
+    id: 'aircushion',
+    name: 'Air-cushion vessel (hovercraft)',
+    rule: 'Rule 23(b)',
+    description: 'In the non-displacement mode: the lights of a power-driven vessel plus an all-round flashing yellow light.',
+    noFix: true,
+    variants: [
+      {
+        label: 'underway',
+        hull: 'small',
+        lights: [...masthead('small'), ...sidelightsAndStern('small'), { ...light('allRound', 'Y', 4, 15.8), flash: true }],
+        shapes: [],
+      },
+    ],
+  },
+  {
+    id: 'towed',
+    name: 'Vessel being towed',
+    rule: 'Rule 24(e)',
+    description: 'Sidelights and a sternlight. By day a diamond where it can best be seen when the tow is longer than 200 m.',
+    variants: [
+      { label: 'tow 200 m or less', hull: 'small', lights: sidelightsAndStern('small'), shapes: [] },
+      { label: 'tow over 200 m', hull: 'small', lights: sidelightsAndStern('small'), shapes: ['diamond'] },
+    ],
+  },
+  {
+    id: 'towingRam',
+    name: 'Towing vessel restricted in her ability to manoeuvre',
+    rule: 'Rule 27(c)',
+    description:
+      'A towing operation that severely restricts her and her tow from deviating from their course: the lights of a towing vessel plus all-round red, white, red in a vertical line. By day ball, diamond, ball.',
+    noFix: true,
+    variants: [
+      {
+        label: 'towing astern',
+        hull: 'small',
+        lights: [
+          ...towingMasthead('small', 2),
+          ...sidelightsAndStern('small'),
+          towingLight('small'),
+          light('allRound', 'R', -6, 12.5),
+          light('allRound', 'W', -6, 9.7),
+          light('allRound', 'R', -6, 6.9),
+        ],
+        shapes: ['ball', 'diamond', 'ball'],
+      },
+    ],
+  },
+  {
+    id: 'dredging',
+    name: 'Dredger with an obstruction on one side',
+    rule: 'Rule 27(d)',
+    description:
+      'All-round red, white, red in a vertical line, two all-round red lights on the side of the obstruction and two all-round green lights on the side where you may pass. By day ball, diamond, ball, two balls on the obstruction side and two diamonds on the passing side.',
+    noFix: true,
+    aspects: [0, 180],
+    variants: (['port', 'starboard'] as const).map((side): Variant => {
+      const red = side === 'port' ? -8 : 8
+      return {
+        label: `obstruction to ${side}`,
+        hull: 'small',
+        lights: [
+          ...signals('small', ['R', 'W', 'R']),
+          light('allRound', 'R', 4, 12.1, red),
+          light('allRound', 'R', 4, 9.3, red),
+          light('allRound', 'G', 4, 12.1, -red),
+          light('allRound', 'G', 4, 9.3, -red),
+        ],
+        shapes: ['ball', 'diamond', 'ball', 'ball', 'ball', 'diamond', 'diamond'],
+        shapeAt: [
+          { x: 4, y: 0, z: 16.6 },
+          { x: 4, y: 0, z: 12.3 },
+          { x: 4, y: 0, z: 8 },
+          { x: 4, y: red, z: 14.5 },
+          { x: 4, y: red, z: 10.2 },
+          { x: 4, y: -red, z: 14.5 },
+          { x: 4, y: -red, z: 10.2 },
+        ],
+      }
+    }),
+  },
+  {
+    id: 'mineClearance',
+    aspects: [0, 180],
+    name: 'Vessel engaged in mine clearance',
+    rule: 'Rule 27(f)',
+    description:
+      'The lights of a power-driven vessel plus three all-round green lights: one near the foremast head and one at each end of the fore yard. By day three balls in the same places. It is dangerous to come within 1000 m.',
+    noFix: true,
+    variants: [
+      {
+        label: 'making way',
+        hull: 'small',
+        lights: [
+          ...masthead('small'),
+          ...sidelightsAndStern('small'),
+          light('allRound', 'G', 4, 16),
+          light('allRound', 'G', 4, 11.2, 8),
+          light('allRound', 'G', 4, 11.2, -8),
+        ],
+        shapes: ['ball', 'ball', 'ball'],
+        shapeAt: [
+          { x: 4, y: 0, z: 16.6 },
+          { x: 4, y: 8, z: 12.8 },
+          { x: 4, y: -8, z: 12.8 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'diving',
+    name: 'Small vessel engaged in diving operations',
+    rule: 'Rule 27(e)',
+    description:
+      'Too small to show all the lights and shapes of Rule 27(b): all-round red, white, red, and by day a rigid replica of the code flag A, at least 1 m high. At night she looks like any vessel restricted in her ability to manoeuvre.',
+    dayOnly: true,
+    nightLooksLike: 'At night she shows red, white, red and looks like any vessel restricted in her ability to manoeuvre.',
+    noFix: true,
+    variants: [{ label: 'diving', hull: 'boat', lights: signals('boat', ['R', 'W', 'R']), shapes: ['flagA'] }],
+  },
 ]
 
 // ---------- Aspects: where you are, seen from the vessel ----------
@@ -357,3 +519,8 @@ export const ASPECTS: Aspect[] = [
   { deg: -90, name: 'on her port beam', short: 'Port beam' },
   { deg: -45, name: 'on her port bow', short: 'Port bow' },
 ]
+
+/** The aspects a vessel may be shown from in questions */
+export function aspectsFor(v: Vessel): Aspect[] {
+  return v.aspects ? ASPECTS.filter((a) => v.aspects!.includes(a.deg)) : ASPECTS
+}

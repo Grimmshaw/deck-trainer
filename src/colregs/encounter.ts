@@ -65,7 +65,8 @@ export function classify(vessel: Vessel, variant: Variant, bearing: number, aspe
   // Rule 13 comes before Rules 14–18
   if (Math.abs(a) > 112.5 && Math.abs(b) < 90) return 'overtaking'
   if (Math.abs(b) > 112.5 && Math.abs(a) < 90) return 'standOnOvertaken'
-  if (['nuc', 'ram', 'fishing', 'trawling', 'sailing'].includes(vessel.id)) return 'keepOut18'
+  // Rule 18: NUC, RAM (also towing RAM, dredging, mine clearance, diving), fishing and sailing
+  if (['nuc', 'ram', 'towingRam', 'dredging', 'mineClearance', 'diving', 'fishing', 'trawling', 'sailing'].includes(vessel.id)) return 'keepOut18'
   if (vessel.id === 'cbd') return 'notImpede'
   if (Math.abs(b) <= 6 && Math.abs(a) <= 6) return 'headOn'
   return b > 0 ? 'giveWay' : 'standOn'

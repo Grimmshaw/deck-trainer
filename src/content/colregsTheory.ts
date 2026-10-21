@@ -343,7 +343,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'R4',
-    q: 'Rules 4–10 (conduct of vessels in any condition of visibility) apply:',
+    q: 'Rules 4–10 (Section I of Part B) apply:',
     options: [
       'In any condition of visibility',
       'Only when vessels are in sight of one another',
@@ -1052,7 +1052,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'R11',
-    q: 'Rules 11–18 (conduct of vessels in sight of one another) apply:',
+    q: 'Rules 11–18 (Section II of Part B) apply:',
     options: [
       'Only to vessels in sight of one another',
       'In any condition of visibility',
@@ -1122,7 +1122,7 @@ export const COLREGS_THEORY: (TheoryItem & { id: string })[] = [
   },
   {
     id: 'R19c',
-    q: 'In restricted visibility, how do Rules 4–10 (any condition of visibility) apply?',
+    q: 'In restricted visibility, how do Rules 4–10 (Section I of Part B) apply?',
     options: [
       'Every vessel shall have due regard to the prevailing circumstances and conditions of restricted visibility when complying with them',
       'They do not apply – only Rule 19 applies',

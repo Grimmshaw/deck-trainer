@@ -14,7 +14,7 @@ import { CHART_SYMBOLS } from '../chart/symbols'
 import { fogAction, fogDistractors, FOG_SECTORS, makeFogScenario } from '../colregs/fog'
 import { FLAGS } from '../flags/flags'
 import { daySignature, isVisible, nightSignature, project } from '../lights/geometry'
-import { fixCandidates, HEADINGS, makeFixQuestion, makeHeadingQuestion, makeLightPickQuestion, makeLightQuestion, showsByDay } from '../lights/quiz'
+import { canPickPicture, fixCandidates, HEADINGS, makeFixQuestion, makeHeadingQuestion, makeLightPickQuestion, makeLightQuestion, showsByDay } from '../lights/quiz'
 import { CHARS, charLight, coloursFor } from '../buoyage/characters'
 import { VESSELS, type ShipLight } from '../lights/vessels'
 import { fitsLevel, MORSE } from '../morse'
@@ -204,7 +204,8 @@ describe('Picture-choice light questions', () => {
       }
       return out
     }
-    for (const v of VESSELS) {
+    // A vessel being towed can't be a picture question: her lights look like a sailing vessel's, her diamond like the tug's
+    for (const v of VESSELS.filter((x) => canPickPicture(x))) {
       for (let i = 0; i < 30; i++) {
         const q = makeLightPickQuestion(v.id)
         expect(q.pictures.length).toBe(4)

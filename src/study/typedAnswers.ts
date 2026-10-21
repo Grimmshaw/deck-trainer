@@ -131,13 +131,13 @@ export const CHART_TYPED: Record<string, Omit<TypedAnswer, 'accept'>> = {
 /** Vessels by their lights or shapes, by vessel id */
 export const VESSEL_TYPED: Record<string, Omit<TypedAnswer, 'accept'>> = {
   power50: { keywords: [POWER, ['50 m or more', '50 or more', 'over 50', 'more than 50', 'above 50', '50m or more', 'large', 'big']], reject: ['towing', 'tow', 'sailing', 'less than', 'under', 'small'] },
-  power: { keywords: [POWER, ['less than 50', 'under 50', 'below 50', 'small', 'smaller', 'less than 50m']], reject: ['towing', 'tow', 'sailing', 'more', 'over'] },
+  power: { keywords: [POWER, ['less than 50', 'under 50', 'below 50', 'small', 'smaller', 'less than 50m']], reject: ['towing', 'tow', 'sailing', 'more', 'over', '12', 'pushing', 'hovercraft', 'air'] },
   sailing: { keywords: [['sailing', 'sail', 'yacht', 'sailboat']], reject: ['engine', 'motor', 'power', 'motorsailing', 'motoring'] },
   motorSailing: { keywords: [['sailing', 'sail', 'yacht', 'motorsailing', 'motorsailer'], ['engine', 'motor', 'power', 'motoring', 'motorsailing', 'motorsailer']] },
   trawling: { keywords: [['trawling', 'trawler', 'trawl']], reject: ['not trawling'] },
   fishing: { keywords: [['fishing', 'fisher', 'fishing vessel', 'longliner', 'long liner', 'seiner', 'netting']] },
   nuc: { keywords: [['not under command', 'nuc']] },
-  ram: { keywords: [['restricted', 'ram']], reject: ['draught', 'draft'] },
+  ram: { keywords: [['restricted', 'ram']], reject: ['draught', 'draft', 'towing', 'tow', 'dredg', 'diving', 'mine'] },
   cbd: { keywords: [['draught', 'draft', 'cbd', 'constrained']], reject: ['restricted'] },
   pilot: { keywords: ['pilot'] },
   towing: {
@@ -150,6 +150,12 @@ export const VESSEL_TYPED: Record<string, Omit<TypedAnswer, 'accept'>> = {
   },
   anchor: { keywords: [['anchor', 'anchored', 'at anchor']], reject: ['aground', 'dragging'] },
   aground: { keywords: [['aground', 'grounded', 'ashore']] },
+  aircushion: { keywords: [['air-cushion', 'air cushion', 'aircushion', 'hovercraft']] },
+  towed: { keywords: [['being towed', 'towed']], reject: ['towing', 'tug', 'pushing', 'restricted'] },
+  towingRam: { keywords: [['towing', 'tow', 'tug'], ['restricted', 'ram', 'unable to deviate', 'cannot deviate']] },
+  dredging: { keywords: [['dredger', 'dredging', 'dredge', 'obstruction', 'underwater operations']] },
+  mineClearance: { keywords: [['mine', 'minesweeper', 'mine clearance', 'minehunter']] },
+  diving: { keywords: [['diving', 'diver', 'divers', 'dive']] },
 }
 
 /** "Which way is she heading?" */

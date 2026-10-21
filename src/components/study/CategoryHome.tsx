@@ -14,7 +14,7 @@ import { wordsFor } from '../../wordPicker'
 // Each step is its own screen in the app's history, so the phone's back button
 // goes back one step.
 
-export type ModeId = 'learn' | 'match' | 'practice' | 'exam' | 'mistakes' | 'decode' | 'encode'
+export type ModeId = 'learn' | 'match' | 'practice' | 'exam' | 'mistakes' | 'decode' | 'encode' | 'light'
 
 /** The choices made so far on the way to starting something */
 export interface Choice {
@@ -28,8 +28,7 @@ export interface Choice {
 type Step = 'focus' | 'count' | 'level' | 'length'
 
 const COUNTS = [10, 30, 50]
-const FOCUS_ORDER: Focus[] = ['alphabet', 'meaning', 'both']
-const FOCUS_TITLE: Record<Focus, string> = { alphabet: 'Alphabet', meaning: 'Meanings', both: 'Both' }
+const FOCUS_TITLE: Record<Focus, string> = { alphabet: 'Alphabet', meaning: 'Meanings', lights: 'Lights', shapes: 'Day shapes', both: 'Both' }
 
 const MODE_TITLE: Record<ModeId, string> = {
   learn: 'Learn',
@@ -39,6 +38,7 @@ const MODE_TITLE: Record<ModeId, string> = {
   mistakes: 'My mistakes',
   decode: 'Read Morse',
   encode: 'Send Morse',
+  light: 'Morse by light',
 }
 
 /** The step still to answer, or null when everything is chosen */
@@ -46,8 +46,9 @@ export function nextStep(c: Choice, gen: Generator): Step | null {
   const focusable = c.mode === 'learn' || c.mode === 'match' || c.mode === 'practice' || c.mode === 'exam'
   if (focusable && gen.focus && !c.focus) return 'focus'
   if (c.mode === 'practice' && !c.count) return 'count'
-  if ((c.mode === 'decode' || c.mode === 'encode') && !c.level) return 'level'
-  if ((c.mode === 'decode' || c.mode === 'encode') && !c.length) return 'length'
+  const typing = c.mode === 'decode' || c.mode === 'encode' || c.mode === 'light'
+  if (typing && !c.level) return 'level'
+  if (typing && !c.length) return 'length'
   return null
 }
 
@@ -73,8 +74,8 @@ interface Props {
   onLaunch: (c: Choice, fromStep: boolean) => void
   /** Optional reference page, for example the gallery of all marks */
   reference?: { label: string; text: string; open: () => void }
-  /** Morse only: the typing practice (read and send Morse) */
-  typing?: { bestStreak: number }
+  /** Morse only: the typing practice (read and send Morse) and the signals exam simulator */
+  typing?: { bestStreak: number; onSignalsExam: () => void; examLocked: boolean }
 }
 
 export default function CategoryHome(props: Props) {
@@ -134,6 +135,10 @@ export default function CategoryHome(props: Props) {
               <strong>Read Morse</strong>
               <span>See dots and dashes – type the word</span>
             </button>
+            <button className="mode-row" onClick={() => press('light')}>
+              <strong>Morse by light</strong>
+              <span>A signal lamp flashes the word – type what it says</span>
+            </button>
             <button className="mode-row" onClick={() => press('encode')}>
               <strong>Send Morse</strong>
               <span>
@@ -142,6 +147,15 @@ export default function CategoryHome(props: Props) {
               </span>
             </button>
           </>
+        )}
+
+        {typing && (
+          <button className="mode-row" onClick={typing.onSignalsExam}>
+            <strong>
+              Signals exam – India {typing.examLocked && <span className="tag tag-preview">Full version</span>}
+            </strong>
+            <span>Unofficial practice in the exam format: 60 characters and 8 groups, 70 of 100 to pass</span>
+          </button>
         )}
 
         {generator.card && (
@@ -199,7 +213,7 @@ function StepPage({ category, generator, choice, step, onBack, onChoose, onLaunc
   switch (step) {
     case 'focus':
       question = 'What do you want to practise?'
-      options = FOCUS_ORDER.map((f) => ({ key: f, title: FOCUS_TITLE[f], text: generator.focus![f], pick: () => answer({ focus: f }) }))
+      options = (Object.keys(generator.focus!) as Focus[]).map((f) => ({ key: f, title: FOCUS_TITLE[f], text: generator.focus![f], pick: () => answer({ focus: f }) }))
       break
     case 'count':
       question = 'How many questions?'

@@ -271,4 +271,17 @@ export const SOUND_THEORY: (TheoryItem & { id: string })[] = [
     source: 'COLREG Annex III 1(a)',
     typed: { accept: ['a lower frequency (deeper tone)'], keywords: [['lower', 'deeper', 'low', 'deep']], reject: ['higher', 'same'] },
   },
+  // ---------- Added 15 Oct 2026 – waiting for Robin's review ----------
+  {
+    id: 'S36a',
+    q: 'To attract the attention of another vessel, a vessel may direct the beam of her searchlight:',
+    options: [
+      'In the direction of the danger, in a way that does not embarrass any vessel',
+      'Straight at the bridge of the other vessel',
+      'Only straight up into the sky',
+      'Never – searchlights may not be used to attract attention',
+    ],
+    why: 'Rule 36: any vessel may make light or sound signals that cannot be mistaken for a signal in the Rules, or direct the beam of her searchlight in the direction of the danger, in such a way as not to embarrass any vessel.',
+    source: 'Rule 36',
+  },
 ]

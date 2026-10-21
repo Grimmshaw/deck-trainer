@@ -323,4 +323,57 @@ export const DISTRESS_THEORY: (TheoryItem & { id: string })[] = [
     source: 'LSA Code',
     typed: { accept: ['3 minutes'], keywords: [['3', 'three']], reject: ['40', '1', '15'], exact: true, hint: 'Minutes' },
   },
+  // ---------- Added 15 Oct 2026 – waiting for Robin's review ----------
+  {
+    id: 'D33',
+    q: 'On which MF frequency is distress traffic by voice (radiotelephony) carried out?',
+    options: ['2182 kHz', '2187.5 kHz', '518 kHz', '8414.5 kHz'],
+    why: '2182 kHz is the MF radiotelephony distress and calling frequency. 2187.5 kHz is used for the DSC alert and 518 kHz for NAVTEX.',
+    source: 'Radio Regulations, GMDSS',
+  },
+  {
+    id: 'D34',
+    q: 'Who may impose silence (SEELONCE MAYDAY) on stations that interfere with distress traffic?',
+    options: [
+      'The ship in distress or the station controlling the distress traffic',
+      'Any ship that hears the MAYDAY',
+      'Only a warship',
+      'Only the nearest ship',
+    ],
+    why: 'Radio silence is imposed by the station in distress or by the station controlling the distress traffic (usually the coast station or RCC). Other stations near the distress may use SEELONCE DISTRESS.',
+    source: 'Radio Regulations',
+  },
+  {
+    id: 'D35',
+    q: 'Which distress signal in Annex IV is meant for use by day?',
+    options: [
+      'A signal giving off orange-coloured smoke',
+      'A rocket parachute flare showing a red light',
+      'Red star shells fired one at a time',
+      'A gun fired at intervals of about a minute',
+    ],
+    why: 'Orange smoke is the daylight distress signal. Rockets, star shells and flares showing a red light are seen best in the dark; a gun or explosive signal can be used at any time.',
+    source: 'COLREG Annex IV',
+  },
+  {
+    id: 'D36',
+    q: 'Besides the 406 MHz alert, on which frequency does a satellite EPIRB send a homing signal for searching aircraft and ships?',
+    options: ['121.5 MHz', '156.8 MHz (VHF channel 16)', '9 GHz (X-band radar)', '518 kHz'],
+    why: 'A 406 MHz EPIRB also transmits a low-power homing signal on 121.5 MHz, so that search units can find it with a direction finder.',
+    source: 'GMDSS',
+  },
+  {
+    id: 'D37',
+    q: 'A radar SART answers radars working in which band?',
+    options: ['X-band (9 GHz, 3 cm)', 'S-band (3 GHz, 10 cm)', 'Both X-band and S-band', 'VHF channel 70'],
+    why: 'A radar SART responds only to X-band (9 GHz, 3 cm) radar. It is not seen on an S-band radar.',
+    source: 'IMO performance standards',
+  },
+  {
+    id: 'D38',
+    q: 'A DSC distress alert that has not been acknowledged is repeated automatically:',
+    options: ['After a random delay of about 3.5 to 4.5 minutes', 'Every 30 seconds', 'Every 15 minutes', 'Never – you must send it again by hand'],
+    why: 'Until it is acknowledged, the DSC distress alert is repeated automatically after a random delay of about 3.5 to 4.5 minutes.',
+    source: 'Radio Regulations, GMDSS',
+  },
 ]

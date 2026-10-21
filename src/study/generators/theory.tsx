@@ -1,5 +1,5 @@
 import type { CategoryId } from '../categories'
-import type { Generator, Question } from '../types'
+import type { Focus, Generator, Question } from '../types'
 import type { TypedAnswer } from '../typed'
 import { shuffle } from '../util'
 
@@ -11,6 +11,17 @@ export interface TheoryItem {
   source: string
   /** Optional: right answers for typing the answer instead of choosing (see study/typed.ts) */
   typed?: TypedAnswer
+  /**
+   * The focuses this question belongs to. Left out = every focus except
+   * "alphabet" and "shapes" (theory is about meanings, rules and lights).
+   */
+  focus?: Focus[]
+}
+
+/** Is this theory question part of the chosen focus? */
+function inFocus(t: TheoryItem, f: Focus | undefined): boolean {
+  if (!f || f === 'both') return true
+  return t.focus ? t.focus.includes(f) : f !== 'alphabet' && f !== 'shapes'
 }
 
 /** Turns a written multiple-choice question into a Question with shuffled options */
@@ -41,7 +52,7 @@ export function withTheory(gen: Generator, list: (TheoryItem & { id: string })[]
   return {
     ...gen,
     // Theory questions are about meanings and rules, so they are left out when only the alphabet is practised
-    items: (ctx) => [...gen.items(ctx), ...(ctx.focus === 'alphabet' ? [] : list.map((t) => prefix + t.id))],
+    items: (ctx) => [...gen.items(ctx), ...list.filter((t) => inFocus(t, ctx.focus)).map((t) => prefix + t.id)],
     label: (key, ctx) => find(key)?.q ?? gen.label(key, ctx),
     make(key, ctx) {
       const t = find(key)

@@ -1850,3 +1850,179 @@ a.as-button {
 .tag-try {
   background: color-mix(in srgb, var(--signal) 30%, transparent);
 }
+
+/* Tap anywhere to continue (replaces the Next button after an answer) */
+.tap-spacer {
+  height: 56px;
+}
+.tap-hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 20;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.tap-hint.ready {
+  opacity: 1;
+}
+
+/* Final exam: choose the categories */
+.exam-all {
+  align-self: flex-end;
+  margin: -4px 2px 0;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  color: var(--sea);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.mode-row.exam-cat {
+  grid-template-columns: 26px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.exam-check {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  border: 2px solid var(--line);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.exam-cat.on .exam-check {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--signal-ink);
+}
+.exam-cat:not(.on) strong {
+  color: var(--muted);
+}
+.exam-start {
+  margin-top: 8px;
+}
+
+/* Rule 18 ranking: four vessels with names */
+.rank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+.rank-card {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--surface);
+}
+.rank-card svg {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.rank-card figcaption {
+  display: grid;
+  text-align: center;
+  line-height: 1.2;
+}
+.rank-card figcaption span {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* Lights seen from above */
+.arc-diagram {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Share / report links under a question */
+.question-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
+}
+
+/* Morse by light */
+.morse-lamp {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.morse-lamp svg {
+  border-radius: 12px;
+  max-width: 100%;
+  height: auto;
+}
+.lamp-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.speed-chips {
+  display: flex;
+  gap: 6px;
+}
+.speed-chips .chip[aria-pressed='true'] {
+  border-color: var(--signal);
+}
+
+/* Exam simulator */
+.exam-sim-intro {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.center-row {
+  justify-content: center;
+}
+.sim-code {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Radio message parts to put in order */
+.order-parts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.order-parts li {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  text-align: left;
+}
+.order-parts strong {
+  color: var(--signal);
+  margin-right: 8px;
+}

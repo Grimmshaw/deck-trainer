@@ -4,10 +4,11 @@ import type { CategoryId } from './categories'
 import type { TypedAnswer } from './typed'
 
 /**
- * What to practise in a category where the items have two sides, like Morse
- * and flags: the letters themselves, what the single-letter signals mean, or both.
+ * What to practise in a category where the items have two sides: in Morse and
+ * flags the letters themselves or what the single-letter signals mean, in
+ * Lights & shapes the lights at night or the day shapes. Or both.
  */
-export type Focus = 'alphabet' | 'meaning' | 'both'
+export type Focus = 'alphabet' | 'meaning' | 'lights' | 'shapes' | 'both'
 
 export interface Ctx {
   region: StudyRegion
@@ -68,6 +69,6 @@ export interface Generator {
   label(key: string, ctx: Ctx): string
   /** Pairs for the "Match pairs" game, if the category has one */
   pairs?(ctx: Ctx): MatchPair[]
-  /** Set if the user can choose a focus: a short text for each choice */
-  focus?: Record<Focus, string>
+  /** Set if the user can choose a focus: a short text for each choice, in the order they are shown */
+  focus?: Partial<Record<Focus, string>>
 }

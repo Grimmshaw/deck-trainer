@@ -1,7 +1,7 @@
 import { newSeed } from '../art/scenery'
 import { daySignature, nightSignature } from './geometry'
 import { closeShipScene, randomShipScene, type ShipScene } from './scene'
-import { ASPECTS, HULLS, VESSELS, type Aspect, type DayShape, type ShipLight, type ShipLightColor, type Variant, type Vessel } from './vessels'
+import { aspectsFor, ASPECTS, HULLS, VESSELS, type Aspect, type DayShape, type ShipLight, type ShipLightColor, type Variant, type Vessel } from './vessels'
 
 export interface LightQuestion {
   vessel: Vessel
@@ -30,17 +30,36 @@ export function showsByDay(v: Variant): boolean {
   return v.shapes.length > 0 || v.hull === 'sail'
 }
 
+/** Only night pictures (lights), only day pictures (shapes), or left out = either */
+export type When = 'night' | 'day'
+
+/** Can this vessel be asked about by day only from her day shapes? (not just her sails) */
+export function hasDayShapes(v: Vessel): boolean {
+  return v.variants.some((x) => x.shapes.length > 0)
+}
+
+/**
+ * Night or day for one question, or null if this variant can't be shown the
+ * way `when` asks (pick another variant). By day only variants with shapes.
+ */
+function chooseNight(vessel: Vessel, variant: Variant, nightShare: number, when?: When): boolean | null {
+  if (when === 'night') return vessel.dayOnly ? null : true
+  if (when === 'day') return variant.shapes.length > 0 ? false : null
+  return vessel.dayOnly ? false : showsByDay(variant) ? Math.random() < nightShare : true
+}
+
 /**
  * Builds a question from the data model. At night it only uses aspects where
  * the lights can't be mistaken for another vessel's, so every question has
  * exactly one right answer among the options.
  */
-export function makeLightQuestion(previousId?: string, onlyId?: string): LightQuestion {
+export function makeLightQuestion(previousId?: string, onlyId?: string, when?: When): LightQuestion {
   for (let attempt = 0; attempt < 300; attempt++) {
     const vessel = onlyId ? VESSELS.find((v) => v.id === onlyId)! : pick(VESSELS.filter((v) => v.id !== previousId))
     const variant = pick(vessel.variants)
-    const night = vessel.dayOnly ? false : showsByDay(variant) ? Math.random() < 0.6 : true
-    const aspect = pick(ASPECTS)
+    const night = chooseNight(vessel, variant, 0.6, when)
+    if (night === null) continue
+    const aspect = pick(aspectsFor(vessel))
 
     let lookalikes: Vessel[]
     if (night) {
@@ -100,21 +119,53 @@ function allDaySignatures(v: Vessel): Set<string> {
 }
 
 /**
+ * Can she be asked about at night at all? Not if every view of her lights is
+ * also some other vessel's (a vessel being towed looks like a sailing vessel).
+ */
+export function canAskAtNight(v: Vessel): boolean {
+  if (v.dayOnly) return false
+  return v.variants.some((x) =>
+    aspectsFor(v).some((a) => {
+      const s = nightSignature(x, a.deg)
+      return s !== 'none' && !VESSELS.some((o) => o.id !== v.id && !o.dayOnly && o.variants.some((y) => nightSignature(y, a.deg) === s))
+    }),
+  )
+}
+
+/** Can a "which picture shows …?" question be made for her (by night or by day)? */
+export function canPickPicture(v: Vessel, when?: When): boolean {
+  const night =
+    when !== 'day' &&
+    !v.dayOnly &&
+    v.variants.some((x) =>
+      aspectsFor(v).some((a) => {
+        const s = nightSignature(x, a.deg)
+        return s !== 'none' && !VESSELS.some((o) => o.id !== v.id && !o.dayOnly && allNightSignatures(o).has(s))
+      }),
+    )
+  const day =
+    when !== 'night' &&
+    v.variants.some((x) => (when === 'day' ? x.shapes.length > 0 : showsByDay(x)) && !VESSELS.some((o) => o.id !== v.id && allDaySignatures(o).has(daySignature(x))))
+  return night || day
+}
+
+/**
  * Four pictures, one of them the asked-for vessel. None of the wrong pictures
  * could show that vessel from any aspect, and the right picture could not be
  * any other vessel from any aspect.
  */
-export function makeLightPickQuestion(onlyId?: string): LightPickQuestion {
+export function makeLightPickQuestion(onlyId?: string, when?: When): LightPickQuestion {
   for (let attempt = 0; attempt < 400; attempt++) {
     const target = onlyId ? VESSELS.find((v) => v.id === onlyId)! : pick(VESSELS)
     const variant = pick(target.variants)
-    const night = target.dayOnly ? false : showsByDay(variant) ? Math.random() < 0.5 : true
+    const night = chooseNight(target, variant, 0.5, when)
+    if (night === null) continue
     const others = VESSELS.filter((v) => v.id !== target.id && (night ? !v.dayOnly : true))
 
     const sigOf = (v: Variant, deg: number) => (night ? nightSignature(v, deg) : daySignature(v))
     const targetSigs = night ? allNightSignatures(target) : allDaySignatures(target)
 
-    const aspect = pick(ASPECTS)
+    const aspect = pick(aspectsFor(target))
     const sig = sigOf(variant, aspect.deg)
     if (sig === 'none') continue
     // The right picture must not be possible for any other vessel
@@ -127,7 +178,7 @@ export function makeLightPickQuestion(onlyId?: string): LightPickQuestion {
       for (let t = 0; t < 12; t++) {
         const x = pick(v.variants)
         if (!night && !showsByDay(x)) continue
-        const a = pick(ASPECTS)
+        const a = pick(aspectsFor(v))
         const s = sigOf(x, a.deg)
         if (s === 'none' || targetSigs.has(s) || used.has(s)) continue
         used.add(s)
@@ -179,7 +230,13 @@ export interface HeadingQuestion {
 /** A vessel underway with sidelights, seen at night from an aspect that matches the answer */
 export function makeHeadingQuestion(heading: Heading): HeadingQuestion {
   const pool = VESSELS.flatMap((vessel) =>
-    vessel.dayOnly ? [] : vessel.variants.filter((v) => v.lights.some((l) => l.kind === 'sideStbd')).map((variant) => ({ vessel, variant })),
+    vessel.dayOnly
+      ? []
+      : vessel.aspects
+        ? [] // only shown from ahead or astern
+        : vessel.variants
+          .filter((v) => v.lights.some((l) => l.kind === 'sideStbd') && v.lights.some((l) => l.kind === 'stern'))
+          .map((variant) => ({ vessel, variant })),
   )
   const { vessel, variant } = pick(pool)
   const deg = pick(HEADING_ASPECTS[heading])
@@ -212,13 +269,14 @@ const LIGHT_ALPHABET: ShipLightColor[] = ['R', 'W', 'G']
 /** The vertical line of all-round signal lights (not anchor lights) */
 function signalLights(v: Variant): ShipLight[] {
   const x = HULLS[v.hull].signalX
-  return v.lights.filter((l) => l.kind === 'allRound' && l.x === x).sort((a, b) => b.z - a.z)
+  return v.lights.filter((l) => l.kind === 'allRound' && l.x === x && l.y === 0).sort((a, b) => b.z - a.z)
 }
 
 /** Vessels that can be asked about, by day (shapes) or by night (signal lights) */
 export function fixCandidates(night: boolean): Vessel[] {
   return VESSELS.filter((v) =>
     v.id !== 'sailing' &&
+    !v.noFix &&
     v.variants.some((x) => (night ? !v.dayOnly && signalLights(x).length > 0 : x.shapes.length > 0)),
   )
 }
@@ -251,11 +309,11 @@ function withSignals(v: Variant, colors: ShipLightColor[]): Variant {
   return { ...v, lights: [...fresh, ...kept] }
 }
 
-export function makeFixQuestion(vesselId: string): FixQuestion {
+export function makeFixQuestion(vesselId: string, when?: When): FixQuestion {
   const vessel = VESSELS.find((v) => v.id === vesselId)!
   const canNight = !vessel.dayOnly && vessel.variants.some((x) => signalLights(x).length > 0)
   const canDay = vessel.variants.some((x) => x.shapes.length > 0)
-  const night = canNight && canDay ? Math.random() < 0.5 : canNight
+  const night = when === 'night' ? canNight : when === 'day' ? !canDay : canNight && canDay ? Math.random() < 0.5 : canNight
   const base = pick(vessel.variants.filter((x) => (night ? signalLights(x).length > 0 : x.shapes.length > 0)))
   const correct: FixToken[] = night ? signalLights(base).map((l) => l.color) : [...base.shapes]
   const alphabet: FixToken[] = night ? LIGHT_ALPHABET : SHAPE_ALPHABET
@@ -272,7 +330,7 @@ export function makeFixQuestion(vesselId: string): FixQuestion {
     decoys.push(d)
   }
 
-  const aspect = pick(ASPECTS.filter((a) => Math.abs(a.deg) <= 90))
+  const aspect = pick(aspectsFor(vessel).filter((a) => Math.abs(a.deg) <= 90))
   return { vessel, night, correct, shown, variant, aspect, scene: randomShipScene(aspect.deg, newSeed()), decoys }
 }
 
@@ -280,6 +338,7 @@ const TOKEN_TEXT: Record<FixToken, string> = {
   ball: 'ball',
   diamond: 'diamond',
   cylinder: 'cylinder',
+  flagA: 'code flag A',
   coneUp: 'cone point up',
   coneDown: 'cone point down',
   R: 'red',

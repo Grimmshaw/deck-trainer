@@ -147,4 +147,41 @@ export const FLAGS_THEORY: (TheoryItem & { id: string })[] = [
     source: 'Flag etiquette',
     typed: { accept: ['at the starboard yardarm'], keywords: ['starboard'], reject: ['port', 'stern', 'bow'] },
   },
+  // ---------- Added 15 Oct 2026 – waiting for Robin's review ----------
+  {
+    id: 'F17',
+    q: 'The receiving station hoists the answering pennant close up. What does that mean?',
+    options: [
+      'The signal has been understood',
+      'The signal has been seen, but not yet understood',
+      'Repeat the signal',
+      'The signal is not understood',
+    ],
+    why: 'The answering pennant at the dip means the signal has been seen; hoisted close up it means the signal is understood.',
+    source: 'International Code of Signals',
+  },
+  {
+    id: 'F18',
+    q: 'What is the code and answering pennant used for?',
+    options: [
+      'To show that the International Code is used, and as the answering signal',
+      'To show that the ship is in quarantine',
+      'As a substitute for a repeated flag',
+      'To show that the ship has a pilot on board',
+    ],
+    why: 'The code and answering pennant, hoisted where best seen, shows that the signals are from the International Code. It is also hoisted by the receiving station as the answering signal.',
+    source: 'International Code of Signals',
+  },
+  {
+    id: 'F19',
+    q: 'Several hoists are shown at the same time. In which order are they read?',
+    options: [
+      'Masthead, triatic stay, starboard yardarm, port yardarm',
+      'Port yardarm, starboard yardarm, masthead, triatic stay',
+      'From the lowest hoist to the highest',
+      'In any order – each hoist is a separate signal',
+    ],
+    why: 'When more than one hoist is shown, they are read in this order: masthead, triatic stay, starboard yardarm, port yardarm. Each hoist is read from the top down.',
+    source: 'International Code of Signals',
+  },
 ]

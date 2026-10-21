@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { track } from '../stats/usage'
 import type { Settings } from '../App'
 import { LEVELS } from '../morse'
 import { pickWord, type Pick } from '../wordPicker'
@@ -23,6 +24,18 @@ export default function Practice({ settings, onExit, onStreak }: Props) {
   const [attempts, setAttempts] = useState(0)
   const [streak, setStreak] = useState(0)
   const [showChart, setShowChart] = useState(false)
+
+  // Read and send Morse have no end: when left, the statistics get how many words and how many were right
+  const latest = useRef({ correct, attempts })
+  latest.current = { correct, attempts }
+  useEffect(
+    () => () => {
+      const { correct: c, attempts: a } = latest.current
+      if (a === 0) return
+      track('finish', { category: 'morse', mode, score: Math.round((c / a) * 10) * 10, count: a })
+    },
+    [],
+  )
 
   const handleResult = (ok: boolean) => {
     setAttempts((a) => a + 1)
@@ -49,7 +62,7 @@ export default function Practice({ settings, onExit, onStreak }: Props) {
           ←
         </button>
         <div className="topbar-title">
-          {mode === 'decode' ? 'Decode' : 'Encode'}
+          {mode === 'decode' ? 'Read Morse' : mode === 'light' ? 'Morse by light' : 'Send Morse'}
           <small>
             {LEVELS[level].label} · {length} letters
           </small>
@@ -77,8 +90,8 @@ export default function Practice({ settings, onExit, onStreak }: Props) {
 
       {pick.source === 'random' && <p className="muted small center">Random letters</p>}
 
-      {mode === 'decode' ? (
-        <DecodeRound key={round} word={pick.word} onResult={handleResult} onNext={handleNext} />
+      {mode === 'decode' || mode === 'light' ? (
+        <DecodeRound key={round} word={pick.word} onResult={handleResult} onNext={handleNext} light={mode === 'light'} />
       ) : (
         <EncodeRound key={round} word={pick.word} onResult={handleResult} onNext={handleNext} />
       )}
