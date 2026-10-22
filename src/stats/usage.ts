@@ -73,8 +73,38 @@ try {
   // ignore
 }
 
+/** A browser driven by a program (link scanners, test robots) is never counted */
+function automated(): boolean {
+  try {
+    return navigator.webdriver === true || /bot|crawl|spider|headless|lighthouse|facebookexternalhit/i.test(navigator.userAgent)
+  } catch {
+    return false
+  }
+}
+
 function off(): boolean {
-  return import.meta.env.DEV || get(OFF_KEY) === '1'
+  return import.meta.env.DEV || get(OFF_KEY) === '1' || automated()
+}
+
+// Nothing is sent until a person has touched the screen, clicked or pressed a
+// key. Link scanners only load the page, so they never count as a device.
+// (Added 22 Oct 2026 – Facebook's scanners showed up as new devices in the USA.)
+let human = false
+const waiting: (() => void)[] = []
+function whenHuman(fn: () => void) {
+  if (human) fn()
+  else waiting.push(fn)
+}
+try {
+  const mark = () => {
+    if (human) return
+    human = true
+    for (const t of ['pointerdown', 'keydown', 'touchstart'] as const) window.removeEventListener(t, mark, true)
+    waiting.splice(0).forEach((fn) => fn())
+  }
+  for (const t of ['pointerdown', 'keydown', 'touchstart'] as const) window.addEventListener(t, mark, { capture: true, passive: true })
+} catch {
+  human = true
 }
 
 /** Which kind of device, very roughly */
@@ -121,13 +151,16 @@ export function track(event: UsageEvent, data: UsageData = {}) {
   if (event === 'open') {
     const today = new Date().toISOString().slice(0, 10)
     if (get(DAY_KEY) === today) return
-    set(DAY_KEY, today)
-    const isNew = get(SEEN_KEY) === null
-    set(SEEN_KEY, '1')
-    send({ ...base, n: isNew ? 1 : 0, a: age(), c: data.region, m: data.theme })
+    whenHuman(() => {
+      if (get(DAY_KEY) === today) return
+      set(DAY_KEY, today)
+      const isNew = get(SEEN_KEY) === null
+      set(SEEN_KEY, '1')
+      send({ ...base, n: isNew ? 1 : 0, a: age(), c: data.region, m: data.theme })
+    })
     return
   }
-  send({ ...base, c: data.category, m: data.mode, f: data.focus, s: data.score, k: data.count })
+  whenHuman(() => send({ ...base, c: data.category, m: data.mode, f: data.focus, s: data.score, k: data.count }))
 }
 
 /**
@@ -137,5 +170,5 @@ export function track(event: UsageEvent, data: UsageData = {}) {
  */
 export function trackAnswers(category: string, answers: [key: string, right: boolean][]) {
   if (off() || answers.length === 0) return
-  send({ e: 'ans', c: category, a: answers.slice(0, 60).map(([k, ok]) => [k, ok ? 1 : 0]) })
+  whenHuman(() => send({ e: 'ans', c: category, a: answers.slice(0, 60).map(([k, ok]) => [k, ok ? 1 : 0]) }))
 }

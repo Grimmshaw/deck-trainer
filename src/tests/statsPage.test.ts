@@ -87,7 +87,7 @@ describe('statistics function', () => {
     const { default: handler } = (await import(/* @vite-ignore */ path)) as {
       default: (req: Request, ctx: { geo?: { country?: { code?: string } } }) => Promise<Response>
     }
-    const post = new Request('https://x/api/usage', { method: 'POST', body: JSON.stringify({ e: 'bought', p: 'play', c: 'lights', src: 'rc-dman' }) })
+    const post = new Request('https://x/api/usage', { method: 'POST', headers: { 'user-agent': 'Mozilla/5.0 (Linux; Android 14) Chrome/155.0 Mobile Safari/537.36' }, body: JSON.stringify({ e: 'bought', p: 'play', c: 'lights', src: 'rc-dman' }) })
     expect((await handler(post, { geo: { country: { code: 'PH' } } })).status).toBe(204)
     expect((await handler(new Request('https://x/stats?key=wrong'), {})).status).toBe(404)
     const page = await (await handler(new Request('https://x/stats?key=secret&days=7'), {})).text()

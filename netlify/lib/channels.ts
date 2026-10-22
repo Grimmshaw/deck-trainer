@@ -77,6 +77,20 @@ export const CHANNELS: Record<string, Channel> = {
   'fb-mk': { name: 'Maritime Knowledge', group: FB },
   'fb-ml': { name: 'Maritime learning', group: FB },
   'fb-ph': { name: 'Facebook – Philippines', group: FB },
+  'fb-page': { name: 'Lanterna Facebook page', group: FB },
+
+  // Facebook groups, posted by the Lanterna page (22 Oct)
+  'fb-marinersworld2': { name: 'The Mariners World (2nd post)', group: FB },
+  'fb-marinong2': { name: 'MARINONG Filipino (2nd post)', group: FB },
+  'fb-seamanph': { name: 'Seaman PH', group: FB },
+  'fb-legacy': { name: 'The Maritime Legacy', group: FB },
+  'fb-mk2': { name: 'Maritime Knowledge (2nd post)', group: FB },
+  'fb-ml2': { name: 'Maritime learning (2nd post)', group: FB },
+  'fb-dcinterview': { name: 'Deck Cadet Interview Questions and Answers', group: FB },
+  'fb-cebuinstr2': { name: 'CEBU Maritime Instructors (2nd post)', group: FB },
+  'fb-dok2': { name: 'Deck Officers Knowledge (2nd post)', group: FB },
+  'fb-in-2mo': { name: 'Second mates orals (India)', group: FB },
+  'fb-in-delhi': { name: 'Delhi MMD mates orals (India)', group: FB },
 
   // WhatsApp (21 Oct)
   'wa-rajput': { name: 'Capt. N. S. Rajput (FOSMA Noida)', group: WA },

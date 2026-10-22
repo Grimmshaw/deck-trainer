@@ -1,5 +1,6 @@
 import { getStore } from '@netlify/blobs'
 import { PERIODS, renderStats, type Answer, type Ev } from '../lib/statsPage'
+import { isBot } from '../lib/bots'
 
 // Anonymous usage statistics.
 //
@@ -14,7 +15,8 @@ import { PERIODS, renderStats, type Answer, type Ev } from '../lib/statsPage'
 // (keys from before 15 Oct 2026 start with e/ and end after <score>/<random>).
 // Answers ("which questions were answered right or wrong") are one blob per question:
 //   q/<day>/<category>/<question id>/<r or w>/<random>
-// No IP address or other personal data is stored.
+// No IP address or other personal data is stored. Events from link scanners
+// and crawlers (netlify/lib/bots.ts) are dropped.
 
 export const config = { path: ['/api/usage', '/stats'] }
 
@@ -28,12 +30,16 @@ const clean = (v: unknown, max = 24): string =>
 
 interface Ctx {
   geo?: { country?: { code?: string } }
+  ip?: string
 }
 
 export default async (req: Request, context: Ctx): Promise<Response> => {
   const url = new URL(req.url)
   if (url.pathname === '/stats') return statsPage(url)
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
+  // Link scanners (Facebook checks every link in a new post) are not devices:
+  // answer as usual but store nothing. The IP is only compared, never stored.
+  if (isBot(req.headers.get('user-agent'), context.ip)) return new Response(null, { status: 204 })
 
   let body: Record<string, unknown>
   try {
