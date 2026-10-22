@@ -10,6 +10,7 @@ import { FLAGS_THEORY } from '../content/flagsTheory'
 import { DISTRESS_THEORY } from '../content/distressTheory'
 import { MORSE_THEORY } from '../content/morseTheory'
 import { CHART_THEORY } from '../content/chartTheory'
+import { VHF_THEORY } from '../content/vhfTheory'
 import { CHART_SYMBOLS } from '../chart/symbols'
 import { fogAction, fogDistractors, FOG_SECTORS, makeFogScenario } from '../colregs/fog'
 import { FLAGS } from '../flags/flags'
@@ -183,7 +184,7 @@ describe('Rule 19 – restricted visibility', () => {
 
 describe('Theory questions', () => {
   it('have unique ids and four different options', () => {
-    for (const list of [COLREGS_THEORY, IALA_THEORY, LIGHTS_THEORY, SOUND_THEORY, FLAGS_THEORY, DISTRESS_THEORY, MORSE_THEORY, CHART_THEORY]) {
+    for (const list of [COLREGS_THEORY, IALA_THEORY, LIGHTS_THEORY, SOUND_THEORY, FLAGS_THEORY, DISTRESS_THEORY, MORSE_THEORY, CHART_THEORY, VHF_THEORY]) {
       const ids = new Set(list.map((q) => q.id))
       expect(ids.size).toBe(list.length)
       for (const q of list) {

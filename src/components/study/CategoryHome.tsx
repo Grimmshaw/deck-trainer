@@ -213,7 +213,7 @@ function StepPage({ category, generator, choice, step, onBack, onChoose, onLaunc
   switch (step) {
     case 'focus':
       question = 'What do you want to practise?'
-      options = (Object.keys(generator.focus!) as Focus[]).map((f) => ({ key: f, title: FOCUS_TITLE[f], text: generator.focus![f], pick: () => answer({ focus: f }) }))
+      options = (Object.keys(generator.focus!) as Focus[]).map((f) => ({ key: f, title: generator.focusTitles?.[f] ?? FOCUS_TITLE[f], text: generator.focus![f], pick: () => answer({ focus: f }) }))
       break
     case 'count':
       question = 'How many questions?'
@@ -250,7 +250,7 @@ function StepPage({ category, generator, choice, step, onBack, onChoose, onLaunc
           {MODE_TITLE[choice.mode]}
           <small>
             {category.title}
-            {choice.focus && step !== 'focus' ? ` · ${FOCUS_TITLE[choice.focus]}` : ''}
+            {choice.focus && step !== 'focus' ? ` · ${generator.focusTitles?.[choice.focus] ?? FOCUS_TITLE[choice.focus]}` : ''}
             {choice.level && step === 'length' ? ` · ${LEVELS[choice.level].label}` : ''}
           </small>
         </div>

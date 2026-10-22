@@ -19,7 +19,7 @@ export const CATEGORIES: Category[] = [
   { id: 'flags', title: 'Flags & signals', text: 'Single-letter signals of the International Code', tag: 'Preview', icon: 'flag' },
   { id: 'distress', title: 'Distress signals', text: 'COLREG Annex IV', tag: 'Preview', icon: 'distress' },
   { id: 'chart', title: 'Chart symbols', text: 'Wrecks, rocks, lights and abbreviations (INT 1)', tag: 'Preview', icon: 'chart' },
-  { id: 'vhf', title: 'VHF & SMCP', text: 'Standard Marine Communication Phrases', tag: 'Soon', icon: 'vhf' },
+  { id: 'vhf', title: 'VHF & SMCP', text: 'Standard phrases, phonetic alphabet, wheel orders', tag: 'Preview', icon: 'vhf' },
 ]
 
 export const FINAL_EXAM: Category = {

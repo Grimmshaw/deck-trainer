@@ -71,4 +71,6 @@ export interface Generator {
   pairs?(ctx: Ctx): MatchPair[]
   /** Set if the user can choose a focus: a short text for each choice, in the order they are shown */
   focus?: Partial<Record<Focus, string>>
+  /** Own names for the focus choices, if the usual ones (Alphabet, Meanings …) don't fit */
+  focusTitles?: Partial<Record<Focus, string>>
 }

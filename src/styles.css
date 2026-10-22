@@ -2026,3 +2026,43 @@ a.as-button {
   color: var(--signal);
   margin-right: 8px;
 }
+
+/* VHF & SMCP */
+.smcp {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.smcp-message {
+  margin: 0;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  border-left: 4px solid var(--signal);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  text-align: left;
+}
+.smcp-blank {
+  display: inline-block;
+  min-width: 7.5em;
+  margin-right: 6px;
+  padding: 0 8px;
+  border-bottom: 2px dashed var(--signal);
+  color: var(--signal);
+  font-weight: 700;
+  text-align: center;
+}
+.card-big-letter,
+.match-letter {
+  font-weight: 800;
+  line-height: 1;
+}
+.card-big-letter {
+  font-size: 5rem;
+  text-align: center;
+  padding: 10px;
+}
+.match-letter {
+  font-size: 2rem;
+}

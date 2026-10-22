@@ -14,6 +14,7 @@ const INCLUDED = [
   'COLREGs – what do you do, also in fog',
   'Sound signals, flags and distress signals',
   'Chart symbols (INT 1)',
+  'VHF & SMCP – standard phrases, phonetic alphabet, wheel orders',
   'Final exam with everything mixed',
 ]
 
