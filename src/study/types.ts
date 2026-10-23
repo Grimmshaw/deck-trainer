@@ -23,6 +23,9 @@ export interface Option {
   node?: ReactNode
 }
 
+/** See Question.transition */
+export type RevealTransition = 'dawn' | 'dusk' | 'fade'
+
 export interface Question {
   /** The knowledge item this question tests, used for progress and "My mistakes" */
   key: string
@@ -35,6 +38,11 @@ export interface Question {
   explanation: ReactNode
   /** Extra picture shown after answering, for example the same vessel by day */
   reveal?: ReactNode
+  /**
+   * How the reveal takes the place of the picture after answering: 'dawn' (night → day),
+   * 'dusk' (day → night) or 'fade'. Unset: the reveal is shown below the picture.
+   */
+  transition?: RevealTransition
   /** 'pictures' shows the options as a 2 × 2 grid of pictures */
   layout?: 'pictures'
   /** Set if the question can also be answered by typing. Grade with gradeTyped() from study/typed. */

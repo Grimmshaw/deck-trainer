@@ -92,6 +92,10 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
         <filter id={`blur-${uid}`} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation={1.3 + 0.9 * sc.scale} />
         </filter>
+        {/* Soft halo round a light at night, like a lamp seen through sea air */}
+        <filter id={`halo-${uid}`} x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation={glow * 0.45} />
+        </filter>
         <linearGradient id={`sea-${uid}`} gradientUnits="userSpaceOnUse" x1="0" y1={sc.horizon} x2="0" y2={H}>
           <stop offset="0%" stopColor={colors.seaFar} />
           <stop offset="100%" stopColor={colors.sea} />
@@ -170,6 +174,7 @@ export default function VesselSvg({ variant, night = false, silhouette = true, s
           <g key={i}>
             {/* A flashing light: 120 flashes a minute (Rule 21(f)) */}
             {l.flash && <animate attributeName="opacity" values="1;1;0.08;0.08" keyTimes="0;0.45;0.5;1" dur="0.5s" repeatCount="indefinite" />}
+            <circle cx={x} cy={y} r={glow * 1.5} fill={LIGHT_CSS[l.color]} opacity={0.22} filter={`url(#halo-${uid})`} />
             <circle cx={x} cy={y} r={glow} fill={LIGHT_CSS[l.color]} opacity={0.14} />
             <circle cx={x} cy={y} r={glow * 0.55} fill={LIGHT_CSS[l.color]} opacity={0.3} />
             <circle cx={x} cy={y} r={core} fill={LIGHT_CSS[l.color]} />

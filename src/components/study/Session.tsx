@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { findCategory, type CategoryId } from '../../study/categories'
 import { pickKey, record, weakKeys } from '../../study/progress'
 import type { Ctx, Generator, Question } from '../../study/types'
@@ -10,6 +10,7 @@ import { gradeTyped, type TypedResult } from '../../study/typed'
 import { PLAY_URL, playService, ratingAsked, shouldAskForRating } from '../../store/entitlement'
 import { TapHint, useTapToContinue } from './TapToContinue'
 import { shareQuestion } from '../../share/shareQuestion'
+import MediaSwap from './MediaSwap'
 
 export type SessionMode = 'practice' | 'exam' | 'mistakes'
 
@@ -245,8 +246,12 @@ export default function Session({ title, statsCategory, generators, mode, count,
       <div className="round" key={answers.length} ref={roundRef}>
         {generators.length > 1 && <span className="category-chip">{findCategory(question.category).title}</span>}
         <p className="question-text">{question.prompt}</p>
-        {question.media && <div className="question-media">{question.media}</div>}
-        {answered && question.reveal && <div className="question-media">{question.reveal}</div>}
+        {question.media && question.reveal && question.transition ? (
+          <MediaSwap media={question.media} reveal={question.reveal} kind={question.transition} revealed={answered} />
+        ) : (
+          question.media && <div className="question-media">{question.media}</div>
+        )}
+        {answered && question.reveal && !question.transition && <div className="question-media reveal-in">{question.reveal}</div>}
 
         {typing ? (
           <form
@@ -394,6 +399,7 @@ function Results({
 }) {
   const right = answers.filter((a) => a.chosen === a.q.correctId).length
   const pct = Math.round((right / count) * 100)
+  const shownPct = useCountUp(pct)
   const wrong = answers.filter((a) => a.chosen !== a.q.correctId)
 
   // Ask once for a rating on Google Play, after a good round, only in the Play app
@@ -419,8 +425,8 @@ function Results({
   return (
     <Shell title={title} onExit={onExit}>
       <div className="results">
-        <div className={`score-ring ${pct >= 75 ? 'good' : pct >= 50 ? 'ok' : 'low'}`}>
-          <strong>{pct}%</strong>
+        <div className={`score-ring ${grade(pct)}`} style={{ '--ring': pct } as CSSProperties}>
+          <strong>{shownPct}%</strong>
           <span>
             {right} of {count}
           </span>
@@ -467,6 +473,11 @@ function Results({
                 <strong>
                   {s.right}/{s.total}
                 </strong>
+                <span
+                  className={`cat-bar ${grade((s.right / s.total) * 100)}`}
+                  style={{ width: `${(s.right / s.total) * 100}%` }}
+                  aria-hidden="true"
+                />
               </div>
             ))}
           </div>
@@ -533,6 +544,37 @@ function answerText(q: Question, id: string): ReactNode {
   const o = q.options.find((x) => x.id === id)
   if (!o) return null
   return q.layout === 'pictures' ? o.label : (o.node ?? o.label)
+}
+
+/** Colour class for a score in per cent */
+function grade(pct: number): 'good' | 'ok' | 'low' {
+  return pct >= 75 ? 'good' : pct >= 50 ? 'ok' : 'low'
+}
+
+/** Counts up from 0 to `target` in about a second (at once if the user prefers less motion) */
+function useCountUp(target: number, ms = 1000): number {
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  const [value, setValue] = useState(reduce ? target : 0)
+  useEffect(() => {
+    if (reduce || target === 0) {
+      setValue(target)
+      return
+    }
+    let raf = 0
+    let start = 0
+    const delay = 150
+    const step = (t: number) => {
+      if (!start) start = t
+      const k = Math.min(1, Math.max(0, (t - start - delay) / ms))
+      // Same easing as the ring: fast at first, gently to the end
+      const eased = 1 - Math.pow(1 - k, 3)
+      setValue(Math.round(target * eased))
+      if (k < 1) raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [target])
+  return value
 }
 
 /** A short vibration on Android: one tap for right, a double buzz for wrong */

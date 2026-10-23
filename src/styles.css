@@ -1582,22 +1582,9 @@ body {
 .options .option.right {
   animation: pulse-right 0.45s ease-out;
 }
-.options .option.wrong {
-  animation: shake 0.4s ease-in-out;
-}
 @keyframes pulse-right {
   40% {
     transform: scale(1.03);
-  }
-}
-@keyframes shake {
-  20%,
-  60% {
-    transform: translateX(-5px);
-  }
-  40%,
-  80% {
-    transform: translateX(5px);
   }
 }
 .feedback {
@@ -1613,12 +1600,228 @@ body {
 .option:active:not(:disabled) {
   transform: scale(0.98);
 }
+
+/* A new question fades in (the round is re-created for every question) */
+.round {
+  animation: round-in 0.22s ease-out;
+}
+@keyframes round-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Right and wrong answers: a check and a cross, no shaking */
+.options .option {
+  position: relative;
+}
+.options .option.right,
+.options .option.wrong {
+  padding-right: 42px;
+}
+.options .option.right::after,
+.options .option.wrong::after {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.options .option.right::after {
+  content: '✓';
+  color: var(--right);
+}
+.options .option.wrong::after {
+  content: '✕';
+  color: var(--wrong);
+}
+.options .option.dim {
+  transition: opacity 0.3s ease;
+}
+/* Picture options: the mark sits in the corner of the picture */
+.options-pictures .option.right,
+.options-pictures .option.wrong {
+  padding-right: 6px;
+}
+.options-pictures .option.right::after,
+.options-pictures .option.wrong::after {
+  top: 8px;
+  right: 8px;
+  transform: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+
+/* ---------- Answer picture taking the place of the question picture ---------- */
+/* Both pictures share one grid cell, so nothing below moves when the answer appears */
+.media-swap {
+  display: grid;
+  position: relative;
+  width: 100%;
+  justify-items: center;
+}
+.swap-layer {
+  grid-area: 1 / 1;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  transition: opacity 0.5s ease;
+}
+.media-swap.revealed .swap-from {
+  transition: opacity 0.6s ease 0.25s;
+}
+.media-swap.show-answer .swap-from,
+.media-swap.revealed:not(.show-answer) .swap-to {
+  opacity: 0;
+  pointer-events: none;
+}
+.swap-fade .swap-to {
+  animation: swap-fade 0.5s ease-out backwards;
+}
+/* Dawn: the day picture rises out of a dark, warm twilight */
+.swap-dawn .swap-to {
+  animation: swap-dawn 1.1s ease-out backwards;
+}
+/* Dusk: the light goes and the lights come on */
+.swap-dusk .swap-to {
+  animation: swap-dusk 1.1s ease-in-out backwards;
+}
+@keyframes swap-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes swap-dawn {
+  0% {
+    opacity: 0;
+    filter: brightness(0.25) saturate(0.4);
+  }
+  35% {
+    opacity: 1;
+    filter: brightness(0.55) saturate(0.75) sepia(0.45) hue-rotate(-12deg);
+  }
+  70% {
+    filter: brightness(0.9) saturate(0.95) sepia(0.15);
+  }
+  100% {
+    filter: none;
+  }
+}
+@keyframes swap-dusk {
+  0% {
+    opacity: 0;
+    filter: brightness(1.8) sepia(0.5) saturate(1.2);
+  }
+  45% {
+    opacity: 1;
+    filter: brightness(0.75) sepia(0.25);
+  }
+  100% {
+    filter: none;
+  }
+}
+.swap-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  padding: 5px 11px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(6, 16, 30, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  animation: swap-fade 0.4s ease-out 0.9s backwards;
+}
+/* An answer picture that is shown below the question (sound signals) slides in */
+.reveal-in {
+  animation: rise-in 0.35s ease-out;
+}
+
+/* ---------- Results ---------- */
+@property --ring {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+.score-ring {
+  --ring-color: var(--surface-2);
+  border: none;
+  background:
+    radial-gradient(closest-side, var(--bg) calc(100% - 11px), transparent calc(100% - 10px)),
+    conic-gradient(var(--ring-color) calc(var(--ring) * 1%), var(--surface-2) 0);
+  animation: ring-fill 1s cubic-bezier(0.25, 0.8, 0.3, 1) 0.15s backwards;
+}
+.score-ring.good {
+  --ring-color: var(--right);
+}
+.score-ring.ok {
+  --ring-color: var(--signal);
+}
+.score-ring.low {
+  --ring-color: var(--wrong);
+}
+@keyframes ring-fill {
+  from {
+    --ring: 0;
+  }
+}
+.cat-score {
+  position: relative;
+  overflow: hidden;
+}
+.cat-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 0 3px 3px 0;
+  transform-origin: left;
+  animation: bar-grow 0.8s ease-out 0.4s backwards;
+}
+.cat-bar.good {
+  background: var(--right);
+}
+.cat-bar.ok {
+  background: var(--signal);
+}
+.cat-bar.low {
+  background: var(--wrong);
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .screen,
+  .round,
   .options .option.right,
   .options .option.wrong,
-  .feedback {
-    animation: none;
+  .feedback,
+  .reveal-in,
+  .swap-to,
+  .swap-toggle,
+  .score-ring,
+  .cat-bar {
+    animation: none !important;
+  }
+  .swap-layer,
+  .media-swap.revealed .swap-from,
+  .options .option.dim {
+    transition: none;
   }
 }
 

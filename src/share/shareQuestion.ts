@@ -124,7 +124,10 @@ export async function questionImage(root: HTMLElement, category: string): Promis
   const options = [...root.querySelectorAll<HTMLElement>('.options .option')]
   const pictureOptions = options.some((o) => o.querySelector('svg'))
   // Only the first picture: a second one is the answer picture shown after answering
-  const mediaSvgs = [...(root.querySelector('.question-media')?.querySelectorAll<SVGSVGElement>('svg') ?? [])].slice(0, 4)
+  // (also when it has taken the place of the question picture, in .swap-to)
+  const mediaSvgs = [...(root.querySelector('.question-media')?.querySelectorAll<SVGSVGElement>('svg') ?? [])]
+    .filter((svg) => !svg.closest('.swap-to'))
+    .slice(0, 4)
   const media = await Promise.all(mediaSvgs.map(svgImage))
   const footerTop = H - 120
   const optionBlock = pictureOptions ? 420 : options.length * 92

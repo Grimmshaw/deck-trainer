@@ -149,9 +149,10 @@ export const buoyageGenerator: Generator = {
       ),
       reveal: night ? (
         <div className="buoy-stage">
-          <BuoySvg mark={mark} scene={scene} size={150} />
+          <BuoySvg mark={mark} scene={scene} size={190} />
         </div>
       ) : undefined,
+      transition: night ? 'dawn' : undefined,
       options: shuffle([mark, ...others]).map((m) => ({ id: m.id, label: m.name })),
       correctId: mark.id,
       typed: MARK_TYPED[mark.id],

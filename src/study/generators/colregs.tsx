@@ -127,24 +127,28 @@ export const colregsGenerator: Generator = {
     const scene = randomShipScene(e.aspect, newSeed())
     const wrong = sample(distractorsFor(e.action), 3)
     const where = `${bearingWords(e.bearing)} (${bearingText(e.bearing)} relative)`
+    const night = e.night
+    const encounter = (atNight: boolean) => (
+      <div className="encounter">
+        <VesselSvg variant={e.variant} night={atNight} silhouette={false} scene={scene} size={340} />
+        <div className="encounter-dial">
+          <BearingDial bearing={e.bearing} size={96} />
+          <span className="muted small">
+            Relative bearing
+            <br />
+            <strong>{bearingText(e.bearing)}</strong>
+          </span>
+        </div>
+      </div>
+    )
     return {
       key,
       category: 'colregs',
       prompt: `You are on a power-driven vessel making way. ${e.night ? 'At night you see these lights' : 'You see this vessel'} ${where}. The compass bearing is steady and the range is closing. What do you do?`,
-      media: (
-        <div className="encounter">
-          <VesselSvg variant={e.variant} night={e.night} silhouette={false} scene={scene} size={340} />
-          <div className="encounter-dial">
-            <BearingDial bearing={e.bearing} size={96} />
-            <span className="muted small">
-              Relative bearing
-              <br />
-              <strong>{bearingText(e.bearing)}</strong>
-            </span>
-          </div>
-        </div>
-      ),
-      reveal: e.night ? <VesselSvg variant={e.variant} scene={scene} size={340} /> : undefined,
+      media: encounter(night),
+      // After answering, dawn breaks over the same encounter
+      reveal: e.night ? encounter(false) : undefined,
+      transition: e.night ? 'dawn' : undefined,
       options: shuffle([e.action, ...wrong]).map((a) => ({ id: a, label: ACTION_TEXT[a] })),
       correctId: e.action,
       typed: ACTION_TYPED[e.action],

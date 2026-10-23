@@ -15,6 +15,9 @@ const IN = 'Institute · India'
 const IN_WEB = 'Website · India'
 const FB = 'Facebook group'
 const WA = 'WhatsApp'
+const UK = 'United Kingdom'
+const LV = 'Latvia'
+const AF = 'Africa'
 
 export const CHANNELS: Record<string, Channel> = {
   // Philippines – review centers (mail 21 Oct)
@@ -67,6 +70,37 @@ export const CHANNELS: Record<string, Channel> = {
   // Denmark
   'dk-studenter': { name: 'Danish maritime students', group: 'Denmark' },
 
+  // United Kingdom – MCA Part A angle (mail drafted 22 Oct)
+  'uk-warsash': { name: 'Warsash Maritime School (Solent)', group: UK },
+  'uk-southshields': { name: 'South Shields Marine School', group: UK },
+  'uk-glasgow': { name: 'City of Glasgow College', group: UK },
+  'uk-fleetwood': { name: 'Fleetwood Nautical Campus', group: UK },
+  'uk-sma': { name: 'Scottish Maritime Academy', group: UK },
+  'uk-eastcoast': { name: 'East Coast College, Lowestoft', group: UK },
+  'uk-shetland': { name: 'UHI Shetland', group: UK },
+  'uk-justbe': { name: 'Just Be Maritime (MNSS cadets)', group: UK },
+  'uk-clyde': { name: 'Clyde Marine Training', group: UK },
+
+  // Latvia (mail drafted 22 Oct)
+  'lv-lja': { name: 'Latvian Maritime Academy, Riga', group: LV },
+  'lv-jurskola': { name: 'LJA Maritime School', group: LV },
+  'lv-ljk': { name: 'Liepāja Maritime College', group: LV },
+  'lv-novikontas': { name: 'Novikontas Maritime College', group: LV },
+  'lv-lvt': { name: 'Liepāja State Technical School', group: LV },
+  'lv-ljamc': { name: 'LJA training centre', group: LV },
+  'lv-lapa': { name: 'LAPA training', group: LV },
+  'lv-botc': { name: 'BOTC Training', group: LV },
+  'lv-libau': { name: 'LIBAU training centre', group: LV },
+  'lv-maritimeskills': { name: 'MaritimeSkills', group: LV },
+
+  // Africa (mail drafted 22 Oct)
+  'gh-rmu': { name: 'Regional Maritime University, Ghana', group: AF },
+  'ke-bandari': { name: 'Bandari Maritime Academy, Kenya', group: AF },
+  'ng-man': { name: 'Maritime Academy of Nigeria, Oron', group: AF },
+  'tz-dmi': { name: 'Dar es Salaam Maritime Institute', group: AF },
+  'na-namfi': { name: 'NAMFI, Namibia', group: AF },
+  'za-samtra': { name: 'SAMTRA, South Africa', group: AF },
+
   // Facebook groups (21 Oct)
   'fb-deckcadets': { name: 'Deck Cadets', group: FB },
   'fb-marinong': { name: 'MARINONG Filipino (Seaman Worldwide)', group: FB },
@@ -113,6 +147,14 @@ const PREFIXES: [string, string][] = [
   ['ph-', 'Philippines'],
   ['in-', 'India'],
   ['dk-', 'Denmark'],
+  ['uk-', UK],
+  ['lv-', LV],
+  ['gh-', AF],
+  ['ke-', AF],
+  ['ng-', AF],
+  ['tz-', AF],
+  ['na-', AF],
+  ['za-', AF],
   ['fb-', FB],
   ['wa-', WA],
   ['li-', 'LinkedIn'],
