@@ -29,8 +29,12 @@ import { APP_VERSION } from '../report/report'
 // the number of another day, so the statistics page can show what one device
 // did today ("top 5 today") but never follow a device from day to day. The
 // server removes it from events older than 30 days.
+//
+// Added 24 Oct 2026: "review" when the app opened Google Play's rating box
+// (category and mode of the round before). Not whether it was shown or what
+// was rated – Google never tells the app.
 
-export type UsageEvent = 'open' | 'start' | 'finish' | 'quit' | 'lock' | 'buy' | 'bought' | 'buyfail' | 'getapp' | 'share'
+export type UsageEvent = 'open' | 'start' | 'finish' | 'quit' | 'lock' | 'buy' | 'bought' | 'buyfail' | 'getapp' | 'share' | 'review'
 
 export interface UsageData {
   category?: string

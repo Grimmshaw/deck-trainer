@@ -7,7 +7,7 @@ import SoundModeToggle from '../../sound/SoundModeToggle'
 import ReportDialog from '../../report/ReportDialog'
 import { track, trackAnswers } from '../../stats/usage'
 import { gradeTyped, type TypedResult } from '../../study/typed'
-import { PLAY_URL, playService, ratingAsked, shouldAskForRating } from '../../store/entitlement'
+import { afterRound } from '../../store/review'
 import { TapHint, useTapToContinue } from './TapToContinue'
 import { shareQuestion } from '../../share/shareQuestion'
 import MediaSwap from './MediaSwap'
@@ -156,6 +156,8 @@ export default function Session({ title, statsCategory, generators, mode, count,
     return (
       <Results
         title={title}
+        mode={mode}
+        statsCategory={statsCategory}
         answers={answers}
         count={count}
         timedOut={timedOut}
@@ -380,6 +382,8 @@ function Shell({ title, onExit, children, right }: { title: string; onExit: () =
 
 function Results({
   title,
+  mode,
+  statsCategory,
   answers,
   count,
   timedOut,
@@ -389,6 +393,8 @@ function Results({
   onUnlock,
 }: {
   title: string
+  mode: SessionMode
+  statsCategory: CategoryId
   answers: Answered[]
   count: number
   timedOut: boolean
@@ -402,15 +408,12 @@ function Results({
   const shownPct = useCountUp(pct)
   const wrong = answers.filter((a) => a.chosen !== a.q.correctId)
 
-  // Ask once for a rating on Google Play, after a good round, only in the Play app
-  const [askRating, setAskRating] = useState(false)
+  // Google Play's rating box after a passed test or a good practice round (rules in store/review.ts)
+  const counted = useRef(false)
   useEffect(() => {
-    if (trial || !shouldAskForRating(right, answers.length)) return
-    playService().then((s) => {
-      if (!s) return
-      ratingAsked()
-      setAskRating(true)
-    })
+    if (counted.current) return
+    counted.current = true
+    afterRound({ mode, right, count, answered: answers.length, trial }, statsCategory)
   }, [])
 
   // Score per category (useful in the mixed final exam)
@@ -448,20 +451,6 @@ function Results({
             <button className="primary big" onClick={onUnlock}>
               Unlock all
             </button>
-          </div>
-        )}
-
-        {askRating && (
-          <div className="rate-card">
-            <p>Finding Lanterna useful? A rating on Google Play helps other cadets find it.</p>
-            <div className="actions">
-              <button className="secondary" onClick={() => setAskRating(false)}>
-                Not now
-              </button>
-              <a className="primary as-button" href={PLAY_URL} target="_blank" rel="noopener" onClick={() => setAskRating(false)}>
-                Rate Lanterna
-              </a>
-            </div>
           </div>
         )}
 

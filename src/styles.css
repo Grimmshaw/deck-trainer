@@ -2017,9 +2017,8 @@ a.as-button {
   color: var(--muted);
 }
 
-/* Free round in a locked category, and the one-time rating request */
-.trial-card,
-.rate-card {
+/* Free round in a locked category */
+.trial-card {
   display: grid;
   gap: 10px;
   margin: 0 0 16px;
@@ -2028,12 +2027,10 @@ a.as-button {
   background: var(--surface);
   border: 1px solid color-mix(in srgb, var(--brass) 55%, transparent);
 }
-.trial-card p,
-.rate-card p {
+.trial-card p {
   margin: 0;
 }
-.results .trial-card,
-.results .rate-card {
+.results .trial-card {
   margin: 4px 0 12px;
   text-align: center;
 }

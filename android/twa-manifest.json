@@ -1,0 +1,48 @@
+{
+  "packageId": "se.lanternakonsult.lanterna",
+  "host": "app.lanternakonsult.se",
+  "name": "Lanterna – deck officer trainer",
+  "launcherName": "Lanterna",
+  "display": "standalone",
+  "themeColor": "#0B1D33",
+  "themeColorDark": "#0B1D33",
+  "navigationColor": "#0B1D33",
+  "navigationColorDark": "#0B1D33",
+  "navigationDividerColor": "#0B1D33",
+  "navigationDividerColorDark": "#0B1D33",
+  "backgroundColor": "#0B1D33",
+  "enableNotifications": true,
+  "startUrl": "/?twa=3",
+  "iconUrl": "https://app.lanternakonsult.se/icon-512.png",
+  "maskableIconUrl": "https://app.lanternakonsult.se/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./signing.keystore",
+    "alias": "my-key-alias"
+  },
+  "appVersionName": "1.0.2",
+  "appVersionCode": 3,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://app.lanternakonsult.se/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://app.lanternakonsult.se/",
+  "minSdkVersion": 24,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "1.0.2"
+}

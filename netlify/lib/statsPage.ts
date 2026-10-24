@@ -268,6 +268,8 @@ export function describeEvent(x: Ev): string {
       return 'Went to Google Play'
     case 'share':
       return `Shared a question${what ? ` (${what})` : ''}`
+    case 'review':
+      return `Google Play rating box opened${what ? ` (after ${what})` : ''}`
     default:
       return x.e
   }
@@ -575,6 +577,10 @@ ${card('Devices', bars(simple(opens, (x) => PLATFORM_NAMES[x.p] ?? x.p)), { span
 ${card('Buoyage region', bars(simple(opens2, (x) => (x.c === '-' ? 'Unknown' : x.c.toUpperCase()))), { span: 4 })}
 ${card('Theme', bars(simple(opens2, (x) => THEME_NAMES[x.m] ?? x.m)), { span: 4 })}
 ${card('Questions shared as a picture', bars(simple(of('share'), (x) => catName(x.c))), { span: 4 })}
+${card('Google Play rating box', bars(simple(of('review'), (x) => countryName(x.country)), { limit: 8, empty: 'Not opened yet' }), {
+  span: 4,
+  note: 'Opened after a passed test or a good practice. Google decides if it is shown.',
+})}
 <footer class="s12">No IP address, name or cookie is stored · the device number is new every day and removed after 30 days · <code>?nostats</code> on a device stops counting it</footer>
 </main></body></html>`
 }

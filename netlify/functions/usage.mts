@@ -23,7 +23,7 @@ import { parseKey } from '../lib/usageKeys'
 
 export const config = { path: ['/api/usage', '/stats'] }
 
-const EVENTS = ['open', 'start', 'finish', 'quit', 'lock', 'buy', 'bought', 'buyfail', 'getapp', 'share']
+const EVENTS = ['open', 'start', 'finish', 'quit', 'lock', 'buy', 'bought', 'buyfail', 'getapp', 'share', 'review']
 const AGES = ['d0', 'w1', 'm1', 'old']
 const PLATFORMS = ['play', 'ios', 'ios-home', 'android', 'android-home', 'desktop']
 

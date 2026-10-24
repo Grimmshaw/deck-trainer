@@ -3,3 +3,17 @@ dist
 dev-dist
 *.log
 .DS_Store
+
+# Never in git: the signing key, its passwords and the PWABuilder zip that holds them
+*.keystore
+*.jks
+signing-key-info.txt
+*.zip
+# Android build output (Bubblewrap)
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/*.apk
+android/*.aab
+android/*.idsig

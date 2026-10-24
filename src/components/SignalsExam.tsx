@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { LEVELS, toMorse } from '../morse'
 import { track } from '../stats/usage'
+import { afterRound } from '../store/review'
 import MorseLamp, { savedSpeed, SPEEDS, type Speed } from './MorseLamp'
 import MorseSymbols from './MorseSymbols'
 
@@ -70,6 +71,8 @@ export default function SignalsExam({ onExit }: { onExit: () => void }) {
       setStage('done')
       const score = items.reduce((s, it, j) => s + scoreItem(it, next[j]), 0)
       track('finish', { category: 'morse', mode: 'india', score: Math.round(score / 10) * 10, count: items.length })
+      // Google Play's rating box if passed (rules in store/review.ts)
+      afterRound({ mode: 'signals', right: score, count: 100, answered: 100 }, 'morse')
     }
   }
 
