@@ -1,6 +1,7 @@
 import { getStore } from '@netlify/blobs'
 import { PERIODS, renderStats, type Answer, type Ev } from '../lib/statsPage'
 import { isBot } from '../lib/bots'
+import { parseKey } from '../lib/usageKeys'
 
 // Anonymous usage statistics.
 //
@@ -11,11 +12,13 @@ import { isBot } from '../lib/bots'
 //
 // Every event is stored as its own, empty blob in the store "usage". All the
 // information is in the key, so the page only has to list keys:
-//   e2/<day>/<event>/<category>/<mode>/<focus>/<platform>/<country>/<new>/<score>/<lang>/<age>/<src>/<count>/<random>
-// (keys from before 15 Oct 2026 start with e/ and end after <score>/<random>).
+//   e3/<day>/<time>/<event>/<category>/<mode>/<focus>/<platform>/<country>/<new>/<score>/<lang>/<age>/<src>/<count>/<device>/<random>
+// (older forms e2/ and e/ are described in netlify/lib/usageKeys.ts).
+// <device> is the app's random "device of the day" number. It changes every
+// day and is removed from the key after 30 days (netlify/functions/usage-cleanup.mts).
 // Answers ("which questions were answered right or wrong") are one blob per question:
 //   q/<day>/<category>/<question id>/<r or w>/<random>
-// No IP address or other personal data is stored. Events from link scanners
+// No IP address, name or account is stored. Events from link scanners
 // and crawlers (netlify/lib/bots.ts) are dropped.
 
 export const config = { path: ['/api/usage', '/stats'] }
@@ -49,7 +52,9 @@ export default async (req: Request, context: Ctx): Promise<Response> => {
   } catch {
     return new Response('Bad request', { status: 400 })
   }
-  const day = new Date().toISOString().slice(0, 10)
+  const now = new Date().toISOString()
+  const day = now.slice(0, 10)
+  const time = now.slice(11, 13) + now.slice(14, 16)
   const rand = () => Math.random().toString(36).slice(2, 10)
 
   // Which questions were answered right or wrong
@@ -74,7 +79,8 @@ export default async (req: Request, context: Ctx): Promise<Response> => {
   const lang = typeof body.l === 'string' && /^[a-z]{2,3}$/.test(body.l) ? body.l : '-'
   const age = typeof body.a === 'string' && AGES.includes(body.a) ? body.a : '-'
   const k = typeof body.k === 'number' && body.k >= 0 && body.k < 1000 ? String(Math.round(body.k)) : '-'
-  const key = ['e2', day, e, clean(body.c), clean(body.m), clean(body.f), p, country, body.n === 1 ? '1' : '0', score, lang, age, clean(body.src), k, rand()].join('/')
+  const device = typeof body.d === 'string' && /^[a-z0-9]{8}$/.test(body.d) ? body.d : '-'
+  const key = ['e3', day, time, e, clean(body.c), clean(body.m), clean(body.f), p, country, body.n === 1 ? '1' : '0', score, lang, age, clean(body.src), k, device, rand()].join('/')
 
   await getStore('usage').set(key, '')
   return new Response(null, { status: 204 })
@@ -83,19 +89,6 @@ export default async (req: Request, context: Ctx): Promise<Response> => {
 // ---------- The statistics page ----------
 // The page itself is drawn in netlify/lib/statsPage.ts; readable names for the
 // link codes (?src=…) are in netlify/lib/channels.ts.
-
-function parse(key: string): Ev | null {
-  const x = key.split('/')
-  if (x[0] === 'e2') {
-    const [, day, e, c, m, f, p, country, n, score, lang, age, src, k] = x
-    return { day, e, c, m, f, p, country, isNew: n === '1', score, lang, age, src, k }
-  }
-  if (x[0] === 'e') {
-    const [, day, e, c, m, f, p, country, n, score] = x
-    return { day, e, c, m, f, p, country, isNew: n === '1', score, lang: '-', age: '-', src: '-', k: '-' }
-  }
-  return null
-}
 
 async function statsPage(url: URL): Promise<Response> {
   const secret = process.env.STATS_KEY
@@ -115,10 +108,10 @@ async function statsPage(url: URL): Promise<Response> {
   const events: Ev[] = []
   const answers = new Map<string, Answer>()
   for (const month of months) {
-    for (const prefix of ['e/', 'e2/']) {
+    for (const prefix of ['e/', 'e2/', 'e3/']) {
       const { blobs } = await store.list({ prefix: prefix + month })
       for (const b of blobs) {
-        const ev = parse(b.key)
+        const ev = parseKey(b.key)
         if (ev && ev.day >= days[0]) events.push(ev)
       }
     }

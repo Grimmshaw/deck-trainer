@@ -4,8 +4,8 @@ import { APP_VERSION } from '../report/report'
 //
 // What is sent: what happened ("open", "start", "finish"), the category and
 // mode, roughly which kind of device (Play app, iPhone, Android, computer) and
-// the app version. The server adds the country. Nothing else: no id, no
-// cookie, no IP address is stored, and nothing that could identify a person.
+// the app version. The server adds the country and the time. No cookie, no IP
+// address, no name or account is stored (see the day number below).
 //
 // "open" is sent at most once a day per device, so the number of opens per day
 // is the number of devices that used the app that day.
@@ -23,6 +23,12 @@ import { APP_VERSION } from '../report/report'
 // - the purchase path: lock page shown, Buy pressed, bought, purchase failed
 // - at the end of an exercise, which questions were answered right or wrong
 //   (only the question ids, to find unclear questions)
+//
+// Added 24 Oct 2026: a random "device of the day" number (8 letters/digits).
+// It is made up on the device, is new every day (UTC) and is never linked to
+// the number of another day, so the statistics page can show what one device
+// did today ("top 5 today") but never follow a device from day to day. The
+// server removes it from events older than 30 days.
 
 export type UsageEvent = 'open' | 'start' | 'finish' | 'quit' | 'lock' | 'buy' | 'bought' | 'buyfail' | 'getapp' | 'share'
 
@@ -44,6 +50,7 @@ const DAY_KEY = 'deck.statsDay'
 const SEEN_KEY = 'deck.statsSeen'
 const FIRST_KEY = 'deck.statsFirst'
 const SRC_KEY = 'deck.statsSrc'
+const DID_KEY = 'deck.statsDid'
 
 function get(key: string): string | null {
   try {
@@ -135,6 +142,23 @@ function age(): string {
   return days < 1 ? 'd0' : days <= 7 ? 'w1' : days <= 30 ? 'm1' : 'old'
 }
 
+/** A random number for this device that is new every day (UTC), "2026-10-24:k3x9a0bq" in storage */
+function dayId(): string | undefined {
+  const today = new Date().toISOString().slice(0, 10)
+  const saved = get(DID_KEY)
+  if (saved && saved.slice(0, 10) === today && /^[a-z0-9]{8}$/.test(saved.slice(11))) return saved.slice(11)
+  let id = ''
+  try {
+    const bytes = crypto.getRandomValues(new Uint8Array(8))
+    for (const b of bytes) id += 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]
+  } catch {
+    id = Math.random().toString(36).slice(2, 10).padEnd(8, '0')
+  }
+  set(DID_KEY, `${today}:${id}`)
+  // Without storage the number would change with every event: then it is not sent at all
+  return get(DID_KEY) === `${today}:${id}` ? id : undefined
+}
+
 function send(body: Record<string, unknown>) {
   const json = JSON.stringify(body)
   try {
@@ -156,11 +180,11 @@ export function track(event: UsageEvent, data: UsageData = {}) {
       set(DAY_KEY, today)
       const isNew = get(SEEN_KEY) === null
       set(SEEN_KEY, '1')
-      send({ ...base, n: isNew ? 1 : 0, a: age(), c: data.region, m: data.theme })
+      send({ ...base, n: isNew ? 1 : 0, a: age(), c: data.region, m: data.theme, d: dayId() })
     })
     return
   }
-  whenHuman(() => send({ ...base, c: data.category, m: data.mode, f: data.focus, s: data.score, k: data.count }))
+  whenHuman(() => send({ ...base, c: data.category, m: data.mode, f: data.focus, s: data.score, k: data.count, d: dayId() }))
 }
 
 /**

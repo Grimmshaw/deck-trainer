@@ -6,6 +6,8 @@ import { channel } from './channels'
 
 export interface Ev {
   day: string
+  /** HHMM in UTC, or "-" (events from before 24 Oct 2026 have no time) */
+  t: string
   e: string
   c: string
   m: string
@@ -18,6 +20,8 @@ export interface Ev {
   age: string
   src: string
   k: string
+  /** The random "device of the day" number, or "-" */
+  d: string
 }
 
 export interface Answer {
@@ -214,6 +218,103 @@ function channelCell(f: { name: string; group: string; code: string }): string {
   return `<span class="name">${esc(f.name)}</span><span class="sub">${esc(f.group)}${f.code ? ` · <code>${esc(f.code)}</code>` : ''}</span>`
 }
 
+
+// ---------- Latest activity and the most active devices today ----------
+
+/** When an event happened, or null if it has no time */
+export function eventTime(x: Ev): Date | null {
+  if (!/^\d{4}$/.test(x.t)) return null
+  return new Date(`${x.day}T${x.t.slice(0, 2)}:${x.t.slice(2)}:00Z`)
+}
+
+const swTime = (d: Date) => d.toLocaleTimeString('en-GB', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' })
+const swDay = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: 'Europe/Stockholm' })
+
+/** "just now", "4 min ago", "2 h 5 min ago", "yesterday 23:40" */
+export function ago(when: Date, now: Date): string {
+  const min = Math.max(0, Math.floor((now.getTime() - when.getTime()) / 60000))
+  if (min < 1) return 'just now'
+  if (min < 60) return `${min} min ago`
+  if (min < 3 * 60) return `${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ''} ago`
+  if (swDay(when) === swDay(now)) return `today ${swTime(when)}`
+  if (swDay(when) === swDay(new Date(now.getTime() - 86400000))) return `yesterday ${swTime(when)}`
+  return `${prettyDay(swDay(when))} ${swTime(when)}`
+}
+
+/** A short line about what happened, for the latest activity */
+export function describeEvent(x: Ev): string {
+  const what = x.c !== '-' ? catName(x.c) : ''
+  const how = x.m !== '-' && x.m !== x.c ? modeName(x.m) : ''
+  const both = [what, how].filter(Boolean).join(' · ')
+  const score = x.score !== '-' ? ` · ${x.score} %` : ''
+  switch (x.e) {
+    case 'open':
+      return x.isNew ? 'Opened the app for the first time' : 'Opened the app'
+    case 'start':
+      return `Started ${both || 'an exercise'}`
+    case 'finish':
+      return `Finished ${both || 'an exercise'}${score}`
+    case 'quit':
+      return `Left ${both || 'an exercise'}${x.score !== '-' ? ` at ${x.score} %` : ''}`
+    case 'lock':
+      return `Saw the lock page${what ? ` (${what})` : ''}`
+    case 'buy':
+      return `Pressed Unlock${what ? ` (${what})` : ''}`
+    case 'bought':
+      return `★ Bought${what ? ` (${what})` : ''}`
+    case 'buyfail':
+      return `Purchase not completed${x.m !== '-' ? ` (${x.m})` : ''}`
+    case 'getapp':
+      return 'Went to Google Play'
+    case 'share':
+      return `Shared a question${what ? ` (${what})` : ''}`
+    default:
+      return x.e
+  }
+}
+
+/** "A", "B" … "Z", "AA" … – the devices of the day in the order they first did something */
+function letter(i: number): string {
+  let s = ''
+  for (let n = i + 1; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + ((n - 1) % 26)) + s
+  return s
+}
+
+export interface DeviceDay {
+  id: string
+  label: string
+  events: Ev[]
+  started: number
+  finished: number
+  country: string
+  first: Date | null
+  last: Date | null
+}
+
+/** The devices that sent a device number on `day`, most exercises first */
+export function devicesOfDay(events: Ev[], day: string): DeviceDay[] {
+  const byId = new Map<string, Ev[]>()
+  const timed = events
+    .filter((x) => x.day === day && x.d !== '-')
+    .sort((a, b) => (a.t < b.t ? -1 : a.t > b.t ? 1 : 0))
+  for (const x of timed) byId.set(x.d, [...(byId.get(x.d) ?? []), x])
+  return [...byId.entries()]
+    .map(([id, list], i) => {
+      const times = list.map(eventTime).filter((t): t is Date => t !== null)
+      return {
+        id,
+        label: `Device ${letter(i)}`,
+        events: list,
+        started: list.filter((x) => x.e === 'start').length,
+        finished: list.filter((x) => x.e === 'finish').length,
+        country: count(list, (x) => x.country)[0][0],
+        first: times[0] ?? null,
+        last: times[times.length - 1] ?? null,
+      }
+    })
+    .sort((a, b) => b.started - a.started || b.events.length - a.events.length || (b.last?.getTime() ?? 0) - (a.last?.getTime() ?? 0))
+}
+
 // ---------- The page ----------
 
 export function renderStats({ events, answers, days, now, key }: StatsInput): string {
@@ -229,6 +330,60 @@ export function renderStats({ events, answers, days, now, key }: StatsInput): st
   const finishes = of('finish')
   const quits = of('quit')
   const bought = of('bought')
+
+  // ----- Latest activity and the most active devices today -----
+  const devices = devicesOfDay(inPeriod, today)
+  const labelOf = new Map(devices.map((x) => [x.id, x.label]))
+  const recent = inPeriod
+    .filter((x) => eventTime(x) && (x.day === today || x.day === yesterday))
+    .sort((a, b) => eventTime(b)!.getTime() - eventTime(a)!.getTime())
+  const latest = recent[0]
+  const lastTime = latest ? eventTime(latest)! : null
+  const fresh15 = lastTime && now.getTime() - lastTime.getTime() < 15 * 60000
+  const live = latest
+    ? `<p class="live${fresh15 ? ' on' : ''}"><i></i>Last activity <b>${esc(ago(lastTime!, now))}</b> · ${esc(countryName(latest.country))} · ${esc(describeEvent(latest))}</p>`
+    : `<p class="live"><i></i>No activity with a time yet – times are recorded from 24 Oct 2026</p>`
+
+  const activity = recent.length
+    ? `<ul class="feed">${recent
+        .slice(0, 12)
+        .map((x) => {
+          const f = foundVia(x)
+          const who = labelOf.get(x.d)
+          return `<li><time>${esc(ago(eventTime(x)!, now))}</time><div><span class="name">${esc(describeEvent(x))}</span><span class="sub">${esc(
+            countryName(x.country),
+          )}${who ? ` · ${esc(who)}` : ''} · ${esc(PLATFORM_NAMES[x.p] ?? x.p)}${f.code ? ` · via ${esc(f.name)}` : ''}</span></div></li>`
+        })
+        .join('')}</ul>`
+    : '<p class="empty">Nothing in the last two days with a time</p>'
+
+  const topList = devices.length
+    ? `<ol class="top">${devices
+        .slice(0, 5)
+        .map((x) => {
+          const open = x.events.find((y) => y.e === 'open')
+          const withSrc = x.events.find((y) => y.src !== '-') ?? x.events[0]
+          const f = foundVia(withSrc)
+          const since = open ? (open.isNew ? 'new today' : `using it: ${(AGE_NAMES[open.age] ?? '').toLowerCase() || 'returning'}`) : ''
+          const cats = count(
+            x.events.filter((y) => y.e === 'start'),
+            (y) => y.c,
+          )
+            .slice(0, 3)
+            .map(([c, n]) => `${catName(c)}${n > 1 ? ` ×${n}` : ''}`)
+            .join(', ')
+          const fins = x.events.filter((y) => y.e === 'finish')
+          const bought = x.events.some((y) => y.e === 'bought')
+          return `<li><div class="who"><span class="name">${esc(x.label)} · ${esc(countryName(x.country))}${bought ? ' <span class="star">★</span>' : ''}</span><span class="sub">${esc(
+            PLATFORM_NAMES[x.events[0].p] ?? x.events[0].p,
+          )} · via ${esc(f.name)}${f.code ? ` <code>${esc(f.code)}</code>` : ''}${since ? ` · ${esc(since)}` : ''}</span>${
+            cats ? `<span class="sub">${esc(cats)}</span>` : ''
+          }</div><div class="nums"><b>${x.started}</b><span>${x.started === 1 ? 'exercise' : 'exercises'}</span><small>${x.finished} finished${
+            fins.length ? ` · avg ${avg(fins)}` : ''
+          }</small><small>${x.first ? `${swTime(x.first)}–${swTime(x.last!)} · last seen ${esc(ago(x.last!, now))}` : ''}</small></div></li>`
+        })
+        .join('')}</ol>${devices.length > 5 ? `<p class="more">+ ${devices.length - 5} more devices today</p>` : ''}`
+    : '<p class="empty">No device with a day number yet today</p>'
 
   // ----- Today -----
   const tOpens = onDay(opens, today)
@@ -276,6 +431,7 @@ export function renderStats({ events, answers, days, now, key }: StatsInput): st
 
   const dayStart = new Date(`${today}T00:00:00Z`).toLocaleTimeString('en-GB', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' })
   const todayCard = `<section class="card s12 today"><h2>Today <span class="muted">· ${prettyDay(today)} · counted in UTC, the day starts at ${dayStart} Swedish time</span></h2>
+${live}
 <div class="kpis">
 ${kpi(tOpens.length, 'devices today', delta(tOpens.length, yOpens.length))}
 ${kpi(tNew, 'new devices', `${tOpens.length - tNew} came back`)}
@@ -384,6 +540,11 @@ ${kpi(bought.length, 'bought in the app', lockN ? `${pct(bought.length, lockN)} 
 <nav>${periodLinks}</nav></header>
 ${banner}
 ${todayCard}
+${card('Most active today', topList, {
+  span: 7,
+  note: 'A device gets a new random number every day, so a device can only be followed within one day. Times are Swedish time.',
+})}
+${card('Latest activity', activity, { span: 5, note: 'Today and yesterday, newest first.' })}
 <h2 class="section s12">Last ${period} days</h2>
 ${periodKpis}
 ${card('Devices per day', chart, { span: 8 })}
@@ -414,7 +575,7 @@ ${card('Devices', bars(simple(opens, (x) => PLATFORM_NAMES[x.p] ?? x.p)), { span
 ${card('Buoyage region', bars(simple(opens2, (x) => (x.c === '-' ? 'Unknown' : x.c.toUpperCase()))), { span: 4 })}
 ${card('Theme', bars(simple(opens2, (x) => THEME_NAMES[x.m] ?? x.m)), { span: 4 })}
 ${card('Questions shared as a picture', bars(simple(of('share'), (x) => catName(x.c))), { span: 4 })}
-<footer class="s12">No IP address, id or cookie is stored · <code>?nostats</code> on a device stops counting it</footer>
+<footer class="s12">No IP address, name or cookie is stored · the device number is new every day and removed after 30 days · <code>?nostats</code> on a device stops counting it</footer>
 </main></body></html>`
 }
 
@@ -482,8 +643,26 @@ th{color:var(--muted);font-weight:500;font-size:.8rem;text-align:left;padding:0 
 td{padding:8px 8px 8px 0;border-bottom:1px solid #16314f;vertical-align:top}
 tr:last-child td{border-bottom:0}
 .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.live{display:flex;align-items:center;gap:8px;margin:-4px 0 14px;color:var(--muted);font-size:.9rem}
+.live b{color:var(--text)}
+.live i{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.live.on i{background:var(--green);box-shadow:0 0 0 0 #4cc38a88;animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px #4cc38a00}100%{box-shadow:0 0 0 0 #4cc38a00}}
+@media (prefers-reduced-motion:reduce){.live.on i{animation:none}}
+.feed{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.feed li{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:10px;align-items:baseline}
+.feed time{color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums}
+.top{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:top}
+.top li{counter-increment:top;display:grid;grid-template-columns:2em minmax(0,1fr) auto;gap:12px;align-items:start;background:#0b2036;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.top li::before{content:counter(top);font:700 1.4rem/1 'Barlow Semi Condensed',Barlow,sans-serif;color:var(--gold)}
+.top .who{min-width:0}.top .who .sub{margin-top:2px}
+.top .star{color:var(--gold)}
+.nums{text-align:right;white-space:nowrap}
+.nums b{font:700 1.6rem/1 'Barlow Semi Condensed',Barlow,sans-serif;margin-right:4px}
+.nums span{color:var(--muted);font-size:.85rem}
+.nums small{display:block;color:var(--muted);font-size:.78rem;margin-top:3px}
 footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:12px}
 @media (max-width:1000px){.s8,.s7,.s6,.s5{grid-column:span 12}.s4{grid-column:span 6}}
 @media (max-width:700px){main{padding:18px 16px 40px;gap:12px}.s4{grid-column:span 12}.kpis,.cols3{grid-template-columns:1fr 1fr}.cols3{gap:18px}.kpi b{font-size:2rem}.buy{flex-direction:column;align-items:flex-start}}
-@media (max-width:460px){.cols3{grid-template-columns:1fr}}
+@media (max-width:460px){.cols3{grid-template-columns:1fr}.top li{grid-template-columns:1.6em minmax(0,1fr)}.nums{grid-column:2;text-align:left}.feed li{grid-template-columns:1fr;gap:0}}
 `
